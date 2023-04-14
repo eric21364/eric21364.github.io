@@ -7,6 +7,5 @@ cron "16 0 * * *" script-path=https://kinta.ma/surge/scripts/shopee_checkin.js, 
 cron "17 0 * * *" script-path=https://kinta.ma/surge/scripts/shopee_coin_lucky_draw.js, wake-system=1, timeout=10
 cron "17 0 * * *" script-path=https://kinta.ma/surge/scripts/shopee_shipping_lucky_draw.js, wake-system=1, timeout=10
 http-request ^https:\/\/mall\.shopee\.tw\/api\/v2\/user\/profile\/get\/$ script-path=https://kinta.ma/surge/scripts/shopee_token.js ,tag=requestScript,enable=true,requires-body = true
-http-request ^https:\/\/loyalty\.shopee\.tw\/api\/v1\/coins$ script-path=https://kinta.ma/surge/scripts/shopee_token.js ,tag=requestScript,enable=true,requires-body = true
 [MITM]
-hostname = %APPEND% mall.shopee.tw,%APPEND% loyalty.shopee.tw
+hostname = %APPEND% mall.shopee.tw
