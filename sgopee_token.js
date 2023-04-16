@@ -1,7 +1,7 @@
 let showNotification = true;
 
 function surgeNotify(subtitle = '', message = '') {
-  $notify('搇 衣铜 token', subtitle, message, { 'url': 'shopeetw://' });
+  $notify('取得token', subtitle, message, { 'url': 'shopeetw://' });
 };
 
 function handleError(error) {
@@ -92,15 +92,15 @@ async function getToken() {
 }
 
 (async () => {
-  console.log('對 衣铜硋 token v20230213.1');
+  console.log('蝦皮取得 token v20230213.1');
   try {
     if (isManualRun(true, false)) {
-      throw '隢见嚉见瑁甇方';
+      throw '取得token失敗';
     }
 
     await getToken();
-    console.log(' token 靽嘥𣂼');
-    surgeNotify('靽嘥𣂼 龟', '');
+    console.log(' token 取得');
+    surgeNotify('拿到token', '');
   } catch (error) {
     handleError(error);
   }
