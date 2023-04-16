@@ -60,7 +60,6 @@ function cookieToString(cookieObject) {
 async function updateSpcEc() {
   return new Promise((resolve, reject) => {
     let shopeeInfo = getSaveObject('ShopeeInfo');
-    console.log(shopeeInfo)
     if (isEmptyObject(shopeeInfo)) {
       return reject(['更新token失敗', '無法更新 token']);
     }
@@ -76,6 +75,7 @@ async function updateSpcEc() {
     try {
       $task.fetch(request).then(  (error, response, data) => {
         if (error) {
+          console.log(error)
           return reject(['無法 SPC_EC 憭望� �潘�', '����航炊']);
         } else {
           if (response.status == 200) {
