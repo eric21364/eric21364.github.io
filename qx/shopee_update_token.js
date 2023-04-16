@@ -74,8 +74,8 @@ async function updateSpcEc() {
     };
 
     try {
-      $task.fetch(request).then(  (response, data) => {
-        console.log(data)
+      $task.fetch(request).then(response => {
+          const data = response.body
           if (response.status == 200) {
             const obj = JSON.parse(data);
             if (obj.error) {
@@ -122,8 +122,8 @@ async function updateCookie(spcEc) {
       };
 
       
-      $task.fetch(request).then((response,data)=>{
-        console.log(data)
+      $task.fetch(request).then(response=>{
+         const data = response.body
         if (response.status == 200) {
             const obj = JSON.parse(data);
             if (obj.error) {
