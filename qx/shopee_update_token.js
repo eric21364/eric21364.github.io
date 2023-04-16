@@ -73,7 +73,7 @@ async function updateSpcEc() {
     };
 
     try {
-      $task.fetch(response).then(  (error, response, data) => {
+      $task.fetch(request).then(  (error, response, data) => {
         if (error) {
           return reject(['無法 SPC_EC 憭望� �潘�', '����航炊']);
         } else {
