@@ -4,7 +4,7 @@ let getIdRequest = null;
 let luckyDrawRequest = null;
 
 function surgeNotify(subtitle = '', message = '') {
-  $notification.post('🍤 蝦幣寶箱', subtitle, message, { 'url': 'shopeetw://' });
+   $notify('🍤 蝦幣寶箱', subtitle, message, { 'url': 'shopeetw://' });
 };
 
 function handleError(error) {
@@ -22,7 +22,7 @@ function handleError(error) {
 }
 
 function getSaveObject(key) {
-  const string = $persistentStore.read(key);
+  const string = $prefs.valueForKey(key);
   return !string || string.length === 0 ? {} : JSON.parse(string);
 }
 
@@ -60,18 +60,17 @@ async function eventListGetActivity() {
   return new Promise((resolve, reject) => {
     try {
       const request = {
+        method:'POST',
         url: 'https://mall.shopee.tw/api/v4/banner/batch_list',
         headers: config.shopeeHeaders,
         body: {
           types: [{ 'type': 'coin_carousel' }, { 'type': 'coin_square' }],
         },
       };
-
-      $httpClient.post(request, function (error, response, data) {
-        if (error) {
-          return reject(['無法取得活動列表 ‼️', '連線錯誤']);
-        } else {
-          if (response.status == 200) {
+      $task.fetch(request).then(response => {
+        console.log(JSON.JSON.stringify(response))
+          const data = response.body
+           if (response.status == 200) {
             const obj = JSON.parse(data);
             const bannerSets = obj.data.banners;
             let foundId = false;
@@ -115,7 +114,13 @@ async function eventListGetActivity() {
             return reject(['無法取得活動列表 ‼️', response.status]);
           }
         }
-      });
+          )
+        .catch(error=>{
+        if (error) {
+          return reject(['無法取得活動列表 ‼️', '連線錯誤']);
+        }
+      })
+     
     } catch (error) {
       return reject(['無法取得活動列表 ‼️', error]);
     }
@@ -129,10 +134,9 @@ async function iframeListGetActivity() {
         url: 'https://mall.shopee.tw/api/v4/market_coin/get_iframe_list?region=TW&offset=0&limit=10',
         headers: config.shopeeHeaders,
       };
-      $httpClient.get(request, function (error, response, data) {
-        if (error) {
-          return reject(['無法取得活動列表 ‼️', '連線錯誤']);
-        } else {
+      $task.fetch(request).then(response => {
+        console.log(JSON.JSON.stringify(response))
+          const data = response.body
           if (response.status === 200) {
             const obj = JSON.parse(data);
             let foundEvent = false;
@@ -177,8 +181,12 @@ async function iframeListGetActivity() {
           } else {
             return reject(['無法取得活動列表 ‼️', response.status]);
           }
-        }
-      });
+      }).catch(error=>{
+        if (error) {
+            return reject(['無法取得活動列表 ‼️', '連線錯誤']);
+          } 
+    })
+      
     } catch (error) {
       return reject(['無法取得活動列表 ‼️', error]);
     }
@@ -188,25 +196,28 @@ async function iframeListGetActivity() {
 async function coinLuckyDrawGetId() {
   return new Promise((resolve, reject) => {
     try {
-      $httpClient.get(getIdRequest, function (error, response, data) {
-        if (error) {
-          return reject(['活動代碼查詢失敗 ‼️', '連線錯誤']);
-        } else {
-          if (response.status === 200) {
-            const obj = JSON.parse(data);
-            if (obj.msg === 'success') {
-              const code = obj.data.basic.event_code;
-              console.log(`✅ 活動代碼: ${code}`);
-              luckyDrawRequest.url = `https://games.shopee.tw/luckydraw/api/v1/lucky/event/${code}`;
-              return resolve();
-            } else {
-              return reject(['活動代碼查詢失敗 ‼️', obj.msg]);
-            }
-          } else {
-            return reject(['活動代碼查詢失敗 ‼️', response.status]);
-          }
-        }
-      });
+        getIdRequest['mothod']='GET'
+        $task.fetch(request).then(response => {
+            console.log(JSON.JSON.stringify(response))
+              const data = response.body
+              if (response.status === 200) {
+                const obj = JSON.parse(data);
+                if (obj.msg === 'success') {
+                  const code = obj.data.basic.event_code;
+                  console.log(`✅ 活動代碼: ${code}`);
+                  luckyDrawRequest.url = `https://games.shopee.tw/luckydraw/api/v1/lucky/event/${code}`;
+                  return resolve();
+                } else {
+                  return reject(['活動代碼查詢失敗 ‼️', obj.msg]);
+                }
+              } else {
+                return reject(['活動代碼查詢失敗 ‼️', response.status]);
+              }
+            }).catch(error={
+                if (error) {
+                    return reject(['活動代碼查詢失敗 ‼️', '連線錯誤']);
+                  } 
+            })
     } catch (error) {
       return reject(['活動代碼查詢失敗 ‼️', error]);
     }
@@ -216,29 +227,34 @@ async function coinLuckyDrawGetId() {
 async function coinLuckyDraw() {
   return new Promise((resolve, reject) => {
     try {
-      $httpClient.post(luckyDrawRequest, function (error, response, data) {
-        if (error) {
-          return reject(['領取失敗 ‼️', '連線錯誤']);
-        } else {
-          if (response.status == 200) {
-            const obj = JSON.parse(data);
-            if (obj.msg === 'success') {
-              const packageName = obj.data.package_name;
-              return resolve(packageName);
-            }
-            else if (obj.code === 102000) {
-              showNotification = false;
-              return reject(['領取失敗 ‼️', '每日只能領一次']);
-            } else if (obj.msg === 'expired' || obj.msg === 'event already end') {
-              return reject(['領取失敗 ‼️', '活動已過期。請嘗試更新模組或腳本，或等待作者更新。']);
-            } else {
-              return reject(['領取失敗 ‼️', `錯誤代號：${obj.code}，訊息：${obj.msg}`]);
-            }
-          } else {
-            return reject(['領取失敗 ‼️', response.status]);
-          }
-        }
-      });
+        luckyDrawRequest['mothod']='POST'
+
+
+        $task.fetch(request).then(response => {
+            console.log(JSON.JSON.stringify(response))
+              const data = response.body
+              if (response.status == 200) {
+                const obj = JSON.parse(data);
+                if (obj.msg === 'success') {
+                  const packageName = obj.data.package_name;
+                  return resolve(packageName);
+                }
+                else if (obj.code === 102000) {
+                  showNotification = false;
+                  return reject(['領取失敗 ‼️', '每日只能領一次']);
+                } else if (obj.msg === 'expired' || obj.msg === 'event already end') {
+                  return reject(['領取失敗 ‼️', '活動已過期。請嘗試更新模組或腳本，或等待作者更新。']);
+                } else {
+                  return reject(['領取失敗 ‼️', `錯誤代號：${obj.code}，訊息：${obj.msg}`]);
+                }
+              } else {
+                return reject(['領取失敗 ‼️', response.status]);
+              }
+            }).catch(error=>{
+                if (error) {
+                  return reject(['領取失敗 ‼️', '連線錯誤']);
+                } 
+            })
     } catch (error) {
       return reject(['領取失敗 ‼️', error]);
     }
