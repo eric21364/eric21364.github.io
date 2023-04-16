@@ -74,11 +74,8 @@ async function updateSpcEc() {
     };
 
     try {
-      $task.fetch(request).then(  (response,error, data) => {
-        if (error) {
-          console.log(JSON.stringify(error))
-          return reject(['無法 SPC_EC 憭望� �潘�', '����航炊']);
-        } else {
+      $task.fetch(request).then(  (response, data) => {
+        console.log(data)
           if (response.status == 200) {
             const obj = JSON.parse(data);
             if (obj.error) {
@@ -96,7 +93,12 @@ async function updateSpcEc() {
             return reject(['取得 SPC_EC 憭望� �潘�', response.status]);
           }
         }
-      });
+      ).catch(error=>{
+    if (error) {
+          console.log(JSON.stringify(error))
+          return reject(['無法 SPC_EC 憭望� �潘�', '����航炊']);
+        }
+    });
     } catch (error) {
       return reject(['取得 SPC_EC 憭望� �潘�', error]);
     }
@@ -120,11 +122,9 @@ async function updateCookie(spcEc) {
       };
 
       
-      $task.fetch(request).then((response,error, data) =>{
-        if (error) {
-          return reject(['無法 token 重新嘗試', '無法取得token']);
-        } else {
-          if (response.status == 200) {
+      $task.fetch(request).then((response,data)=>{
+        console.log(data)
+        if (response.status == 200) {
             const obj = JSON.parse(data);
             if (obj.error) {
               return reject(['失敗 token 重新獲取', '重新獲取 token']);
@@ -179,8 +179,11 @@ async function updateCookie(spcEc) {
           } else {
             return reject(['�湔鰵 token 憭望� �潘�', response.status])
           }
-        }
-      });
+
+    }).catch(error=>{
+     return reject(['無法 token 重新嘗試', '無法取得token']);
+    
+    })
     } catch (error) {
       return reject(['�湔鰵 token 憭望� �潘�', error]);
     }
