@@ -62,7 +62,7 @@ async function checkin() {
         url: 'https://shopee.tw/mkt/coins/api/v2/checkin',
         headers: config.shopeeHeaders,
       };
-      console.log(request)
+      console.log(JOSN.stringify(request))
       $task.fetch(request).then(response => {
         console.log(JOSN.stringify(response))
         const data = response.body
