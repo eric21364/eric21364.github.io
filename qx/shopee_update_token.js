@@ -112,6 +112,7 @@ async function updateCookie(spcEc) {
       }
 
       const request = {
+        method:'GET',
         url: 'https://shopee.tw/api/v2/user/account_info?from_wallet=false&skip_address=1&need_cart=1',
         headers: {
           'Cookie': `${cookieToString(shopeeInfo.token)}SPC_EC=${spcEc};shopee_token=${shopeeInfo.shopeeToken};`,
