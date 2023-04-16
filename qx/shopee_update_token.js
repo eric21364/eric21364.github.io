@@ -75,6 +75,7 @@ async function updateSpcEc() {
 
     try {
       $task.fetch(request).then(response => {
+        console.log(JSON.JSON.stringify(response))
           const data = response.body
           if (response.status == 200) {
             const obj = JSON.parse(data);
