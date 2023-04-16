@@ -3,17 +3,17 @@ let showNotification = true;
 let config = null;
 
 function surgeNotify(subtitle = '', message = '') {
-  $notification.post('更新 token', subtitle, message, { 'url': 'shopeetw://' });
+  $notification.post('🍤 蝦皮更新 token', subtitle, message, { 'url': 'shopeetw://' });
 };
 
 function handleError(error) {
   if (Array.isArray(error)) {
-    console.log(`�� ${error[0]} ${error[1]}`);
+    console.log(`❌ ${error[0]} ${error[1]}`);
     if (showNotification) {
       surgeNotify(error[0], error[1]);
     }
   } else {
-    console.log(`�� ${error}`);
+    console.log(`❌ ${error}`);
     if (showNotification) {
       surgeNotify(error);
     }
@@ -49,7 +49,7 @@ function parseCookie(cookieString) {
 function cookieToString(cookieObject) {
   let string = '';
   for (const [key, value] of Object.entries(cookieObject)) {
-    // SPC_EC �血��惩�
+    // SPC_EC 另外加入
     if (key !== 'SPC_EC') {
       string += `${key}=${value};`
     }
@@ -61,14 +61,14 @@ async function updateSpcEc() {
   return new Promise((resolve, reject) => {
     let shopeeInfo = getSaveObject('ShopeeInfo');
     if (isEmptyObject(shopeeInfo)) {
-      return reject(['更新token失敗', '無法更新 token']);
+      return reject(['取得 token 失敗 ‼️', '找不到儲存的 token']);
     }
 
     const request = {
       method:'GET',
       url: 'https://mall.shopee.tw/api/v4/client/refresh',
       headers: {
-        'Cookie': 'shopee_token='+shopeeInfo.shopeeToken},
+        'Cookie': 'shopee_token='+shopeeInfo.shopeeToken,
         'Content-Type': 'application/json',
       },
     };
@@ -80,7 +80,7 @@ async function updateSpcEc() {
           if (response.status == 200) {
             const obj = JSON.parse(data);
             if (obj.error) {
-              return reject(['取得 SPC_EC 憭望� �潘�', '隢钅��啣�敺� token']);
+              return reject(['更新 SPC_EC 失敗 ‼️', '請重新取得 toke']);
             }
             const cookie = response.headers['Set-Cookie'] || response.headers['set-cookie'];
             if (cookie) {
@@ -88,20 +88,20 @@ async function updateSpcEc() {
               const cookieObject = parseCookie(filteredCookie);
               return resolve(cookieObject.SPC_EC);
             } else {
-              return reject(['取得 SPC_EC 憭望� �潘�', '�曆��啣��厩� token']);
+              return reject(['更新 SPC_EC 失敗 ‼️', '找不到回應的 token']);
             }
           } else {
-            return reject(['取得 SPC_EC 憭望� �潘�', response.status]);
+            return reject(['更新 SPC_EC 失敗 ‼️', response.status]);
           }
         }
       ).catch(error=>{
     if (error) {
           console.log(JSON.stringify(error))
-          return reject(['無法 SPC_EC 憭望� �潘�', '����航炊']);
+          return reject(['更新 SPC_EC 失敗 ‼️', '連線錯誤']);
         }
     });
     } catch (error) {
-      return reject(['取得 SPC_EC 憭望� �潘�', error]);
+      return reject(['更新 SPC_EC 失敗 ‼️', error]);
     }
   });
 }
@@ -111,14 +111,14 @@ async function updateCookie(spcEc) {
     try {
       let shopeeInfo = getSaveObject('ShopeeInfo');
       if (isEmptyObject(shopeeInfo)) {
-        return reject(['無法 token 取得', '無法取得 token']);
+        return reject(['取得 token 失敗 ‼️', '找不到儲存的 token']);
       }
 
       const request = {
         method:'GET',
         url: 'https://shopee.tw/api/v2/user/account_info?from_wallet=false&skip_address=1&need_cart=1',
         headers: {
-          'Cookie': `${cookieToString(shopeeInfo.token)}SPC_EC=${spcEc};shopee_token=${shopeeInfo.shopeeToken};`,
+          'Cookie': cookieToString(shopeeInfo.token)+'SPC_EC='+spcEc+';shopee_token='+shopeeInfo.shopeeToken+';',
         },
       };
 
@@ -128,7 +128,7 @@ async function updateCookie(spcEc) {
         if (response.status == 200) {
             const obj = JSON.parse(data);
             if (obj.error) {
-              return reject(['失敗 token 重新獲取', '重新獲取 token']);
+              return reject(['更新 token 失敗 ‼️', '請重新取得 token']);
             }
             const cookie = response.headers['Set-Cookie'] || response.headers['set-cookie'];
             if (cookie) {
@@ -146,47 +146,47 @@ async function updateCookie(spcEc) {
                 SPC_U: cookieObject.SPC_U,
               };
               if (shopeeInfo.token.SPC_EC === tokenInfo.SPC_EC) {
-                console.log('�𩤃� SPC_EC �啗��批捆銝��湛�銝行𧊋�湔鰵');
+                console.log('⚠️ SPC_EC 新舊內容一致，並未更新');
               }
               if (shopeeInfo.token.SPC_R_T_ID === tokenInfo.SPC_R_T_ID) {
-                console.log('�𩤃� SPC_R_T_ID �啗��批捆銝��湛�銝行𧊋�湔鰵');
+                console.log('⚠️ SPC_R_T_ID 新舊內容一致，並未更新');
               }
               if (shopeeInfo.token.SPC_R_T_IV === tokenInfo.SPC_R_T_IV) {
-                console.log('�𩤃� SPC_R_T_IV �啗��批捆銝��湛�銝行𧊋�湔鰵');
+                console.log('⚠️ SPC_R_T_IV 新舊內容一致，並未更新');
               }
               if (shopeeInfo.token.SPC_SI === tokenInfo.SPC_SI) {
-                console.log('�𩤃� SPC_SI �啗��批捆銝��湛�銝行𧊋�湔鰵');
+                console.log('⚠️ SPC_SI 新舊內容一致，並未更新');
               }
               if (shopeeInfo.token.SPC_ST === tokenInfo.SPC_ST) {
-                console.log('�𩤃� SPC_ST �啗��批捆銝��湛�銝行𧊋�湔鰵');
+                console.log('⚠️ SPC_ST 新舊內容一致，並未更新');
               }
               if (shopeeInfo.token.SPC_T_ID === tokenInfo.SPC_T_ID) {
-                console.log('�𩤃� SPC_T_ID �啗��批捆銝��湛�銝行𧊋�湔鰵');
+                console.log('⚠️ SPC_T_ID 新舊內容一致，並未更新');
               }
               if (shopeeInfo.token.SPC_T_IV === tokenInfo.SPC_T_IV) {
-                console.log('�𩤃� SPC_T_IV �啗��批捆銝��湛�銝行𧊋�湔鰵');
+                console.log('⚠️ SPC_T_IV 新舊內容一致，並未更新');
               }
 
               shopeeInfo.token = tokenInfo;
               const save = $prefs.setValueForKey(JSON.stringify(shopeeInfo, null, 4), 'ShopeeInfo');
               if (!save) {
-                return reject(['靽嘥�憭望� �潘�', '�⊥��脣� token']);
+                return reject(['保存失敗 ‼️', '無法儲存 token']);
               } else {
                 return resolve();
               }
             } else {
-              return reject(['�湔鰵 token 憭望� �潘�', '�曆��啣��喟� token']);
+              return reject(['更新 token 失敗 ‼️', '找不到回傳的 token']);
             }
           } else {
-            return reject(['�湔鰵 token 憭望� �潘�', response.status])
+            return reject(['更新 token 失敗 ‼️', response.status])
           }
 
     }).catch(error=>{
-     return reject(['無法 token 重新嘗試', '無法取得token']);
+     return reject(['更新 token 失敗 ‼️', '連線錯誤']);
     
     })
     } catch (error) {
-      return reject(['�湔鰵 token 憭望� �潘�', error]);
+      return reject(['更新 token 失敗 ‼️', error]);
     }
   });
 }
@@ -201,7 +201,7 @@ async function deleteOldKeys() {
       $prefs.setValueForKey(null, 'Shopee_SPC_U');
       return resolve();
     } catch (error) {
-      return reject(['錯誤的 key 重新', error]);
+      return reject(['刪除舊的 key 失敗 ‼️', error]);
     }
   });
 }
@@ -210,11 +210,11 @@ async function deleteOldKeys() {
   console.log('更新 token v20230131.1');
   try {
     await deleteOldKeys();
-    console.log('重新獲取key ');
+    console.log('✅ 刪除舊的 key 成功');
     const spcEc = await updateSpcEc();
-    console.log(' SPC_EC 重新');
+    console.log('✅ SPC_EC 更新成功');
     await updateCookie(spcEc);
-    console.log('更新 token 成功');
+    console.log('✅ token 更新成功');
     $done();
   } catch (error) {
     handleError(error);
