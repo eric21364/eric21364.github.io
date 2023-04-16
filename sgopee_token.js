@@ -19,7 +19,7 @@ function handleError(error) {
 }
 
 function getSaveObject(key) {
-  const string = $prefs.read(key);
+  const string = $prefs.valueForKey(key);
   return !string || string.length === 0 ? {} : JSON.parse(string);
 }
 
@@ -76,7 +76,7 @@ async function getToken() {
         shopeeInfo.userName = cookieObject.username;
         shopeeInfo.shopeeToken = cookieObject.shopee_token;
 
-        const save = $prefs.write(JSON.stringify(shopeeInfo, null, 4), 'ShopeeInfo');
+        const save = $prefs.setValueForKey(JSON.stringify(shopeeInfo, null, 4), 'ShopeeInfo');
         if (!save) {
           return reject(['靽嘥憭望 潘', '⊥脣 token']);
         } else {
