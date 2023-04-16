@@ -73,7 +73,7 @@ async function updateSpcEc() {
     };
 
     try {
-      $httpClient.get(request, function (error, response, data) {
+      $task.get(request, function (error, response, data) {
         if (error) {
           return reject(['無法 SPC_EC 憭望� �潘�', '����航炊']);
         } else {
@@ -116,7 +116,8 @@ async function updateCookie(spcEc) {
         },
       };
 
-      $httpClient.get(request, function (error, response, data) {
+      
+      $task.fetch(request).then((error, response, data) =>{
         if (error) {
           return reject(['無法 token 重新嘗試', '無法取得token']);
         } else {
