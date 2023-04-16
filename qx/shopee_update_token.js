@@ -78,7 +78,7 @@ async function updateSpcEc() {
       $task.fetch(request).then(response => {
         console.log(JSON.stringify(response))
           const data = response.body
-          if (response.status == 200) {
+          if (response.statusCode == 200) {
             const obj = JSON.parse(data);
             if (obj.error) {
               return reject(['更新 SPC_EC 失敗 ‼️', '請重新取得 toke']);
