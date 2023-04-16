@@ -65,7 +65,6 @@ async function updateSpcEc() {
     }
 
     const request = {
-      method:'GET',
       url: 'https://mall.shopee.tw/api/v4/client/refresh',
       headers: {
         'Cookie': `shopee_token=${shopeeInfo.shopeeToken};`,
