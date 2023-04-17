@@ -67,15 +67,17 @@ async function eventListGetActivity() {
                     types: [{ 'type': 'coin_carousel' }, { 'type': 'coin_square' }],
                 },
             };
-            console.log('eventListGetActivity')
             $task.fetch(request).then(response => {
                 console.log(JSON.stringify(response))
                 const data = response.body
                 if (response.statusCode == 200) {
+                    console.log('1')
                     const obj = JSON.parse(data);
                     const bannerSets = obj.data.banners;
                     let foundId = false;
+                    let i=0;
                     for (const bannerSet of bannerSets) {
+                    console.log('2',i++)
                         for (const banner of bannerSet.banners) {
                             const title = banner.navigate_params.navbar.title;
                             const url = banner.navigate_params.url;
