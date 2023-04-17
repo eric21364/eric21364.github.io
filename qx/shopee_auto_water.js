@@ -64,16 +64,16 @@ async function preCheck() {
 async function deleteOldData() {
     return new Promise((resolve, reject) => {
         try {
-            $persistentStore.write(null, 'ShopeeAutoCropName');
-            $persistentStore.write(null, 'ShopeeCrop');
-            $persistentStore.write(null, 'ShopeeCropState');
-            $persistentStore.write(null, 'ShopeeCropName');
-            $persistentStore.write(null, 'ShopeeCropToken');
-            $persistentStore.write(null, 'ShopeeGroceryStoreToken');
+            $prefs.setValueForKey(null, 'ShopeeAutoCropName');
+            $prefs.setValueForKey(null, 'ShopeeCrop');
+            $prefs.setValueForKey(null, 'ShopeeCropState');
+            $prefs.setValueForKey(null, 'ShopeeCropName');
+            $prefs.setValueForKey(null, 'ShopeeCropToken');
+            $prefs.setValueForKey(null, 'ShopeeGroceryStoreToken');
 
             let shopeeFarmInfo = getSaveObject('ShopeeFarmInfo');
             delete shopeeFarmInfo['autoCropSeedName'];
-            const save = $persistentStore.write(JSON.stringify(shopeeFarmInfo, null, 4), 'ShopeeFarmInfo');
+            const save = $prefs.setValueForKey(JSON.stringify(shopeeFarmInfo, null, 4), 'ShopeeFarmInfo');
             if (!save) {
                 return reject(['保存失敗 ‼️', '無法更新作物資料']);
             } else {
