@@ -1,0 +1,296 @@
+let showNotification = true;
+let config = null;
+let getIdRequest = null;
+let luckyDrawRequest = null;
+
+function surgeNotify(subtitle = '', message = '') {
+    $notify('🍤 蝦皮免運寶箱', subtitle, message, { 'url': 'shopeetw://' });
+};
+
+function handleError(error) {
+    if (Array.isArray(error)) {
+        console.log(`❌ ${error[0]} ${error[1]}`);
+        if (showNotification) {
+            surgeNotify(error[0], error[1]);
+        }
+    } else {
+        console.log(`❌ ${error}`);
+        if (showNotification) {
+            surgeNotify(error);
+        }
+    }
+}
+
+function getSaveObject(key) {
+    const string = $prefs.valueForKey(key);
+    return !string || string.length === 0 ? {} : JSON.parse(string);
+}
+
+function isEmptyObject(obj) {
+    return Object.keys(obj).length === 0 && obj.constructor === Object ? true : false;
+}
+
+function cookieToString(cookieObject) {
+    let string = '';
+    for (const [key, value] of Object.entries(cookieObject)) {
+        string += `${key}=${value};`
+    }
+    return string;
+}
+
+async function preCheck() {
+    return new Promise((resolve, reject) => {
+        const shopeeInfo = getSaveObject('ShopeeInfo');
+        if (isEmptyObject(shopeeInfo)) {
+            return reject(['檢查失敗 ‼️', '沒有新版 token']);
+        }
+        const shopeeHeaders = {
+            'Cookie': cookieToString(shopeeInfo.token),
+            'Content-Type': 'application/json',
+        }
+        config = {
+            shopeeInfo: shopeeInfo,
+            shopeeHeaders: shopeeHeaders,
+        }
+        return resolve();
+    });
+}
+
+async function eventListGetActivity() {
+    return new Promise((resolve, reject) => {
+        try {
+            const request = {
+                mothod: 'POST',
+                url: 'https://mall.shopee.tw/api/v4/banner/batch_list',
+                headers: config.shopeeHeaders,
+                body: {
+                    'types': [{ 'type': 'coin_carousel' }, { 'type': 'coin_square' }]
+                },
+            };
+            $task.fetch(request).then(response => {
+                console.log(JSON.stringify(response))
+                const data = response.body
+                if (response.statusCode == 200) {
+                    const obj = JSON.parse(data);
+                    const bannerSets = obj.data.banners;
+                    let foundEvent = false;
+                    for (const bannerSet of bannerSets) {
+                        for (const banner of bannerSet.banners) {
+                            const title = banner.navigate_params.navbar.title;
+                            const url = banner.navigate_params.url;
+                            // console.log(`活動名稱: ${title}，網址: ${url}`);
+                            if (title.includes('抽免運券') || title.includes('免運寶箱')) {
+                                foundEvent = true;
+                                const re = /activity\/(.*)\??/i;
+                                let found = url.match(re);
+                                if (!found) {
+                                    const re = /activity=(.*)&/i;
+                                    found = url.match(re);
+                                }
+                                if (!found) {
+                                    const re = /activity=(.*)/i;
+                                    found = url.match(re);
+                                }
+                                const activityId = found[1];
+                                console.log(`ℹ️ 在 banner 找到蝦幣寶箱活動，活動名稱: ${title}，活動頁面 ID: ${activityId}`);
+
+                                // 取得活動代碼
+                                getIdRequest = {
+                                    url: `https://games.shopee.tw/gameplatform/api/v1/game/activity/${activityId}/settings?appid=E9VFyxwmtgjnCR8uhL&basic=false`,
+                                    headers: config.shopeeHeaders,
+                                };
+
+                                // 真正領取免運寶箱
+                                luckyDrawRequest = {
+                                    url: '',
+                                    headers: config.shopeeHeaders,
+                                    body: {
+                                        request_id: (Math.random() * 10 ** 20).toFixed(0).substring(0, 16),
+                                        app_id: 'E9VFyxwmtgjnCR8uhL',
+                                        activity_code: activityId,
+                                        source: 0,
+                                    },
+                                };
+                                return resolve();
+                            }
+                        }
+                    }
+                    if (!foundEvent) {
+                        return resolve();
+                    }
+                } else {
+                    return reject(['無法取得活動列表 ‼️', response.status]);
+                }
+            }).catch(error => {
+                if (error) {
+                    return reject(['無法取得活動列表 ‼️', '連線錯誤']);
+                }
+            })
+        } catch (error) {
+            return reject(['無法取得活動列表 ‼️', error]);
+        }
+    });
+}
+
+async function iframeListGetActivity() {
+    return new Promise((resolve, reject) => {
+        try {
+            const request = {
+                mothod: 'GET',
+                url: 'https://mall.shopee.tw/api/v4/market_coin/get_iframe_list?region=TW&offset=0&limit=10',
+                headers: config.shopeeHeaders,
+            };
+            $task.fetch(request).then(response => {
+                console.log(JSON.stringify(response))
+                const data = response.body
+                if (response.statusCode == 200) {
+                    const obj = JSON.parse(data);
+                    let foundEvent = false;
+                    const iframeList = obj.data.iframe_list;
+                    for (const iframe of iframeList) {
+                        // console.log(`活動名稱: ${iframe.title}，網址: ${iframe.url}`);
+                        if ((iframe.title.includes('免運') || iframe.title.includes('玩遊戲天天抽')) && iframe.url.includes('luckydraw')) {
+                            foundEvent = true;
+                            const re = /activity\/(.*)\??/i;
+                            let found = iframe.url.match(re);
+                            if (!found) {
+                                const re = /activity=(.*)&/i;
+                                found = iframe.url.match(re);
+                            }
+                            const activityId = found[1];
+                            console.log(`ℹ️ 在 iframe 找到免運寶箱活動，活動名稱: ${iframe.title}，活動頁面 ID: ${activityId}`);
+
+                            // 取得活動代碼
+                            getIdRequest = {
+                                url: `https://games.shopee.tw/gameplatform/api/v1/game/activity/${activityId}/settings?appid=E9VFyxwmtgjnCR8uhL&basic=false`,
+                                headers: config.shopeeHeaders,
+                            };
+
+                            // 真正領取免運寶箱
+                            luckyDrawRequest = {
+                                url: '',
+                                headers: config.shopeeHeaders,
+                                body: {
+                                    request_id: (Math.random() * 10 ** 20).toFixed(0).substring(0, 16),
+                                    app_id: 'E9VFyxwmtgjnCR8uhL',
+                                    activity_code: activityId,
+                                    source: 0,
+                                },
+                            };
+
+                            return resolve();
+                        }
+                    }
+                    if (!foundEvent) {
+                        return reject(['無法取得活動列表 ‼️', '找不到免運寶箱活動']);
+                    }
+                }
+                else {
+                    return reject(['無法取得活動列表 ‼️', response.status]);
+                }
+            }).catch(error => {
+                if (error) {
+                    return reject(['無法取得活動列表 ‼️', '連線錯誤']);
+                }
+            })
+        } catch (error) {
+            return reject(['無法取得活動列表 ‼️', error]);
+        }
+    });
+}
+
+// 獲得免運寶箱 ID
+async function shippingLuckyDrawGetId() {
+    return new Promise((resolve, reject) => {
+        try {
+            getIdRequest['mothod'] = 'GET'
+
+            $task.fetch(request).then(response => {
+                console.log(JSON.stringify(response))
+                const data = response.body
+                if (response.statusCode == 200) {
+                    const obj = JSON.parse(data);
+                    if (obj.msg === 'success') {
+                        const code = obj.data.basic.event_code;
+                        console.log(`ℹ️ 活動代碼: ${code}`);
+                        luckyDrawRequest.url = `https://games.shopee.tw/luckydraw/api/v1/lucky/event/${code}`;
+                        return resolve();
+                    } else {
+                        return reject(['活動代碼查詢失敗 ‼️', obj.msg]);
+                    }
+                }
+                else {
+                    return reject(['活動代碼查詢失敗 ‼️', response.status]);
+                }
+            }).catch(error => {
+                if (error) {
+                    return reject(['活動代碼查詢失敗 ‼️', '連線錯誤']);
+                }
+            })
+        } catch (error) {
+            return reject(['活動代碼查詢失敗 ‼️', error]);
+        }
+    });
+}
+
+async function shippingLuckyDraw() {
+    return new Promise((resolve, reject) => {
+        try {
+            luckyDrawRequest['mothod'] = 'POST'
+            $task.fetch(request).then(response => {
+                console.log(JSON.stringify(response))
+                const data = response.body
+                if (response.statusCode == 200) {
+                    const obj = JSON.parse(data);
+                    if (obj.msg === 'success') {
+                        const packageName = obj.data.package_name;
+                        return resolve(packageName);
+                    } else if (obj.code === 102000) {
+                        showNotification = false;
+                        return reject(['領取失敗 ‼️', '每日只能領一次']);
+                    } else if (obj.msg === 'expired' || obj.msg === 'event already end') {
+                        return reject(['領取失敗 ‼️', '活動已過期。請嘗試更新模組或腳本，或等待作者更新。']);
+                    } else {
+                        return reject(['領取失敗 ‼️', `錯誤代號：${obj.code}，訊息：${obj.msg}`]);
+                    }
+                }
+                else {
+                    return reject(['領取失敗 ‼️', response.status]);
+                }
+            }).catch(error => {
+                if (error) {
+                    return reject(['領取失敗 ‼️', '連線錯誤']);
+                }
+            })
+        } catch (error) {
+            return reject(['領取失敗 ‼️', error]);
+        }
+    });
+}
+
+(async () => {
+    console.log('ℹ️ 蝦皮免運寶箱 v20230301.2');
+    try {
+        await preCheck();
+        console.log('✅ 檢查成功');
+        await eventListGetActivity();
+        console.log('✅ banner 取得活動列表');
+        if (!getIdRequest) {
+            console.log('⚠️ 在 banner 找不到免運寶箱活動，繼續嘗試搜尋 iframe');
+            await iframeListGetActivity();
+            console.log('✅ iframe 取得活動列表');
+        }
+        await shippingLuckyDrawGetId();
+        console.log('✅ 取得活動代碼');
+        const reward = await shippingLuckyDraw();
+        console.log('✅ 領取成功');
+        console.log(`ℹ️ 獲得 👉 ${reward} 💎`);
+        surgeNotify(
+            '領取成功 ✅',
+            `獲得 👉 ${reward} 💎`
+        );
+    } catch (error) {
+        handleError(error);
+    }
+    $done();
+})();
