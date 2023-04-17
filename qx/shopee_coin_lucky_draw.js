@@ -72,7 +72,7 @@ async function eventListGetActivity() {
                 if (response.statusCode == 200) {
                     const obj = JSON.parse(data);
                     const bannerSets = obj.data.banners;
-                    console.log('1')
+                    console.log('1',bannerSets)
                     let foundId = false;
                     let i=0;
                     for (const bannerSet of bannerSets) {
