@@ -67,6 +67,7 @@ async function eventListGetActivity() {
                     'types': [{ 'type': 'coin_carousel' }, { 'type': 'coin_square' }]
                 },
             };
+            console.log(JSON.stringify(config.shopeeHeaders))
             $task.fetch(request).then(response => {
                 console.log(JSON.stringify(response))
                 const data = response.body
@@ -119,7 +120,7 @@ async function eventListGetActivity() {
                         return resolve();
                     }
                 } else {
-                    return reject(['無法取得活動列表 ‼️', response.status]);
+                    return reject(['無法取得活動列表 ‼️', response.statusCode]);
                 }
             }).catch(error => {
                 if (error) {
@@ -186,7 +187,7 @@ async function iframeListGetActivity() {
                     }
                 }
                 else {
-                    return reject(['無法取得活動列表 ‼️', response.status]);
+                    return reject(['無法取得活動列表 ‼️', response.statusCode]);
                 }
             }).catch(error => {
                 if (error) {
@@ -220,7 +221,7 @@ async function shippingLuckyDrawGetId() {
                     }
                 }
                 else {
-                    return reject(['活動代碼查詢失敗 ‼️', response.status]);
+                    return reject(['活動代碼查詢失敗 ‼️', response.statusCode]);
                 }
             }).catch(error => {
                 if (error) {
@@ -255,7 +256,7 @@ async function shippingLuckyDraw() {
                     }
                 }
                 else {
-                    return reject(['領取失敗 ‼️', response.status]);
+                    return reject(['領取失敗 ‼️', response.statusCode]);
                 }
             }).catch(error => {
                 if (error) {
