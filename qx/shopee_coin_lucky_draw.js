@@ -70,7 +70,7 @@ async function eventListGetActivity() {
       $task.fetch(request).then(response => {
         console.log(JSON.JSON.stringify(response))
           const data = response.body
-           if (response.status == 200) {
+           if (response.statusCode == 200) {
             const obj = JSON.parse(data);
             const bannerSets = obj.data.banners;
             let foundId = false;
@@ -111,7 +111,7 @@ async function eventListGetActivity() {
               return resolve();
             }
           } else {
-            return reject(['無法取得活動列表 ‼️', response.status]);
+            return reject(['無法取得活動列表 ‼️', response.statusCode]);
           }
         }
           )
@@ -137,7 +137,7 @@ async function iframeListGetActivity() {
       $task.fetch(request).then(response => {
         console.log(JSON.JSON.stringify(response))
           const data = response.body
-          if (response.status === 200) {
+          if (response.statusCode === 200) {
             const obj = JSON.parse(data);
             let foundEvent = false;
             const iframeList = obj.data.iframe_list;
@@ -179,7 +179,7 @@ async function iframeListGetActivity() {
               return reject(['無法取得活動列表 ‼️', '找不到免運寶箱活動']);
             }
           } else {
-            return reject(['無法取得活動列表 ‼️', response.status]);
+            return reject(['無法取得活動列表 ‼️', response.statusCode]);
           }
       }).catch(error=>{
         if (error) {
@@ -200,7 +200,7 @@ async function coinLuckyDrawGetId() {
         $task.fetch(request).then(response => {
             console.log(JSON.JSON.stringify(response))
               const data = response.body
-              if (response.status === 200) {
+              if (response.statusCode === 200) {
                 const obj = JSON.parse(data);
                 if (obj.msg === 'success') {
                   const code = obj.data.basic.event_code;
@@ -211,7 +211,7 @@ async function coinLuckyDrawGetId() {
                   return reject(['活動代碼查詢失敗 ‼️', obj.msg]);
                 }
               } else {
-                return reject(['活動代碼查詢失敗 ‼️', response.status]);
+                return reject(['活動代碼查詢失敗 ‼️', response.statusCode]);
               }
             }).catch(error={
                 if (error) {
@@ -233,7 +233,7 @@ async function coinLuckyDraw() {
         $task.fetch(request).then(response => {
             console.log(JSON.JSON.stringify(response))
               const data = response.body
-              if (response.status == 200) {
+              if (response.statusCode == 200) {
                 const obj = JSON.parse(data);
                 if (obj.msg === 'success') {
                   const packageName = obj.data.package_name;
@@ -248,7 +248,7 @@ async function coinLuckyDraw() {
                   return reject(['領取失敗 ‼️', `錯誤代號：${obj.code}，訊息：${obj.msg}`]);
                 }
               } else {
-                return reject(['領取失敗 ‼️', response.status]);
+                return reject(['領取失敗 ‼️', response.statusCode]);
               }
             }).catch(error=>{
                 if (error) {
