@@ -71,7 +71,7 @@ async function eventListGetActivity() {
                 const data = response.body
                 if (response.statusCode == 200) {
                     const obj = JSON.parse(data);
-                    console.log(JSON.stringify(obj.data))
+                    console.log(JSON.stringify(obj))
                     const bannerSets = obj.data.banners;
                     console.log('121',JSON.stringify(bannerSets))
                     let foundId = false;
