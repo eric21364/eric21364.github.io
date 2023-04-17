@@ -114,6 +114,7 @@ async function eventListGetActivity() {
                     return reject(['無法取得活動列表 ‼️', response.statusCode]);
                 }
             }).catch(error => {
+                console.log(JSON.stringify(error))
                 if (error) {
                     return reject(['無法取得活動列表 ‼️', '連線錯誤']);
                 }
