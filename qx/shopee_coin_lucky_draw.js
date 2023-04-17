@@ -113,13 +113,11 @@ async function eventListGetActivity() {
                 } else {
                     return reject(['無法取得活動列表 ‼️', response.statusCode]);
                 }
-            }
-            )
-                .catch(error => {
-                    if (error) {
-                        return reject(['無法取得活動列表 ‼️', '連線錯誤']);
-                    }
-                })
+            }).catch(error => {
+                if (error) {
+                    return reject(['無法取得活動列表 ‼️', '連線錯誤']);
+                }
+            })
 
         } catch (error) {
             return reject(['無法取得活動列表 ‼️', error]);
@@ -182,6 +180,7 @@ async function iframeListGetActivity() {
                     return reject(['無法取得活動列表 ‼️', response.statusCode]);
                 }
             }).catch(error => {
+                console.log(JSON.stringify(error))
                 if (error) {
                     return reject(['無法取得活動列表 ‼️', '連線錯誤']);
                 }
