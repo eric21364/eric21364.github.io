@@ -209,7 +209,6 @@ async function coinLuckyDrawGetId() {
     return new Promise((resolve, reject) => {
         try {
             $task.fetch(getIdRequest).then(response => {
-                console.log(JSON.stringify(response))
                 const data = response.body
                 if (response.statusCode === 200) {
                     const obj = JSON.parse(data);
@@ -238,7 +237,7 @@ async function coinLuckyDrawGetId() {
 async function coinLuckyDraw() {
     return new Promise((resolve, reject) => {
         try {
-            $task.fetch(request).then(response => {
+            $task.fetch(luckyDrawRequest).then(response => {
                 console.log(JSON.stringify(response))
                 const data = response.body
                 if (response.statusCode == 200) {
