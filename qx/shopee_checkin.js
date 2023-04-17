@@ -6,106 +6,106 @@ function shopeeNotify(subtitle = '', message = '') {
 };
 
 function handleError(error) {
-  if (Array.isArray(error)) {
-    console.log(`❌ ${error[0]} ${error[1]}`);
-    if (showNotification) {
-      shopeeNotify(error[0], error[1]);
+    if (Array.isArray(error)) {
+        console.log(`❌ ${error[0]} ${error[1]}`);
+        if (showNotification) {
+            shopeeNotify(error[0], error[1]);
+        }
+    } else {
+        console.log(`❌ ${error}`);
+        if (showNotification) {
+            shopeeNotify(error);
+        }
     }
-  } else {
-    console.log(`❌ ${error}`);
-    if (showNotification) {
-      shopeeNotify(error);
-    }
-  }
 }
 
 function getSaveObject(key) {
-  const string = $prefs.valueForKey(key);
-  return !string || string.length === 0 ? {} : JSON.parse(string);
+    const string = $prefs.valueForKey(key);
+    return !string || string.length === 0 ? {} : JSON.parse(string);
 }
 
 function isEmptyObject(obj) {
-  return Object.keys(obj).length === 0 && obj.constructor === Object ? true : false;
+    return Object.keys(obj).length === 0 && obj.constructor === Object ? true : false;
 }
 
 function cookieToString(cookieObject) {
-  let string = '';
-  for (const [key, value] of Object.entries(cookieObject)) {
-    string += `${key}=${value};`
-  }
-  return string;
+    let string = '';
+    for (const [key, value] of Object.entries(cookieObject)) {
+        string += `${key}=${value};`
+    }
+    return string;
 }
 
 async function preCheck() {
-  return new Promise((resolve, reject) => {
-    const shopeeInfo = getSaveObject('ShopeeInfo');
-    if (isEmptyObject(shopeeInfo)) {
-      return reject(['檢查失敗 ‼️', '沒有新版 token']);
-    }
-    const shopeeHeaders = {
-      'Cookie': cookieToString(shopeeInfo.token),
-      'Content-Type': 'application/json',
-    }
-    config = {
-      shopeeInfo: shopeeInfo,
-      shopeeHeaders: shopeeHeaders,
-    }
-    return resolve();
-  });
+    return new Promise((resolve, reject) => {
+        const shopeeInfo = getSaveObject('ShopeeInfo');
+        if (isEmptyObject(shopeeInfo)) {
+            return reject(['檢查失敗 ‼️', '沒有新版 token']);
+        }
+        const shopeeHeaders = {
+            'Cookie': cookieToString(shopeeInfo.token),
+            'Content-Type': 'application/json',
+        }
+        config = {
+            shopeeInfo: shopeeInfo,
+            shopeeHeaders: shopeeHeaders,
+        }
+        return resolve();
+    });
 }
 
 async function checkin() {
-  return new Promise((resolve, reject) => {
-    try {
-      const request = {
-        mothod:'POST',
-        url: 'https://shopee.tw/mkt/coins/api/v2/checkin',
-        headers:{
-        'Cookie': $prefs.valueForKey("CookieSP") + ';SPC_EC=' + $prefs.valueForKey("SPC_EC") + ';',
-        'X-CSRFToken': $prefs.valueForKey("CSRFTokenSP"),
-		}
-      };
-      $task.fetch(request).then(response => {
-        const data = response.body
-        if (response.statusCode == 200) {
-            const obj = JSON.parse(data);
-            if (obj.data.success) {
-              return resolve({
-                checkInDay: obj.data.check_in_day,
-                coins: obj.data.increase_coins,
-              });https://shopee.tw/mkt/coins/api/v2/checkin
+    return new Promise((resolve, reject) => {
+        try {
+            const request = {
+                mothod: 'POST',
+                url: 'https://shopee.tw/mkt/coins/api/v2/checkin',
+                headers: {
+                    'Cookie': $prefs.valueForKey("CookieSP") + ';SPC_EC=' + $prefs.valueForKey("SPC_EC") + ';',
+                    'X-CSRFToken': $prefs.valueForKey("CSRFTokenSP"),
+                }
+            };
+            $task.fetch(request).then(response => {
+                const data = response.body
+                if (response.statusCode == 200) {
+                    const obj = JSON.parse(data);
+                    if (obj.data.success) {
+                        return resolve({
+                            checkInDay: obj.data.check_in_day,
+                            coins: obj.data.increase_coins,
+                        });
             } else {
-              showNotification = false;
-              return reject(['簽到失敗 ‼️', '本日已簽到']);
-            }
-          } else {
-            return reject(['簽到失敗 ‼️', response.statusCode]);
-          }
-        }).catch(error=>{
-            if (error) {
-                return reject(['簽到失敗 ‼️', '連線錯誤']);
-              } 
-        })
-    } catch (error) {
-      return reject(['簽到失敗 ‼️', error]);
-    }
-  });
+                        showNotification = false;
+                        return reject(['簽到失敗 ‼️', '本日已簽到']);
+                    }
+                } else {
+                    return reject(['簽到失敗 ‼️', response.statusCode]);
+                }
+            }).catch(error => {
+                if (error) {
+                    return reject(['簽到失敗 ‼️', '連線錯誤']);
+                }
+            })
+        } catch (error) {
+            return reject(['簽到失敗 ‼️', error]);
+        }
+    });
 }
 
 (async () => {
-  console.log('ℹ️ 蝦皮每日簽到 v20230116.1');
-  try {
-    await preCheck();
-    console.log('✅ 檢查成功');
-    const result = await checkin();
-    console.log('✅ 簽到成功');
-    console.log(`ℹ️ 目前已連續簽到 ${result.checkInDay} 天，今日已領取 ${result.coins}`);
-    shopeeNotify(
-      `簽到成功，目前已連續簽到 ${result.checkInDay} 天`,
-      `今日已領取 ${result.coins} 💰💰💰`
-    );
-  } catch (error) {
-    handleError(error);
-  }
-  $done();
+    console.log('ℹ️ 蝦皮每日簽到 v20230116.1');
+    try {
+        await preCheck();
+        console.log('✅ 檢查成功');
+        const result = await checkin();
+        console.log('✅ 簽到成功');
+        console.log(`ℹ️ 目前已連續簽到 ${result.checkInDay} 天，今日已領取 ${result.coins}`);
+        shopeeNotify(
+            `簽到成功，目前已連續簽到 ${result.checkInDay} 天`,
+            `今日已領取 ${result.coins} 💰💰💰`
+        );
+    } catch (error) {
+        handleError(error);
+    }
+    $done();
 })();
