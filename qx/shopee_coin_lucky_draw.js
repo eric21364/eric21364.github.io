@@ -74,11 +74,11 @@ async function eventListGetActivity() {
                     const obj = JSON.parse(data);
                     console.log(JSON.stringify(obj))
                     const bannerSets = obj.data.banners;
-                    console.log('121',JSON.stringify(bannerSets))
+                    console.log('121', JSON.stringify(bannerSets))
                     let foundId = false;
-                    let i=0;
+                    let i = 0;
                     for (const bannerSet of bannerSets) {
-                    console.log('2',i++)
+                        console.log('2', i++)
                         for (const banner of bannerSet.banners) {
                             const title = banner.navigate_params.navbar.title;
                             const url = banner.navigate_params.url;
@@ -98,14 +98,17 @@ async function eventListGetActivity() {
 
                                 // 真正領取蝦幣
                                 luckyDrawRequest = {
-                                    url: '',
+                                    method: 'POST',
                                     headers: config.shopeeHeaders,
-                                    body: {
-                                        request_id: (Math.random() * 10 ** 20).toFixed(0).substring(0, 16),
-                                        app_id: 'E9VFyxwmtgjnCR8uhL',
-                                        activity_code: activityId,
-                                        source: 0,
-                                    },
+                                    body: JSON.stringify(
+                                        {
+                                            request_id: (Math.random() * 10 ** 20).toFixed(0).substring(0, 16),
+                                            app_id: 'E9VFyxwmtgjnCR8uhL',
+                                            activity_code: activityId,
+                                            source: 0,
+                                        }
+                                    ),
+                                    redirect: 'follow'
                                 };
                                 return resolve();
                             }
@@ -134,6 +137,7 @@ async function iframeListGetActivity() {
     return new Promise((resolve, reject) => {
         try {
             const request = {
+                method: 'GET',
                 url: 'https://mall.shopee.tw/api/v4/market_coin/get_iframe_list?region=TW&offset=0&limit=10',
                 headers: config.shopeeHeaders,
             };
@@ -165,14 +169,17 @@ async function iframeListGetActivity() {
 
                             // 真正領取蝦幣寶箱
                             luckyDrawRequest = {
-                                url: '',
+                                method: 'POST',
                                 headers: config.shopeeHeaders,
-                                body: {
-                                    request_id: (Math.random() * 10 ** 20).toFixed(0).substring(0, 16),
-                                    app_id: 'E9VFyxwmtgjnCR8uhL',
-                                    activity_code: activityId,
-                                    source: 0,
-                                },
+                                body: JSON.stringify(
+                                    {
+                                        request_id: (Math.random() * 10 ** 20).toFixed(0).substring(0, 16),
+                                        app_id: 'E9VFyxwmtgjnCR8uhL',
+                                        activity_code: activityId,
+                                        source: 0,
+                                    }
+                                ),
+                                redirect: 'follow'
                             };
 
                             return resolve();
@@ -200,7 +207,6 @@ async function iframeListGetActivity() {
 async function coinLuckyDrawGetId() {
     return new Promise((resolve, reject) => {
         try {
-            getIdRequest['mothod'] = 'GET'
             $task.fetch(getIdRequest).then(response => {
                 console.log(JSON.stringify(response))
                 const data = response.body
@@ -231,7 +237,6 @@ async function coinLuckyDrawGetId() {
 async function coinLuckyDraw() {
     return new Promise((resolve, reject) => {
         try {
-            luckyDrawRequest['mothod'] = 'POST'
             $task.fetch(request).then(response => {
                 console.log(JSON.stringify(response))
                 const data = response.body
