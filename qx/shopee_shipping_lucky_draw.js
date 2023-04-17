@@ -60,16 +60,22 @@ async function eventListGetActivity() {
     return new Promise((resolve, reject) => {
         try {
             const request = {
-                mothod: 'POST',
+                method: 'POST',
                 url: 'https://mall.shopee.tw/api/v4/banner/batch_list',
                 headers: config.shopeeHeaders,
-                body: {
-                    'types': [{ 'type': 'coin_carousel' }, { 'type': 'coin_square' }]
-                },
+                body: JSON.stringify({
+                    "types": [
+                        {
+                            "type": "coin_carousel"
+                        },
+                        {
+                            "type": "coin_square"
+                        }
+                    ]
+                }),
+                redirect: 'follow'
             };
-            console.log(JSON.stringify(config.shopeeHeaders))
             $task.fetch(request).then(response => {
-                console.log(JSON.stringify(response))
                 const data = response.body
                 if (response.statusCode == 200) {
                     const obj = JSON.parse(data);
@@ -103,14 +109,17 @@ async function eventListGetActivity() {
 
                                 // 真正領取免運寶箱
                                 luckyDrawRequest = {
-                                    url: '',
+                                    method: 'POST',
                                     headers: config.shopeeHeaders,
-                                    body: {
-                                        request_id: (Math.random() * 10 ** 20).toFixed(0).substring(0, 16),
-                                        app_id: 'E9VFyxwmtgjnCR8uhL',
-                                        activity_code: activityId,
-                                        source: 0,
-                                    },
+                                    body: JSON.stringify(
+                                        {
+                                            request_id: (Math.random() * 10 ** 20).toFixed(0).substring(0, 16),
+                                            app_id: 'E9VFyxwmtgjnCR8uhL',
+                                            activity_code: activityId,
+                                            source: 0,
+                                        }
+                                    ),
+                                    redirect: 'follow'
                                 };
                                 return resolve();
                             }
@@ -142,7 +151,6 @@ async function iframeListGetActivity() {
                 headers: config.shopeeHeaders,
             };
             $task.fetch(request).then(response => {
-                console.log(JSON.stringify(response))
                 const data = response.body
                 if (response.statusCode == 200) {
                     const obj = JSON.parse(data);
@@ -206,8 +214,7 @@ async function shippingLuckyDrawGetId() {
         try {
             getIdRequest['mothod'] = 'GET'
 
-            $task.fetch(request).then(response => {
-                console.log(JSON.stringify(response))
+            $task.fetch(getIdRequest).then(response => {
                 const data = response.body
                 if (response.statusCode == 200) {
                     const obj = JSON.parse(data);
@@ -237,9 +244,7 @@ async function shippingLuckyDrawGetId() {
 async function shippingLuckyDraw() {
     return new Promise((resolve, reject) => {
         try {
-            luckyDrawRequest['mothod'] = 'POST'
-            $task.fetch(request).then(response => {
-                console.log(JSON.stringify(response))
+            $task.fetch(luckyDrawRequest).then(response => {
                 const data = response.body
                 if (response.statusCode == 200) {
                     const obj = JSON.parse(data);
