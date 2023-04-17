@@ -34,8 +34,8 @@ function surgeNotify(subtitle = '', message = '') {
   async function getCropData() {
     return new Promise((resolve, reject) => {
       try {
-        console.log($request)
-        console.log($task)
+        console.log(JSON.stringify($request))
+        console.log(JSON.stringify($task))
         const body = JSON.parse($request.body);
         if (body && body.cropId && body.resourceId && body.s) {
           let shopeeFarmInfo = getSaveObject('ShopeeFarmInfo');
