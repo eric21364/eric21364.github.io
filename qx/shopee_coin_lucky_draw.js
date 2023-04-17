@@ -68,12 +68,11 @@ async function eventListGetActivity() {
                 },
             };
             $task.fetch(request).then(response => {
-                console.log(JSON.stringify(response))
                 const data = response.body
                 if (response.statusCode == 200) {
-                    console.log('1')
                     const obj = JSON.parse(data);
                     const bannerSets = obj.data.banners;
+                    console.log('1')
                     let foundId = false;
                     let i=0;
                     for (const bannerSet of bannerSets) {
