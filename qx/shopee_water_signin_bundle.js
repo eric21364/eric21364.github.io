@@ -103,7 +103,7 @@ function claimSignInBundle() {
     return new Promise((resolve, reject) => {
         try {
 
-            $task.fetch(waterRequest).then(response => {
+            $task.fetch(claimSignInBundleRequest).then(response => {
                 const data = response.body
                 if (response.statusCode == 200) {
                     const obj = JSON.parse(data);
