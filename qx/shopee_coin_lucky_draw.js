@@ -69,7 +69,7 @@ async function eventListGetActivity() {
             };
             console.log('eventListGetActivity')
             $task.fetch(request).then(response => {
-                console.log(JSON.JSON.stringify(response))
+                console.log(JSON.stringify(response))
                 const data = response.body
                 if (response.statusCode == 200) {
                     const obj = JSON.parse(data);
@@ -135,7 +135,7 @@ async function iframeListGetActivity() {
                 headers: config.shopeeHeaders,
             };
             $task.fetch(request).then(response => {
-                console.log(JSON.JSON.stringify(response))
+                console.log(JSON.stringify(response))
                 const data = response.body
                 if (response.statusCode === 200) {
                     const obj = JSON.parse(data);
@@ -199,7 +199,7 @@ async function coinLuckyDrawGetId() {
         try {
             getIdRequest['mothod'] = 'GET'
             $task.fetch(getIdRequest).then(response => {
-                console.log(JSON.JSON.stringify(response))
+                console.log(JSON.stringify(response))
                 const data = response.body
                 if (response.statusCode === 200) {
                     const obj = JSON.parse(data);
@@ -230,7 +230,7 @@ async function coinLuckyDraw() {
         try {
             luckyDrawRequest['mothod'] = 'POST'
             $task.fetch(request).then(response => {
-                console.log(JSON.JSON.stringify(response))
+                console.log(JSON.stringify(response))
                 const data = response.body
                 if (response.statusCode == 200) {
                     const obj = JSON.parse(data);
