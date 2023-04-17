@@ -101,6 +101,7 @@ async function water() {
                 headers: config.shopeeHeaders,
                 body: config.shopeeFarmInfo.currentCrop,
             };
+            console.log(JSON.stringify(waterRequest))
             $task.fetch(waterRequest).then(response => {
                 console.log(JSON.stringify(response))
                 const data = response.body
