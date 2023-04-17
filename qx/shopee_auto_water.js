@@ -50,7 +50,7 @@ async function preCheck() {
 
         const shopeeHeaders = {
             'Cookie': cookieToString(shopeeInfo.token),
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/x-www-form-urlencoded',
         }
         config = {
             shopeeInfo: shopeeInfo,
@@ -95,15 +95,18 @@ async function water() {
                 return reject(['澆水失敗 ‼️', '目前沒有作物']);
             }
 
+            var myHeaders = new Headers();
+            myHeaders.append("Cookie", config.shopeeHeaders['Cookie'])
+            myHeaders.append("Content-Type", "application/json");
+            var raw = JSON.stringify(config.shopeeFarmInfo.currentCrop);
             const waterRequest = {
-                mothod: 'POST',
+                method: 'POST',
                 url: 'https://games.shopee.tw/farm/api/orchard/crop/water?t=' + new Date().getTime(),
                 headers: config.shopeeHeaders,
-                body: config.shopeeFarmInfo.currentCrop,
+                body: JSON.stringify(config.shopeeFarmInfo.currentCrop),
+                redirect: 'follow'
             };
-            console.log(JSON.stringify(waterRequest))
             $task.fetch(waterRequest).then(response => {
-                console.log(JSON.stringify(response))
                 const data = response.body
                 if (response.statusCode == 200) {
                     const obj = JSON.parse(data);
