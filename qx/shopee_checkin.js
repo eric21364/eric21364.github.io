@@ -60,10 +60,7 @@ async function checkin() {
             const request = {
                 mothod: 'POST',
                 url: 'https://shopee.tw/mkt/coins/api/v2/checkin',
-                headers: {
-                    'Cookie': $prefs.valueForKey("CookieSP") + ';SPC_EC=' + $prefs.valueForKey("SPC_EC") + ';',
-                    'X-CSRFToken': $prefs.valueForKey("CSRFTokenSP"),
-                }
+                headers: config.shopeeHeaders,
             };
             $task.fetch(request).then(response => {
                 const data = response.body
