@@ -63,18 +63,19 @@ async function eventListGetActivity() {
                 method: 'POST',
                 url: 'https://mall.shopee.tw/api/v4/banner/batch_list',
                 headers: config.shopeeHeaders,
-                body: {
-                    types: [{ 'type': 'coin_carousel' }, { 'type': 'coin_square' }],
-                },
+                body: JSON.stringify(
+                    {
+                        types: [{ 'type': 'coin_carousel' }, { 'type': 'coin_square' }],
+                    }
+                ),
+                redirect: 'follow'
             };
             $task.fetch(request).then(response => {
                 console.log(JSON.stringify(response))
                 const data = response.body
                 if (response.statusCode == 200) {
                     const obj = JSON.parse(data);
-                    console.log(JSON.stringify(obj))
                     const bannerSets = obj.data.banners;
-                    console.log('121', JSON.stringify(bannerSets))
                     let foundId = false;
                     let i = 0;
                     for (const bannerSet of bannerSets) {
