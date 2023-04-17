@@ -68,6 +68,7 @@ async function eventListGetActivity() {
                 },
             };
             $task.fetch(request).then(response => {
+                console.log(response)
                 const data = response.body
                 if (response.statusCode == 200) {
                     const obj = JSON.parse(data);
