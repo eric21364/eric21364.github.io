@@ -71,15 +71,12 @@ async function eventListGetActivity() {
                 redirect: 'follow'
             };
             $task.fetch(request).then(response => {
-                console.log(JSON.stringify(response))
                 const data = response.body
                 if (response.statusCode == 200) {
                     const obj = JSON.parse(data);
                     const bannerSets = obj.data.banners;
                     let foundId = false;
-                    let i = 0;
                     for (const bannerSet of bannerSets) {
-                        console.log('2', i++)
                         for (const banner of bannerSet.banners) {
                             const title = banner.navigate_params.navbar.title;
                             const url = banner.navigate_params.url;
@@ -122,7 +119,6 @@ async function eventListGetActivity() {
                     return reject(['無法取得活動列表 ‼️', response.statusCode]);
                 }
             }).catch(error => {
-                console.log(JSON.stringify(error))
                 if (error) {
                     return reject(['無法取得活動列表 ‼️', '連線錯誤']);
                 }
@@ -143,7 +139,6 @@ async function iframeListGetActivity() {
                 headers: config.shopeeHeaders,
             };
             $task.fetch(request).then(response => {
-                console.log(JSON.stringify(response))
                 const data = response.body
                 if (response.statusCode === 200) {
                     const obj = JSON.parse(data);
@@ -193,7 +188,6 @@ async function iframeListGetActivity() {
                     return reject(['無法取得活動列表 ‼️', response.statusCode]);
                 }
             }).catch(error => {
-                console.log(JSON.stringify(error))
                 if (error) {
                     return reject(['無法取得活動列表 ‼️', '連線錯誤']);
                 }
@@ -238,7 +232,6 @@ async function coinLuckyDraw() {
     return new Promise((resolve, reject) => {
         try {
             $task.fetch(luckyDrawRequest).then(response => {
-                console.log(JSON.stringify(response))
                 const data = response.body
                 if (response.statusCode == 200) {
                     const obj = JSON.parse(data);
