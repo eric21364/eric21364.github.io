@@ -60,11 +60,12 @@ async function checkin() {
       const request = {
         mothod:'POST',
         url: 'https://shopee.tw/mkt/coins/api/v2/checkin',
-        headers: config.shopeeHeaders,
+        headers:{
+        'Cookie': $prefs.valueForKey("CookieSP") + ';SPC_EC=' + $prefs.valueForKey("SPC_EC") + ';',
+        'X-CSRFToken': $prefs.valueForKey("CSRFTokenSP"),
+		}
       };
-      console.log(JSON.stringify(request))
       $task.fetch(request).then(response => {
-        console.log(JSON.stringify(response))
         const data = response.body
         if (response.statusCode == 200) {
             const obj = JSON.parse(data);
@@ -72,13 +73,13 @@ async function checkin() {
               return resolve({
                 checkInDay: obj.data.check_in_day,
                 coins: obj.data.increase_coins,
-              });
+              });https://shopee.tw/mkt/coins/api/v2/checkin
             } else {
               showNotification = false;
               return reject(['簽到失敗 ‼️', '本日已簽到']);
             }
           } else {
-            return reject(['簽到失敗 ‼️', response.status]);
+            return reject(['簽到失敗 ‼️', response.statusCode]);
           }
         }).catch(error=>{
             if (error) {
