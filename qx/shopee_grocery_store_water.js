@@ -87,7 +87,7 @@ async function claimGroceryStoreWater() {
                 ),
                 redirect: 'follow'
             };
-            $task.fetch(waterRequest).then(response => {
+            $task.fetch(request).then(response => {
                 const data = response.body
                 if (response.statusCode == 200) {
                     const obj = JSON.parse(data);
