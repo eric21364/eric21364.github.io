@@ -18,10 +18,10 @@ function surgeNotify(subtitle = '', message = '') {
   
   function isManualRun(checkRequest = false, checkResponse = false) {
     if (checkRequest) {
-      return typeof $request === 'undefined' || ($request.body && JSON.parse($request.body).foo === 'bar');
+      return typeof $request === 'undefined' || ($request.body && $request.body.foo === 'bar');
     }
     if (checkResponse) {
-      return typeof $response === 'undefined' || ($response.body && JSON.parse($response.body).foo === 'bar');
+      return typeof $response === 'undefined' || ($response.body && $response.body.foo === 'bar');
     }
     return false;
   }
@@ -34,8 +34,7 @@ function surgeNotify(subtitle = '', message = '') {
   async function getCropData() {
     return new Promise((resolve, reject) => {
       try {
-        const body = JSON.parse($request.body);
-        console.log('json.parse')
+        const body = $request.body;
         if (body && body.cropId && body.resourceId && body.s) {
           let shopeeFarmInfo = getSaveObject('ShopeeFarmInfo');
           shopeeFarmInfo.currentCrop = body;
