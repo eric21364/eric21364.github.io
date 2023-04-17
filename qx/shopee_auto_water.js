@@ -156,8 +156,10 @@ async function water() {
         console.log('✅ 澆水成功');
 
         if (result.state === 3) {
+            surgeNotify('澆水成功 ✅',`本次澆了： ${result.useNumber} 滴水 💧，剩餘 ${result.remain} 滴水收成`)
             console.log(`本次澆了： ${result.useNumber} 滴水 💧，剩餘 ${result.remain} 滴水收成`);
         } else {
+            surgeNotify('澆水成功 ✅',`本次澆了： ${result.useNumber} 滴水 💧，剩餘 ${result.remain} 滴水成長至下一階段`)
             console.log(`本次澆了： ${result.useNumber} 滴水 💧，剩餘 ${result.remain} 滴水成長至下一階段`);
         }
 
