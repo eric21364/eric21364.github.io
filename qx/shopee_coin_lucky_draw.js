@@ -67,6 +67,7 @@ async function eventListGetActivity() {
                     types: [{ 'type': 'coin_carousel' }, { 'type': 'coin_square' }],
                 },
             };
+            console.log('eventListGetActivity')
             $task.fetch(request).then(response => {
                 console.log(JSON.JSON.stringify(response))
                 const data = response.body
