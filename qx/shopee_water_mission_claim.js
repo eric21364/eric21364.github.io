@@ -76,6 +76,7 @@ async function getRewardList() {
             $task.fetch(getListRequest).then(response => {
                 const data = response.body
                 if (response.statusCode == 200) {
+                    console.log(data)
                     const obj = JSON.parse(data);
                     const taskGroups = obj.data.userTasks;
                     for (let i = 0; i < taskGroups.length; i++) {
