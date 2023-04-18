@@ -2,7 +2,7 @@ let showNotification = true;
 let config = null;
 
 function shopeeNotify(subtitle = '', message = '') {
-    notify('🍤 蝦皮每日簽到', subtitle, message, { 'url': 'shopeetw://' });
+    $notify('🍤 蝦皮每日簽到', subtitle, message, { 'url': 'shopeetw://' });
 };
 
 function handleError(error) {
@@ -58,10 +58,12 @@ async function checkin() {
     return new Promise((resolve, reject) => {
         try {
             const request = {
-                mothod: 'POST',
+                method: 'POST',
                 url: 'https://shopee.tw/mkt/coins/api/v2/checkin',
                 headers: config.shopeeHeaders,
+                redirect: 'follow'
             };
+
             $task.fetch(request).then(response => {
                 const data = response.body
                 if (response.statusCode == 200) {
@@ -71,7 +73,7 @@ async function checkin() {
                             checkInDay: obj.data.check_in_day,
                             coins: obj.data.increase_coins,
                         });
-            } else {
+                    } else {
                         showNotification = false;
                         return reject(['簽到失敗 ‼️', '本日已簽到']);
                     }
