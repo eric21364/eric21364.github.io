@@ -109,6 +109,7 @@ async function water() {
             $task.fetch(waterRequest).then(response => {
                 const data = response.body
                 if (response.statusCode == 200) {
+                    console.log(data)
                     const obj = JSON.parse(data);
                     if (obj.code === 0) {
                         const useNumber = obj.data.useNumber;
