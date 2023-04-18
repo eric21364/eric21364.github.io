@@ -90,15 +90,12 @@ async function deleteOldData() {
 async function water() {
     return new Promise((resolve, reject) => {
         try {
+            console.log('config',JSON.stringify(config))
             if (!config.shopeeFarmInfo.currentCrop || config.shopeeFarmInfo.currentCrop.cropId === 0) {
                 showNotification = false;
                 return reject(['澆水失敗 ‼️', '目前沒有作物']);
             }
 
-            var myHeaders = new Headers();
-            myHeaders.append("Cookie", config.shopeeHeaders['Cookie'])
-            myHeaders.append("Content-Type", "application/json");
-            var raw = JSON.stringify(config.shopeeFarmInfo.currentCrop);
             const waterRequest = {
                 method: 'POST',
                 url: 'https://games.shopee.tw/farm/api/orchard/crop/water?t=' + new Date().getTime(),
