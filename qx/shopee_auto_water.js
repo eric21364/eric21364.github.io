@@ -90,7 +90,6 @@ async function deleteOldData() {
 async function water() {
     return new Promise((resolve, reject) => {
         try {
-            console.log('config',JSON.stringify(config))
             if (!config.shopeeFarmInfo.currentCrop || config.shopeeFarmInfo.currentCrop.cropId === 0) {
                 showNotification = false;
                 return reject(['澆水失敗 ‼️', '目前沒有作物']);
@@ -106,7 +105,6 @@ async function water() {
             $task.fetch(waterRequest).then(response => {
                 const data = response.body
                 if (response.statusCode == 200) {
-                    console.log(data)
                     const obj = JSON.parse(data);
                     if (obj.code === 0) {
                         const useNumber = obj.data.useNumber;
