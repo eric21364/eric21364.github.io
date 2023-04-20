@@ -98,6 +98,7 @@ async function getSeedList() {
                 headers: config.shopeeHeaders,
             };
             $task.fetch(request).then(response => {
+                console.log('request',request)
                 const data = response.body
                 if (response.statusCode == 200) {
                     console.log('data',data)
