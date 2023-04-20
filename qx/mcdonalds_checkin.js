@@ -30,6 +30,7 @@ let joinGameRequest = {
 
 $task.fetch(checkInDetailRequest).then(response => {
     const data = response.body
+    console.log(data)
     if (response.statusCode == 200) {
         try {
             let obj = JSON.parse(data);
@@ -71,7 +72,9 @@ $task.fetch(checkInDetailRequest).then(response => {
 
 function checkIn() {
     $task.fetch(joinGameRequest).then(response => {
+        
         const data = response.body
+        console.log(data)
         if (response.statusCode == 200) {
             try {
                 let obj = JSON.parse(data);
