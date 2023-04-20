@@ -94,14 +94,12 @@ async function getSeedList() {
         try {
             const request = {
                 mothod: 'GET',
-                url: `https://games.shopee.tw/farm/api/orchard/crop/meta/get?t=${new Date().getTime()}`,
+                url: 'https://games.shopee.tw/farm/api/orchard/crop/meta/get?t=' + new Date().getTime(),
                 headers: config.shopeeHeaders,
             };
             $task.fetch(request).then(response => {
-                console.log('request',request)
                 const data = response.body
                 if (response.statusCode == 200) {
-                    console.log('data',data)
                     const obj = JSON.parse(data);
                     if (obj.msg === 'success') {
                         const cropMetas = obj.data.cropMetas;
@@ -120,7 +118,7 @@ async function getSeedList() {
                                         else {
                                             createCropRequest = {
                                                 method: 'POST',
-                                                url: `https://games.shopee.tw/farm/api/orchard/crop/create?t=${new Date().getTime()}`,
+                                                url: 'https://games.shopee.tw/farm/api/orchard/crop/create?t=' + new Date().getTime(),
                                                 headers: config.shopeeHeaders,
                                                 body: JSON.stringify(
                                                     {
@@ -165,6 +163,7 @@ async function createCrop() {
 
             $task.fetch(createCropRequest).then(response => {
                 const data = response.body
+                console.log(data)
                 if (response.statusCode == 200) {
                     const obj = JSON.parse(data);
                     if (obj.msg === 'success') {
