@@ -11,7 +11,7 @@ const checkInDetailRequest = {
     method: 'POST',
     url: 'https://mcdapi.mcddailyapp.com.tw/McDonaldAPI/game/checkIn/detail',
     headers: {
-        'accessToken': $persistentStore.read("McdonaldsToken"),
+        'accessToken': $prefs.valueForKey("McdonaldsToken"),
         'Content-Type': 'application/json'
     },
     redirect: 'follow'
@@ -21,7 +21,7 @@ let joinGameRequest = {
     method: 'POST',
     url: 'https://mcdapi.mcddailyapp.com.tw/McDonaldAPI/game/joinGame',
     headers: {
-        'accessToken': $persistentStore.read("McdonaldsToken"),
+        'accessToken': $prefs.valueForKey("McdonaldsToken"),
         'Content-Type': 'application/json'
     },
     body: '',
@@ -37,7 +37,7 @@ $task.fetch(checkInDetailRequest).then(response => {
                 const returnData = JSON.parse(aesDecrypt(obj.data));
                 const gameId = returnData.gameCheckInVo.gameId;
 
-                joinGameRequest.body = aesEncrypt('{"gameId":' + gameId + '}');
+                joinGameRequest.body = JSON.stringify( aesEncrypt('{"gameId":' + gameId + '}'));
                 checkIn();
             } else if (obj.code !== 0) {
                 mcdonaldsNotify(
