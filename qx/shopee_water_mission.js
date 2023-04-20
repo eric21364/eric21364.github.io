@@ -85,6 +85,7 @@ function waterMission(index) {
 
             try {
                 const obj = JSON.parse(data);
+                console.log(data)
                 if (obj.msg === 'success') {
                     console.log(missions[index].missionName + '成功 ✅');
                      shopeeNotify(
