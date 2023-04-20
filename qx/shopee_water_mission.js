@@ -8,13 +8,7 @@ function shopeeNotify(subtitle = '', message = '') {
     $notify('🍤 蝦蝦果園執行任務', subtitle, message, { 'url': 'shopeetw://' });
 };
 
-let request = {
-    method: 'POST',
-    url: '',
-    headers: shopeeHeaders,
-    body: { actionKey: '' },
-    redirect: 'follow'
-};
+
 
 let missions = [];
 
@@ -72,9 +66,18 @@ function waterMission(index) {
     const now = new Date().getTime();
     const missionName = missions[index].missionName;
     const actionKey = missions[index].actionKey;
-    request.url = url = 'https://games.shopee.tw/farm/api/task/action?t=' + now;
-    request.body.actionKey = actionKey;
-    request.body = JSON.stringify(request.body);
+
+    let request = {
+        method: 'POST',
+        url: 'https://games.shopee.tw/farm/api/task/action?t=' + now,
+        headers: shopeeHeaders,
+        body: JSON.stringify(
+            {
+                actionKey: actionKey
+            }
+        ),
+        redirect: 'follow'
+    };
 
     $task.fetch(request).then(response => {
         const data = response.body
