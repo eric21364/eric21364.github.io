@@ -5,7 +5,7 @@ const shopeeHeaders = {
     'X-CSRFToken': shopeeCSRFToken,
 };
 function shopeeNotify(subtitle = '', message = '') {
-    $prefs.valueForKey('🍤 蝦蝦果園執行任務', subtitle, message, { 'url': 'shopeetw://' });
+    $notify('🍤 蝦蝦果園執行任務', subtitle, message, { 'url': 'shopeetw://' });
 };
 
 let request = {
