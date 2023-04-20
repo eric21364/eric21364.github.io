@@ -11,7 +11,7 @@ const checkInDetailRequest = {
     method: 'POST',
     url: 'https://mcdapi.mcddailyapp.com.tw/McDonaldAPI/game/checkIn/detail',
     headers: {
-        'accessToken': $persistentStore.read("McdonaldsToken"),
+        'accessToken': $prefs.valueForKey("McdonaldsToken"),
         'Content-Type': 'application/json'
     },
     redirect: 'follow'
@@ -21,7 +21,7 @@ let joinGameRequest = {
     method: 'POST',
     url: 'https://mcdapi.mcddailyapp.com.tw/McDonaldAPI/game/joinGame',
     headers: {
-        'accessToken': $persistentStore.read("McdonaldsToken"),
+        'accessToken': $prefs.valueForKey("McdonaldsToken"),
         'Content-Type': 'application/json'
     },
     body: '',
@@ -54,7 +54,7 @@ $task.fetch(checkInDetailRequest).then(response => {
             return reject(['澆水失敗 ‼️', `錯誤代號：${obj.code}，訊息：${obj.msg}`]);
         }
     } else {
-        return reject(['澆水失敗 ‼️', response.status]);
+        return reject(['澆水失敗 ‼️', response.statusCode]);
     }
 }).catch(error => {
     if (error) {
