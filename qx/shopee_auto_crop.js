@@ -100,6 +100,7 @@ async function getSeedList() {
             $task.fetch(request).then(response => {
                 const data = response.body
                 if (response.statusCode == 200) {
+                    console.log('data',data)
                     const obj = JSON.parse(data);
                     if (obj.msg === 'success') {
                         const cropMetas = obj.data.cropMetas;
