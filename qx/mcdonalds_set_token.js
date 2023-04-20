@@ -54,6 +54,6 @@ async function saveToken() {
     surgeNotify('保存成功 ✅', '');
   } catch (error) {
     handleError(error);
-  }
+  } 
   $done({});
 })();
