@@ -174,7 +174,7 @@ async function createCrop() {
                         } else {
                             shopeeCrop = { 'cropId': cropId };
                         }
-                        const saveShopeeCrop = $persistentStore.write(JSON.stringify(shopeeCrop), 'ShopeeCrop');
+                        const saveShopeeCrop = $prefs.setValueForKey(JSON.stringify(shopeeCrop), 'ShopeeCrop');
                         return resolve();
                     } else if (obj.code === 409003) {
                         return reject(['自動種植失敗 ‼️', `目前有正在種的作物「${obj.data.crop.meta.name}」`]);
