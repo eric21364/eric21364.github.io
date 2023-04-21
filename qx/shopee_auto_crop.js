@@ -164,7 +164,6 @@ async function createCrop() {
 
             $task.fetch(createCropRequest).then(response => {
                 const data = response.body
-                console.log(data)
                 if (response.statusCode == 200) {
                     const obj = JSON.parse(data);
                     if (obj.msg === 'success') {
@@ -189,6 +188,8 @@ async function createCrop() {
                 }
             }).catch(error => {
                 if (error) {
+                    console.log(error)
+                    console.log(JSON.stringify(error))
                     return reject(['自動種植失敗 ‼️', '連線錯誤']);
                 }
             })
