@@ -189,7 +189,7 @@ async function createCrop() {
             }).catch(error => {
                 if (error) {
                     console.log(error)
-                    console.log(JSON.stringify(error))
+               
                     return reject(['自動種植失敗 ‼️', '連線錯誤']);
                 }
             })
