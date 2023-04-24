@@ -168,13 +168,13 @@ async function createCrop() {
                     const obj = JSON.parse(data);
                     if (obj.msg === 'success') {
                         const cropId = obj.data.crop.id;
-                        let shopeeCrop = JSON.parse($prefs.valueForKey('ShopeeCrop'));
+                        let shopeeCrop = $prefs.valueForKey('ShopeeCrop');
                         if (shopeeCrop) {
                             shopeeCrop.cropId = cropId;
                         } else {
                             shopeeCrop = { 'cropId': cropId };
                         }
-                        const saveShopeeCrop = $prefs.setValueForKey(JSON.stringify(shopeeCrop), 'ShopeeCrop');
+                        const saveShopeeCrop = $prefs.setValueForKey(shopeeCrop, 'ShopeeCrop');
                         return resolve();
                     } else if (obj.code === 409003) {
                         return reject(['自動種植失敗 ‼️', `目前有正在種的作物「${obj.data.crop.meta.name}」`]);
