@@ -21,7 +21,7 @@ function handleError(error) {
 }
 
 function getSaveObject(key) {
-  const string = $persistentStore.read(key);
+  const string = $prefs.valueForKey(key);
   return !string || string.length === 0 ? {} : JSON.parse(string);
 }
 
@@ -58,8 +58,8 @@ async function preCheck() {
     const shopeeFarmInfo = getSaveObject('ShopeeFarmInfo');
     if (isEmptyObject(shopeeFarmInfo)) {
       console.log('⚠️ 沒有新版蝦蝦果園資訊，使用舊版');
-      currentCrop = JSON.parse($persistentStore.read('ShopeeCrop')) || {};
-      autoCropSeedName = $persistentStore.read('ShopeeCropName') || '';
+      currentCrop = JSON.parse($prefs.valueForKey('ShopeeCrop')) || {};
+      autoCropSeedName = $prefs.valueForKey('ShopeeCropName') || '';
       // return reject(['檢查失敗 ‼️', '沒有新版 token']);
     } else {
       currentCrop = shopeeFarmInfo.currentCrop;
@@ -164,7 +164,7 @@ async function createCrop() {
             const obj = JSON.parse(data);
             if (obj.msg === 'success') {
               const cropId = obj.data.crop.id;
-              let shopeeCrop = JSON.parse($persistentStore.read('ShopeeFarmInfo'));
+              let shopeeCrop = JSON.parse($prefs.valueForKey('ShopeeFarmInfo'));
               if (shopeeCrop) {
                 shopeeCrop.cropId = cropId;
               } else {
