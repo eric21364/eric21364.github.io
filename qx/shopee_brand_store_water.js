@@ -98,7 +98,7 @@ async function getBrandList() {
         try {
             const request = {
                 mothod: 'GET',
-                url: 'https://games.shopee.tw/farm/api/brands_ads/list',
+                url: 'https://games.shopee.tw/farm/api/brands_ads/task/list',
                 headers: config.shopeeHeaders,
             };
 
