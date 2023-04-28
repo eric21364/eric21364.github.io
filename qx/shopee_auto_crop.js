@@ -106,7 +106,6 @@ async function getSeedList() {
                         let found = false;
                         let haveSeed = true;
                         for (const cropName of config.autoCropSeedNames) {
-                            console.log(`🔍尋找「${cropName}」種子`);
                             for (const crop of cropMetas) {
                                 // console.log(`🔍 找到「${crop.name}」種子`);
                                 if (crop.name.includes(cropName)) {
@@ -169,13 +168,13 @@ async function createCrop() {
                     const obj = JSON.parse(data);
                     if (obj.msg === 'success') {
                         const cropId = obj.data.crop.id;
-                        let shopeeCrop = JSON.parse($prefs.valueForKey('ShopeeCrop'));
+                        let shopeeCrop = JSON.parse($prefs.valueForKey('ShopeeFarmInfo'));
                         if (shopeeCrop) {
                             shopeeCrop.cropId = cropId;
                         } else {
                             shopeeCrop = { 'cropId': cropId };
                         }
-                        const saveShopeeCrop = $prefs.setValueForKey(JSON.stringify(shopeeCrop), 'ShopeeCrop');
+                        const saveShopeeCrop = $prefs.setValueForKey(JSON.stringify(shopeeCrop), 'ShopeeFarmInfo');
                         return resolve();
                     } else if (obj.code === 409003) {
                         return reject(['自動種植失敗 ‼️', `目前有正在種的作物「${obj.data.crop.meta.name}」`]);

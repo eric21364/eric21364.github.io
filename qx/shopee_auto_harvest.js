@@ -93,7 +93,7 @@ async function harvest() {
                             // 刪除作物資料
                             let shopeeFarmInfo = getSaveObject('ShopeeFarmInfo');
                             shopeeFarmInfo.currentCrop.cropId = 0;
-                            const save = $persistentStore.write(JSON.stringify(shopeeFarmInfo, null, 4), 'ShopeeFarmInfo');
+                            const save = $prefs.setValueForKey(JSON.stringify(shopeeFarmInfo, null, 4), 'ShopeeFarmInfo');
                             if (!save) {
                                 console.log('⚠️ 儲存失敗，無法更新作物資料');
                             }

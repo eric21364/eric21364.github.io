@@ -85,12 +85,13 @@ function waterMission(index) {
 
             try {
                 const obj = JSON.parse(data);
+                console.log(data)
                 if (obj.msg === 'success') {
                     console.log(missions[index].missionName + '成功 ✅');
-                    // shopeeNotify(
-                    //   '執行成功 ✅',
-                    //   '已完成 ' + missions[index].missionName
-                    // );
+                     shopeeNotify(
+                      '執行成功 ✅',
+                     '已完成 ' + missions[index].missionName
+                     );
                 } else if (obj.msg === 'lock failed.') {
                     shopeeNotify(
                         '執行 ' + missionName + ' 失敗 ‼️',
@@ -115,6 +116,7 @@ function waterMission(index) {
             );
         }
         if (index < missions.length - 1) {
+            console.log('執行下一個任務')
             waterMission(index + 1);
         }
         else {

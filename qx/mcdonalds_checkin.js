@@ -2,7 +2,7 @@
 !(function (t, r) { 'object' == typeof exports ? (module.exports = exports = r()) : 'function' == typeof define && define.amd ? define([], r) : (t.CryptoJS = r()); })(this, loadCryptoJS());
 
 function mcdonaldsNotify(subtitle = '', message = '') {
-    $notify('🍟 麥當勞每日簽到', subtitle, message, { 'url': 'mcdonalds.app://' });
+    $notification.post('🍟 麥當勞每日簽到', subtitle, message, { 'url': 'mcdonalds.app://' });
 };
 
 const aesKey = CryptoJS.enc.Utf8.parse('1s2unxaounk8zusv');
@@ -11,7 +11,7 @@ const checkInDetailRequest = {
     method: 'POST',
     url: 'https://mcdapi.mcddailyapp.com.tw/McDonaldAPI/game/checkIn/detail',
     headers: {
-        'accessToken': $persistentStore.read("McdonaldsToken"),
+        'accessToken': $prefs.valueForKey("McdonaldsToken"),
         'Content-Type': 'application/json'
     },
     redirect: 'follow'
@@ -21,7 +21,7 @@ let joinGameRequest = {
     method: 'POST',
     url: 'https://mcdapi.mcddailyapp.com.tw/McDonaldAPI/game/joinGame',
     headers: {
-        'accessToken': $persistentStore.read("McdonaldsToken"),
+        'accessToken': $prefs.valueForKey("McdonaldsToken"),
         'Content-Type': 'application/json'
     },
     body: '',
@@ -31,6 +31,7 @@ let joinGameRequest = {
 $task.fetch(checkInDetailRequest).then(response => {
     console.log(JSON.stringify(response))
     const data = response.body
+    console.log(data)
     if (response.statusCode == 200) {
         try {
             let obj = JSON.parse(data);
@@ -38,7 +39,7 @@ $task.fetch(checkInDetailRequest).then(response => {
                 const returnData = JSON.parse(aesDecrypt(obj.data));
                 const gameId = returnData.gameCheckInVo.gameId;
 
-                joinGameRequest.body = aesEncrypt('{"gameId":' + gameId + '}');
+                joinGameRequest.body = JSON.stringify( aesEncrypt('{"gameId":' + gameId + '}'));
                 checkIn();
             } else if (obj.code !== 0) {
                 mcdonaldsNotify(
@@ -72,7 +73,9 @@ $task.fetch(checkInDetailRequest).then(response => {
 
 function checkIn() {
     $task.fetch(joinGameRequest).then(response => {
+        
         const data = response.body
+        console.log(data)
         if (response.statusCode == 200) {
             try {
                 let obj = JSON.parse(data);
