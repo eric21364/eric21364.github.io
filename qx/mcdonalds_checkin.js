@@ -29,40 +29,7 @@ let joinGameRequest = {
 }
 
 $task.fetch(checkInDetailRequest).then(response => {
-    const data = response.body
-    if (response.statusCode == 200) {
-        const obj = JSON.parse(data);
-        if (obj.code === 0) {
-            const useNumber = obj.data.useNumber;
-            const state = obj.data.crop.state;
-            const exp = obj.data.crop.exp;
-            const levelExp = obj.data.crop.meta.config.levelConfig[state.toString()].exp;
-            const remain = levelExp - exp;
-            return resolve({
-                state: state,
-                useNumber: useNumber,
-                remain: remain,
-            });
-        } else if (obj.code === 409000) {
-            showNotification = false;
-            return reject(['澆水失敗 ‼️', '水壺目前沒水']);
-        } else if (obj.code === 403005) {
-            return reject(['澆水失敗 ‼️', '作物狀態錯誤，請先手動澆水一次']);
-        } else if (obj.code === 409004) {
-            return reject(['澆水失敗 ‼️', '作物狀態錯誤，請檢查是否已收成']);
-        } else {
-            return reject(['澆水失敗 ‼️', `錯誤代號：${obj.code}，訊息：${obj.msg}`]);
-        }
-    } else {
-        return reject(['澆水失敗 ‼️', response.status]);
-    }
-}).catch(error => {
-    if (error) {
-        return reject(['澆水失敗 ‼️', '連線錯誤']);
-    }
-})
-
-$task.fetch(checkInDetailRequest).then(response => {
+    console.log(JSON.stringify(response))
     const data = response.body
     if (response.statusCode == 200) {
         try {
@@ -103,9 +70,7 @@ $task.fetch(checkInDetailRequest).then(response => {
     }
 })
 
-
 function checkIn() {
-
     $task.fetch(joinGameRequest).then(response => {
         const data = response.body
         if (response.statusCode == 200) {
@@ -136,6 +101,7 @@ function checkIn() {
                 '請重新登入'
             );
         }
+        $done();
     }).catch(error => {
         if (error) {
             mcdonaldsNotify(
