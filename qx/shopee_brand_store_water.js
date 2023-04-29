@@ -109,7 +109,9 @@ async function getBrandList() {
                     if (obj.code === 0) {
                         let brandStores = [];
                         for (const store of obj.data.userTasks) {
+                            
                             const storeInfo =store.taskInfo.rcmdShopInfo
+                            console.log(storeInfo)
                             //const storeUserName = store.taskInfo.shopGame ? store.taskInfo.shopGame.userName : '';
                            const moduleId = store.taskInfo.moduleId;
                             console.log(`ℹ️ 找到品牌商店：${storeInfo.shopUserName}`);
