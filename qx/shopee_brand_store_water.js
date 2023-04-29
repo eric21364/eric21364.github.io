@@ -117,23 +117,24 @@ async function getBrandList() {
                     const obj = JSON.parse(data);
                     if (obj.code === 0) {
                         let brandStores = [];
-                        for (const store of obj.data.userTasks) {
+                        const Tasks = obj.data.userTasks.concat(obj.data.shopAdsTask);
+                        console.log(Tasks.length)
+                        for (const store of Tasks) {
+                            if (store.taskFinishNum <= 0) {
+                                const storeInfo = store.taskInfo
+                                const storeUserName = store.rcmd_shop_info ? store.rcmd_shop_info.shop_user_name : storeInfo.taskName;
+                                const moduleId = store.taskInfo.moduleId;
+                                console.log(`ℹ️ 找到品牌商店：${storeInfo.taskName}`);
 
-                            const storeInfo = store.taskInfo
-                            const storeUserName = store.rcmd_shop_info ? store.rcmd_shop_info.shop_user_name : storeInfo.taskName;
-                            const moduleId = store.taskInfo.moduleId;
-                            console.log(`ℹ️ 找到品牌商店：${storeInfo.taskName}`);
-                            // console.log(`ℹ️ 商店名稱：${store.brandName}\nID：${storeUserName}\n活動ID：${store.activityCode || 'N/A'}\n水滴：${store.waterValue}\n狀態：${store.isClaimed ? '已領取' : '未領取'}`)
-                            const taskId = getTask(storeInfo.ctaUrl)
-                            brandStores.push({
-                                'storeName': storeInfo.taskName,
-                                'task_id': taskId,
-                                'module_id': moduleId,
-                                'brandName': storeUserName,
-                                'waterValue': storeInfo.prizeValue
-                            });
-
-
+                                const taskId = getTask(storeInfo.ctaUrl)
+                                brandStores.push({
+                                    'storeName': storeInfo.taskName,
+                                    'task_id': taskId,
+                                    'module_id': moduleId,
+                                    'brandName': storeUserName,
+                                    'waterValue': storeInfo.prizeValue
+                                });
+                            }
                         }
                         if (!brandStores.length) {
                             return reject(['取得品牌商店列表失敗 ‼️', '今天沒有品牌商店水滴活動']);
@@ -304,7 +305,7 @@ async function delay(seconds) {
                 console.log(JSON.stringify(new_store))
                 await claim(new_store);
                 otalClaimedWater += store.waterValue;
-                
+
             } else {
                 console.log(`✅ 今天已領過 ${store.brandName} 的水滴`);
             }
