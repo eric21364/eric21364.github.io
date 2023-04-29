@@ -250,7 +250,7 @@ async function claim(store) {
                 ),
                 redirect: 'follow'
             };
-
+            console.log(JSON.stringify(request))
             $task.fetch(request).then(response => {
                 const data = response.body
                 if (response.statusCode == 200) {
