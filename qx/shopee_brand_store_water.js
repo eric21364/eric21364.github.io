@@ -120,7 +120,7 @@ async function getBrandList() {
                         const Tasks = obj.data.userTasks.concat(obj.data.shopAdsTask);
                         console.log(JSON.stringify(Tasks))
                         for (const store of Tasks) {
-                            if (store.taskFinishStatus <= 1 ) {
+                            if (store.taskFinishStatus <= 1) {
                                 const storeInfo = store.taskInfo
                                 const storeUserName = store.rcmd_shop_info ? store.rcmd_shop_info.shop_user_name : storeInfo.taskName;
                                 const moduleId = store.taskInfo.moduleId;
@@ -128,7 +128,7 @@ async function getBrandList() {
 
                                 const taskId = getTask(storeInfo.ctaUrl)
                                 brandStores.push({
-                                    'shop_id': store.shopAdsRcmdShopInfo ?  store.shopAdsRcmdShopInfo.rcmdShopInfo.shopId :0,
+                                    'shop_id': store.shopAdsRcmdShopInfo ? store.shopAdsRcmdShopInfo.rcmdShopInfo.shopId : 0,
                                     'storeName': storeInfo.taskName,
                                     'task_id': taskId,
                                     'module_id': moduleId,
@@ -216,7 +216,7 @@ async function componentReport(store, token) {
                 const data = response.body
                 if (response.statusCode == 200) {
                     const obj = JSON.parse(data);
-                    store.shop_id = obj.data.user_task.rcmd_shop_info ? obj.data.user_task.rcmd_shop_info.shop_id : 0;
+                    store.shop_id = store.shop_id != 0 ? store.shop_id : obj.data.user_task.rcmd_shop_info ? obj.data.user_task.rcmd_shop_info.shop_id : 0;
                     store.task_id = obj.data.user_task.task.id;
                     return resolve(store);
                 } else {
