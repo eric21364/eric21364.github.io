@@ -245,7 +245,7 @@ async function claim(store) {
                 body: JSON.stringify(
                     {
                         "task_id": store.task_id,
-                        "request_id": `__game_platform_task__${store.task_id}_${parseInt(config.shopeeInfo.token.SPC_U)}_${Math.floor(new Date().getTime() / 1000)}`,
+                        "request_id": `__game_platform_task__${store.shop_id}_${parseInt(config.shopeeInfo.token.SPC_U)}_${Math.floor(new Date().getTime() / 1000)}`,
                         "module_id": store.module_id
                     }
                 ),
