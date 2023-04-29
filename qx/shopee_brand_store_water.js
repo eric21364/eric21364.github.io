@@ -68,13 +68,13 @@ function genKeyIv(token, offset) {
     return CryptoJS.MD5(CryptoJS.enc.Hex.parse(chars)).toString().substring(8, 24);
 }
 
-function getTaskUrl(url) {
+function getTask(url) {
     let activityId = '';
     const re = url.includes('taskId=') ? /taskId=(.*)/i : /taskId%3D(.*)/i;
     const found = url.match(re);
     activityId = found[1];
 
-    return `https://games.shopee.tw/gameplatform/api/v3/task/browse/${activityId}?module_id=404`
+    return activityId;
 }
 
 async function preCheck() {
@@ -125,10 +125,14 @@ async function getBrandList() {
                             const moduleId = store.taskInfo.moduleId;
                             console.log(`ℹ️ 找到品牌商店：${storeInfo.taskName}`);
                             // console.log(`ℹ️ 商店名稱：${store.brandName}\nID：${storeUserName}\n活動ID：${store.activityCode || 'N/A'}\n水滴：${store.waterValue}\n狀態：${store.isClaimed ? '已領取' : '未領取'}`)
-                            
-                            const getTokenUrl =getTaskUrl(storeInfo.ctaUrl)
-                           
-                            console.log(getTokenUrl)
+                            brandStores.push({
+                                'storeName':storeInfo.taskName,
+                                'task_id': store.taskInfo.id,
+                                'module_id': moduleId
+                            });
+                            const taskId =getTask(storeInfo.ctaUrl)
+                            getBrandToken(storeInfo.taskName,taskId,moduleId)
+
                         }
                         if (!brandStores.length) {
                             return reject(['取得品牌商店列表失敗 ‼️', '今天沒有品牌商店水滴活動']);
@@ -154,63 +158,13 @@ async function getBrandList() {
     });
 }
 
-async function getBrandActivityId(store) {
-    return new Promise((resolve, reject) => {
-        try {
-            const request = {
-                method: 'POST',
-                url: 'https://mall.shopee.tw/api/v4/shop/get_shop_tab',
-                headers: config.shopeeHeaders,
-                body: JSON.stringify(
-                    {
-                        entry_point: 'fruitGame',
-                        username: store.userName,
-                        version: 3,
-                    }
-                ),
-                redirect: 'follow'
-            };
 
-            $task.fetch(request).then(response => {
-                const data = response.body
-                if (response.statusCode == 200) {
-                    const obj = JSON.parse(data);
-                    // 注意這邊跟平常不一樣，用的是 obj.error 而不是 obj.code
-                    if (obj.error === 0) {
-                        for (const decoration of obj.data.decoration) {
-                            if (decoration.shop_iframe_game?.url) {
-                                const url = decoration.shop_iframe_game.url;
-                                const re = /act_code=(.*)/i;
-                                const found = url.match(re);
-                                const activityId = found[1];
-                                console.log(`ℹ️ 取得 ${store.brandName} 活動 ID 成功：${activityId}`);
-                                return resolve(activityId);
-                            }
-                        }
-                        return resolve();
-                    } else {
-                        return reject([`取得 ${store.brandName} 活動 ID 失敗 ‼️`, `錯誤代號：${obj.error}，訊息：${obj.msg}`]);
-                    }
-                } else {
-                    return reject([`取得 ${store.brandName} 活動 ID 失敗 ‼️`, response.status]);
-                }
-            }).catch(error => {
-                if (error) {
-                    return reject([`取得 ${store.brandName} 活動 ID 失敗 ‼️`, '連線錯誤']);
-                }
-            })
-        } catch (error) {
-            return reject([`取得 ${store.brandName} 活動 ID 失敗 ‼️`, error]);
-        }
-    });
-}
-
-async function getBrandToken(store, activityId) {
+async function getBrandToken(store) {
     return new Promise((resolve, reject) => {
         try {
             const request = {
                 mothod: 'GET',
-                url: `https://games.shopee.tw/farm/api/brands_ads/get_iframe?activityId=${activityId}`,
+                url: `https://games.shopee.tw/gameplatform/api/v3/task/browse/${store.taskId}?module_id=${store.moduleId}`,
                 headers: config.shopeeHeaders,
             };
 
@@ -220,20 +174,21 @@ async function getBrandToken(store, activityId) {
                     const obj = JSON.parse(data);
                     if (obj.code === 0) {
                         console.log(`ℹ️ 取得 ${obj.data.shopName} token 成功：${obj.data.token}`);
-                        return resolve(obj.data.token);
+                        console.log(obj.data.report_token)
+                        return resolve(obj.data.report_token);
                     } else {
-                        return reject([`取得 ${store.brandName} token 失敗 ‼️`, `錯誤代號：${obj.code}，訊息：${obj.msg}`]);
+                        return reject([`取得 ${store.storeName} token 失敗 ‼️`, `錯誤代號：${obj.code}，訊息：${obj.msg}`]);
                     }
                 } else {
-                    return reject([`取得 ${store.brandName} token 失敗 ‼️`, response.status]);
+                    return reject([`取得 ${store.storeName} token 失敗 ‼️`, response.status]);
                 }
             }).catch(error => {
                 if (error) {
-                    return reject([`取得 ${store.brandName} token 失敗 ‼️`, '連線錯誤']);
+                    return reject([`取得 ${store.storeName} token 失敗 ‼️`, '連線錯誤']);
                 }
             })
         } catch (error) {
-            return reject([`取得 ${store.brandName} token 失敗 ‼️`, error]);
+            return reject([`取得 ${store.storeName} token 失敗 ‼️`, error]);
         }
     });
 }
@@ -300,13 +255,7 @@ async function claim(store, activityId, token) {
         let totalClaimedWater = 0;
         for (const store of brandStores) {
             if (!store.isClaimed) {
-                const activityId = store.userName ? await getBrandActivityId(store) : store.activityCode;
-                if (!activityId) {
-                    // 有時候 activityId 會突然消失找不到，過幾分鐘才出現，不知道為什麼
-                    console.log(`❌ 找不到品牌商店 ${store.brandName} 的活動 ID`);
-                    continue;
-                }
-                const token = await getBrandToken(store, activityId);
+                const token = await getBrandToken(store);
                 await claim(store, activityId, token);
                 totalClaimedWater += store.waterValue;
                 // await getBrandActivityId(store.username, store.activityCode);
