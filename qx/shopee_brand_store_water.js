@@ -128,7 +128,9 @@ async function getBrandList() {
                             brandStores.push({
                                 'storeName': storeInfo.taskName,
                                 'task_id': taskId,
-                                'module_id': moduleId
+                                'module_id': moduleId,
+                                'brandName': store.rcmd_shop_info.shop_user_name,
+                                'waterValue': storeInfo.prizeValue
                             });
 
 
@@ -179,18 +181,18 @@ async function getBrandToken(store) {
                         console.log(obj.data.report_token)
                         return resolve(obj.data.report_token);
                     } else {
-                        return reject([`取得 ${store.storeName} token 失敗 ‼️`, `錯誤代號：${obj.code}，訊息：${obj.msg}`]);
+                        return reject([`取得 ${store.brandName} token 失敗 ‼️`, `錯誤代號：${obj.code}，訊息：${obj.msg}`]);
                     }
                 } else {
-                    return reject([`取得 ${store.storeName} token 失敗 ‼️`, response.status]);
+                    return reject([`取得 ${store.brandName} token 失敗 ‼️`, response.status]);
                 }
             }).catch(error => {
                 if (error) {
-                    return reject([`取得 ${store.storeName} token 失敗 ‼️`, '連線錯誤']);
+                    return reject([`取得 ${store.brandName} token 失敗 ‼️`, '連線錯誤']);
                 }
             })
         } catch (error) {
-            return reject([`取得 ${store.storeName} token 失敗 ‼️`, error]);
+            return reject([`取得 ${store.brandName} token 失敗 ‼️`, error]);
         }
     });
 }
@@ -216,6 +218,7 @@ async function componentReport(store, token) {
                 if (response.statusCode == 200) {
                     const obj = JSON.parse(data);
                     store.shop_id = obj.data.user_task.rcmd_shop_info ? obj.data.user_task.rcmd_shop_info.shop_id : 0;
+                    store.task_id = obj.data.user_task.task.id;
                     return resolve(store);
                 } else {
                     return reject([`取得品牌商店 ${store.brandName} 活動 ID 失敗 ‼️`, response.status]);
@@ -243,14 +246,15 @@ async function claim(store, activityId, token) {
                 'userId': parseInt(config.shopeeInfo.token.SPC_U),
             };
 
-            const encStr = aesEncrypt(JSON.stringify(claimPayload), genKeyIv(token, 3), genKeyIv(token, 1));
             const request = {
                 method: 'POST',
                 url: 'https://games.shopee.tw/farm/api/brands_ads/claim',
                 headers: config.shopeeHeaders,
                 body: JSON.stringify(
                     {
-                        'S': `${encStr}2${token}${token.length}`,
+                        "task_id": store.task_id,
+                        "request_id": `__game_platform_task__${store.task_id}_${parseInt(config.shopeeInfo.token.SPC_U)}_${Math.floor(new Date().getTime() / 1000)}`,
+                        "module_id": store.module_id
                     }
                 ),
                 redirect: 'follow'
@@ -307,9 +311,9 @@ async function delay(seconds) {
                 await delay(31);
                 let a = await componentReport(store, token);
                 console.log(JSON.stringify(a))
-                //await claim(store, activityId, token);
-                //totalClaimedWater += store.waterValue;
-                // await getBrandActivityId(store.username, store.activityCode);
+                await claim(store, activityId, token);
+                otalClaimedWater += store.waterValue;
+                
             } else {
                 console.log(`✅ 今天已領過 ${store.brandName} 的水滴`);
             }
