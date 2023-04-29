@@ -168,17 +168,14 @@ async function getBrandToken(store) {
                 url: `https://games.shopee.tw/gameplatform/api/v3/task/browse/${store.task_id}?module_id=${store.module_id}`,
                 headers: config.shopeeHeaders,
             };
-            console.log(JSON.stringify(store))
 
             $task.fetch(request).then(response => {
                 const data = response.body
-                console.log(JSON.stringify(response))
                 if (response.statusCode == 200) {
                     const obj = JSON.parse(data);
 
                     if (obj.code === 0) {
-                        console.log(`ℹ️ 取得 ${obj.data.shopName} token 成功：${obj.data.token}`);
-                        console.log(obj.data.report_token)
+                        console.log(`ℹ️ 取得 ${store.brandName} token 成功：${obj.data.report_token}`);
                         return resolve(obj.data.report_token);
                     } else {
                         return reject([`取得 ${store.brandName} token 失敗 ‼️`, `錯誤代號：${obj.code}，訊息：${obj.msg}`]);
@@ -236,15 +233,9 @@ async function componentReport(store, token) {
 }
 
 
-async function claim(store, activityId, token) {
+async function claim(store) {
     return new Promise((resolve, reject) => {
         try {
-            const claimPayload = {
-                'activityIdStr': activityId,
-                'timestamp': Math.floor(new Date().getTime() / 1000),
-                'token': token,
-                'userId': parseInt(config.shopeeInfo.token.SPC_U),
-            };
 
             const request = {
                 method: 'POST',
