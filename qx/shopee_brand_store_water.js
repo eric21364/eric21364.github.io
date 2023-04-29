@@ -120,7 +120,7 @@ async function getBrandList() {
                         for (const store of obj.data.userTasks) {
 
                             const storeInfo = store.taskInfo
-                            //const storeUserName = store.taskInfo.shopGame ? store.taskInfo.shopGame.userName : '';
+                            const storeUserName = store.rcmd_shop_info ? store.rcmd_shop_info.shop_user_name : storeInfo.taskName;
                             const moduleId = store.taskInfo.moduleId;
                             console.log(`ℹ️ 找到品牌商店：${storeInfo.taskName}`);
                             // console.log(`ℹ️ 商店名稱：${store.brandName}\nID：${storeUserName}\n活動ID：${store.activityCode || 'N/A'}\n水滴：${store.waterValue}\n狀態：${store.isClaimed ? '已領取' : '未領取'}`)
@@ -129,7 +129,7 @@ async function getBrandList() {
                                 'storeName': storeInfo.taskName,
                                 'task_id': taskId,
                                 'module_id': moduleId,
-                                'brandName': store.rcmd_shop_info.shop_user_name,
+                                'brandName': storeUserName,
                                 'waterValue': storeInfo.prizeValue
                             });
 
