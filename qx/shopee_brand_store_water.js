@@ -304,7 +304,7 @@ async function delay(seconds) {
         for (const store of brandStores) {
             if (!store.isClaimed) {
                 const token = await getBrandToken(store);
-                delay(31);
+                await delay(31);
                 let a = await componentReport(store, token);
                 console.log(a)
                 //await claim(store, activityId, token);
