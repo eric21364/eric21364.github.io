@@ -110,14 +110,14 @@ async function getBrandList() {
                         let brandStores = [];
                         for (const store of obj.data.userTasks) {
                             
-                            const storeInfo =store.taskInfo.rcmdShopInfo
+                            const storeInfo =store.taskInfo
                             console.log(storeInfo)
                             //const storeUserName = store.taskInfo.shopGame ? store.taskInfo.shopGame.userName : '';
                            const moduleId = store.taskInfo.moduleId;
-                            console.log(`ℹ️ 找到品牌商店：${storeInfo.shopUserName}`);
+                            console.log(`ℹ️ 找到品牌商店：${storeInfo.taskName}`);
                             // console.log(`ℹ️ 商店名稱：${store.brandName}\nID：${storeUserName}\n活動ID：${store.activityCode || 'N/A'}\n水滴：${store.waterValue}\n狀態：${store.isClaimed ? '已領取' : '未領取'}`)
 
-                            const url = store.taskInfo.ctaUrl;
+                            const url = storeInfo.ctaUrl;
                                 const re = /taskId=(.*)/i;
                                 const found = url.match(re);
                                 const activityId = found[1];
