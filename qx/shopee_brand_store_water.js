@@ -135,7 +135,7 @@ async function getBrandList() {
                 }
             }).catch(error => {
                 if (error) {
-                    return reject(['取得品牌商店列表失敗 ‼️', '連線錯誤']);
+                    return reject(['取得品牌商店列表失敗 ‼️', error]);
                 }
             })
 
