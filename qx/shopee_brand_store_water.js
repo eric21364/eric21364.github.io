@@ -128,6 +128,7 @@ async function getBrandList() {
 
                                 const taskId = getTask(storeInfo.ctaUrl)
                                 brandStores.push({
+                                    'shop_id': store.shopAdsRcmdShopInfo ?  store.shopAdsRcmdShopInfo.rcmdShopInfo.shopId :0,
                                     'storeName': storeInfo.taskName,
                                     'task_id': taskId,
                                     'module_id': moduleId,
