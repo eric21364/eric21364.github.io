@@ -212,7 +212,6 @@ async function componentReport(store, token) {
 
             $task.fetch(request).then(response => {
                 const data = response.body
-                console.log(JSON.stringify(response))
                 if (response.statusCode == 200) {
                     const obj = JSON.parse(data);
                     store.shop_id = obj.data.user_task.rcmd_shop_info ? obj.data.user_task.rcmd_shop_info.shop_id : 0;
@@ -301,9 +300,9 @@ async function delay(seconds) {
             if (!store.isClaimed) {
                 const token = await getBrandToken(store);
                 await delay(31);
-                store = await componentReport(store, token);
-                console.log(JSON.stringify(store))
-                await claim(store);
+                let new_store = await componentReport(store, token);
+                console.log(JSON.stringify(new_store))
+                await claim(new_store);
                 otalClaimedWater += store.waterValue;
                 
             } else {
