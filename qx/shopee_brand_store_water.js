@@ -123,7 +123,7 @@ async function getBrandList() {
                             if (store.taskFinishStatus <= 4) {
                                 const storeInfo = store.taskInfo
                                 const storeUserName = store.rcmd_shop_info ? store.rcmd_shop_info.shop_user_name : storeInfo.taskName;
-                                const moduleId = store.taskInfo.moduleId;
+                                const moduleId = store.taskInfo.moduleId.toString();
                                 console.log(`ℹ️ 找到品牌商店：${storeInfo.taskName}`);
 
                                 const taskId = getTask(storeInfo.ctaUrl)
@@ -218,6 +218,7 @@ async function componentReport(store, token) {
                     const obj = JSON.parse(data);
                     store.shop_id = store.shop_id != 0 ? store.shop_id : obj.data.user_task.rcmd_shop_info ? obj.data.user_task.rcmd_shop_info.shop_id : 0;
                     store.task_id = obj.data.user_task.task.id;
+                    store.module_id = obj.data.user_task.task.module_id;
                     return resolve(store);
                 } else {
                     return reject([`取得品牌商店 ${store.brandName} 活動 ID 失敗 ‼️`, response.statusCode]);
@@ -244,7 +245,11 @@ async function claim(store) {
                 url: 'https://games.shopee.tw/farm/api/brands_ads/claim',
                 headers: config.shopeeHeaders,
                 body: JSON.stringify(
-                    {"task_id":store.task_id,"request_id":`__game_platform_task__${store.shop_id}_${parseInt(config.shopeeInfo.token.SPC_U)}_${Math.floor(new Date().getTime())}`,"module_id":store.module_id.toString()}
+                    {
+                        "task_id": parseInt(store.task_id),
+                        "request_id": `__game_platform_task__${store.shop_id}_${parseInt(config.shopeeInfo.token.SPC_U)}_${Math.floor(new Date().getTime())}`,
+                        "module_id": store.module_id.toString()
+                    }
                 ),
                 redirect: 'follow'
             };
