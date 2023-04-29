@@ -108,17 +108,19 @@ async function getBrandList() {
                     const obj = JSON.parse(data);
                     if (obj.code === 0) {
                         let brandStores = [];
-                        for (const store of obj.data.activities) {
-                            const storeUserName = store.shopGame ? store.shopGame.userName : '';
-                            console.log(`ℹ️ 找到品牌商店：${store.brandName}`);
+                        for (const store of obj.data.userTasks) {
+                            const storeInfo =store.taskInfo.rcmdShopInfo
+                            //const storeUserName = store.taskInfo.shopGame ? store.taskInfo.shopGame.userName : '';
+                           const moduleId = store.taskInfo.moduleId;
+                            console.log(`ℹ️ 找到品牌商店：${storeInfo.shopUserName}`);
                             // console.log(`ℹ️ 商店名稱：${store.brandName}\nID：${storeUserName}\n活動ID：${store.activityCode || 'N/A'}\n水滴：${store.waterValue}\n狀態：${store.isClaimed ? '已領取' : '未領取'}`)
-                            brandStores.push({
-                                'brandName': store.brandName,
-                                'userName': storeUserName,
-                                'activityCode': store.activityCode,
-                                'waterValue': store.waterValue,
-                                'isClaimed': store.isClaimed,
-                            });
+
+                            const url = store.taskInfo.ctaUrl;
+                                const re = /taskId=(.*)/i;
+                                const found = url.match(re);
+                                const activityId = found[1];
+                                const getTokenUrl = `https://games.shopee.tw/gameplatform/api/v3/task/browse/${activityId}?module_id=404`
+                                console.log(getTokenUrl)
                         }
                         if (!brandStores.length) {
                             return reject(['取得品牌商店列表失敗 ‼️', '今天沒有品牌商店水滴活動']);
