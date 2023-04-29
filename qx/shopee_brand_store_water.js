@@ -68,6 +68,15 @@ function genKeyIv(token, offset) {
     return CryptoJS.MD5(CryptoJS.enc.Hex.parse(chars)).toString().substring(8, 24);
 }
 
+function getTaskUrl(url) {
+    let activityId = '';
+    const re = url.includes('taskId=') ? /taskId=(.*)/i : /taskId%3D(.*)/i;
+    const found = url.match(re);
+    activityId = found[1];
+
+    const getTokenUrl = `https://games.shopee.tw/gameplatform/api/v3/task/browse/${activityId}?module_id=404`
+}
+
 async function preCheck() {
     return new Promise((resolve, reject) => {
         const shopeeInfo = getSaveObject('ShopeeInfo');
@@ -109,20 +118,17 @@ async function getBrandList() {
                     if (obj.code === 0) {
                         let brandStores = [];
                         for (const store of obj.data.userTasks) {
-                            
-                            const storeInfo =store.taskInfo
+
+                            const storeInfo = store.taskInfo
                             console.log(storeInfo)
                             //const storeUserName = store.taskInfo.shopGame ? store.taskInfo.shopGame.userName : '';
-                           const moduleId = store.taskInfo.moduleId;
+                            const moduleId = store.taskInfo.moduleId;
                             console.log(`ℹ️ 找到品牌商店：${storeInfo.taskName}`);
                             // console.log(`ℹ️ 商店名稱：${store.brandName}\nID：${storeUserName}\n活動ID：${store.activityCode || 'N/A'}\n水滴：${store.waterValue}\n狀態：${store.isClaimed ? '已領取' : '未領取'}`)
-
-                            const url = storeInfo.ctaUrl;
-                                const re = /taskId=(.*)/i;
-                                const found = url.match(re);
-                                const activityId = found[1];
-                                const getTokenUrl = `https://games.shopee.tw/gameplatform/api/v3/task/browse/${activityId}?module_id=404`
-                                console.log(getTokenUrl)
+                            
+                            const getTokenUrl =getTaskUrl(storeInfo.ctaUrl)
+                           
+                            console.log(getTokenUrl)
                         }
                         if (!brandStores.length) {
                             return reject(['取得品牌商店列表失敗 ‼️', '今天沒有品牌商店水滴活動']);
@@ -277,7 +283,7 @@ async function claim(store, activityId, token) {
                     return reject([`取得品牌商店 ${store.brandName} 水滴失敗 ‼️`, '連線錯誤']);
                 }
             })
-          
+
         } catch (error) {
             return reject([`取得品牌商店 ${store.brandName} 活動 ID 失敗 ‼️`, error]);
         }
