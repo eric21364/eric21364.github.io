@@ -118,7 +118,6 @@ async function getBrandList() {
                     if (obj.code === 0) {
                         let brandStores = [];
                         const Tasks = obj.data.userTasks.concat(obj.data.shopAdsTask);
-                        console.log(Tasks.length)
                         for (const store of Tasks) {
                             if (store.taskFinishNum <= 0) {
                                 const storeInfo = store.taskInfo
