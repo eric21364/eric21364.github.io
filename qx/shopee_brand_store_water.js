@@ -212,13 +212,14 @@ async function componentReport(store, token) {
 
             $task.fetch(request).then(response => {
                 const data = response.body
+                console.log(JSON.stringify(response))
                 if (response.statusCode == 200) {
                     const obj = JSON.parse(data);
                     store.shop_id = obj.data.user_task.rcmd_shop_info ? obj.data.user_task.rcmd_shop_info.shop_id : 0;
                     store.task_id = obj.data.user_task.task.id;
                     return resolve(store);
                 } else {
-                    return reject([`取得品牌商店 ${store.brandName} 活動 ID 失敗 ‼️`, response.status]);
+                    return reject([`取得品牌商店 ${store.brandName} 活動 ID 失敗 ‼️`, response.statusCode]);
                 }
             }).catch(error => {
                 if (error) {
