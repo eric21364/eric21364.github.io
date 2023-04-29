@@ -169,9 +169,10 @@ async function getBrandToken(store) {
 
             $task.fetch(request).then(response => {
                 const data = response.body
+                 console.log(JSON.stringify(response))
                 if (response.statusCode == 200) {
                     const obj = JSON.parse(data);
-                    console.log(data)
+                   
                     if (obj.code === 0) {
                         console.log(`ℹ️ 取得 ${obj.data.shopName} token 成功：${obj.data.token}`);
                         console.log(obj.data.report_token)
