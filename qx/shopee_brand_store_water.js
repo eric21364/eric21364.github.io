@@ -166,6 +166,7 @@ async function getBrandToken(store) {
                 url: `https://games.shopee.tw/gameplatform/api/v3/task/browse/${store.taskId}?module_id=${store.moduleId}`,
                 headers: config.shopeeHeaders,
             };
+            console.log(JSON.stringify(request))
 
             $task.fetch(request).then(response => {
                 const data = response.body
