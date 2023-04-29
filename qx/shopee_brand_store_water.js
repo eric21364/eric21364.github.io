@@ -120,7 +120,6 @@ async function getBrandList() {
                         for (const store of obj.data.userTasks) {
 
                             const storeInfo = store.taskInfo
-                            console.log(storeInfo)
                             //const storeUserName = store.taskInfo.shopGame ? store.taskInfo.shopGame.userName : '';
                             const moduleId = store.taskInfo.moduleId;
                             console.log(`ℹ️ 找到品牌商店：${storeInfo.taskName}`);
@@ -172,6 +171,7 @@ async function getBrandToken(store) {
                 const data = response.body
                 if (response.statusCode == 200) {
                     const obj = JSON.parse(data);
+                    console.log(data)
                     if (obj.code === 0) {
                         console.log(`ℹ️ 取得 ${obj.data.shopName} token 成功：${obj.data.token}`);
                         console.log(obj.data.report_token)
