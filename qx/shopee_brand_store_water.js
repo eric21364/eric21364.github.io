@@ -309,9 +309,9 @@ async function delay(seconds) {
             if (!store.isClaimed) {
                 const token = await getBrandToken(store);
                 await delay(31);
-                let a = await componentReport(store, token);
-                console.log(JSON.stringify(a))
-                await claim(store, activityId, token);
+                store = await componentReport(store, token);
+                console.log(JSON.stringify(store))
+                await claim(store);
                 otalClaimedWater += store.waterValue;
                 
             } else {
