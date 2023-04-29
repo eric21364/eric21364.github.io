@@ -120,7 +120,7 @@ async function getBrandList() {
                         const Tasks = obj.data.userTasks.concat(obj.data.shopAdsTask);
                         console.log(JSON.stringify(Tasks))
                         for (const store of Tasks) {
-                            if (store.taskFinishNum <= 0 ) {
+                            if (store.taskFinishStatus <= 1 ) {
                                 const storeInfo = store.taskInfo
                                 const storeUserName = store.rcmd_shop_info ? store.rcmd_shop_info.shop_user_name : storeInfo.taskName;
                                 const moduleId = store.taskInfo.moduleId;
