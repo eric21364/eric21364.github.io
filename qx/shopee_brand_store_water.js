@@ -246,14 +246,14 @@ async function claim(store) {
                 body: JSON.stringify(
                     {
                         "task_id": store.task_id,
-                        "request_id": `__game_platform_task__${store.shop_id}_${parseInt(config.shopeeInfo.token.SPC_U)}_${Math.floor(new Date().getTime() / 1000)}`,
+                        "request_id": `__game_platform_task__${store.shop_id}_${parseInt(config.shopeeInfo.token.SPC_U)}_${Math.floor(new Date().getTime())}`,
                         "module_id": store.module_id.toString()
                     }
                 ),
                 redirect: 'follow'
             };
-            console.log(JSON.stringify(request))
             $task.fetch(request).then(response => {
+                console.log(JSON.stringify(response))
                 const data = response.body
                 if (response.statusCode == 200) {
                     const obj = JSON.parse(data);
