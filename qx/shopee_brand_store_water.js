@@ -70,7 +70,7 @@ function genKeyIv(token, offset) {
 
 function getTask(url) {
     let activityId = '';
-    const re = url.includes('taskId=') ? /taskId=(.*)/i : /taskId%3D(.*)/i;
+    const re = url.includes('taskId=') ? /taskId=(.*)&/i : /taskId%3D(.*)%26/i;
     const found = url.match(re);
     activityId = found[1];
 
