@@ -118,7 +118,6 @@ async function getBrandList() {
                     if (obj.code === 0) {
                         let brandStores = [];
                         const Tasks = obj.data.userTasks.concat(obj.data.shopAdsTask);
-                        console.log(JSON.stringify(Tasks))
                         for (const store of Tasks) {
                             if (store.taskFinishStatus <= 4) {
                                 const storeInfo = store.taskInfo
@@ -175,7 +174,6 @@ async function getBrandToken(store) {
                 const data = response.body
                 if (response.statusCode == 200) {
                     const obj = JSON.parse(data);
-
                     if (obj.code === 0) {
                         console.log(`ℹ️ 取得 ${store.brandName} token 成功：${obj.data.report_token}`);
                         return resolve(obj.data.report_token);
