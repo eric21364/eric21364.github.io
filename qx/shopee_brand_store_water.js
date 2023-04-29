@@ -74,7 +74,7 @@ function getTaskUrl(url) {
     const found = url.match(re);
     activityId = found[1];
 
-    const getTokenUrl = `https://games.shopee.tw/gameplatform/api/v3/task/browse/${activityId}?module_id=404`
+    return `https://games.shopee.tw/gameplatform/api/v3/task/browse/${activityId}?module_id=404`
 }
 
 async function preCheck() {
