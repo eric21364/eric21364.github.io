@@ -228,9 +228,9 @@ async function claim(store) {
             var myHeaders = config.shopeeHeaders;
 
             var raw = JSON.stringify({
-                "task_id": 6961,
+                "task_id": store.task_id,
                 "request_id": "__game_platform_task__0_33906694_1682790894414",
-                "module_id": "404"
+                "module_id": store.module_id,
             });
 
             var requestOptions = {
