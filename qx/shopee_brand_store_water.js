@@ -105,7 +105,7 @@ async function getBrandList() {
                         let brandStores = [];
                         const Tasks = obj.data.userTasks.concat(obj.data.shopAdsTask);
                         for (const store of Tasks) {
-                            if (store.taskFinishStatus <= 4) {
+                            if (store.taskFinishStatus <= 3) {
                                 const storeInfo = store.taskInfo
                                 const storeUserName = store.rcmd_shop_info ? store.rcmd_shop_info.shop_user_name : storeInfo.taskName;
                                 const moduleId = store.taskInfo.moduleId.toString();
@@ -251,7 +251,7 @@ async function claim(store) {
                         return resolve();
                     } else if (obj.code === 409004) {
                         return reject([`取得品牌商店 ${store.brandName} 水滴失敗 ‼️`, '作物狀態錯誤，請檢查是否已收成']);
-                    } else if (obj.code === 420101) {
+                    } else if (obj.code === 420101 || obj.code === 409062) {
                         console.log(`❌ 取得品牌商店 ${store.brandName} 水滴失敗 ‼️ 今天已領過`);
                         return resolve();
                     } else {
