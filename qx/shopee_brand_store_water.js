@@ -249,7 +249,7 @@ async function claim(store) {
                         'module_id': store.module_id.toString(),
                     }
                 ),
-                redirect: 'follow'
+                redirect: 'follow',
             };
             console.log(JSON.stringify(request))
             $task.fetch(request).then(response => {
