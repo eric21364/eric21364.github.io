@@ -224,6 +224,7 @@ async function claim(store) {
     return new Promise((resolve, reject) => {
         try {
             const request_id = `__game_platform_task__${store.shop_id}_${parseInt(config.shopeeInfo.token.SPC_U)}_${Math.floor(new Date().getTime())}`;
+            
             const request = {
                 method: 'POST',
                 url: 'https://games.shopee.tw/farm/api/brands_ads/claim',
@@ -285,7 +286,8 @@ async function delay(seconds) {
                 const token = await getBrandToken(store);
                 await delay(31);
                 let new_store = await componentReport(store, token);
-                console.log(JSON.stringify(new_store))
+                console.log(JSON.stringify(new_store));
+                delay(1);
                 await claim(new_store);
                 otalClaimedWater += store.waterValue;
 
