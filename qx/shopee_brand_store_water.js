@@ -229,11 +229,7 @@ async function claim(store) {
                 url: 'https://games.shopee.tw/farm/api/brands_ads/claim',
                 headers: config.shopeeHeaders,
                 body: JSON.stringify(
-                    {
-                        "task_id": 6961,
-                        "request_id": "__game_platform_task__0_33906694_1682790894414",
-                        "module_id": "404",
-                    }
+                    {"task_id":6961,"request_id":"__game_platform_task__0_33906694_1682790894414","module_id":"404"}
                 ),
                 redirect: 'follow',
             };
