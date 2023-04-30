@@ -296,7 +296,7 @@ async function delay(seconds) {
                 console.log(JSON.stringify(new_store));
                 delay(1);
                 await claim(new_store);
-                otalClaimedWater += store.waterValue;
+                totalClaimedWater += store.waterValue;
 
             } else {
                 console.log(`✅ 今天已領過 ${store.brandName} 的水滴`);
