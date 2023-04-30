@@ -75,10 +75,10 @@ async function preCheck() {
             return reject(['檢查失敗 ‼️', '沒有蝦蝦果園資料']);
         }
 
-        const shopeeHeaders =new Headers( {
+        const shopeeHeaders = {
             'Cookie': cookieToString(shopeeInfo.token),
             'Content-Type': 'application/json',
-        })
+        }
         config = {
             shopeeInfo: shopeeInfo,
             shopeeFarmInfo: shopeeFarmInfo,
