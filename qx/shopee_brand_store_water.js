@@ -278,27 +278,33 @@ async function delay(seconds) {
     });
 }
 
+async function toBrandWater() {
+    const brandStores = await getBrandList();
+
+    let totalClaimedWater = 0;
+    if (brandStores > 0) {
+        for (const store of brandStores) {
+            const token = await getBrandToken(store);
+            await delay(31);
+            let new_store = await componentReport(store, token);
+            delay(1);
+            await claim(new_store);
+            totalClaimedWater += parseInt(store.waterValue);
+        }
+        let new_water = await toBrandWater();
+        return totalClaimedWater + new_water;
+    } else {
+        return 0;
+    }
+}
+
+
 (async () => {
     console.log('ℹ️ 蝦蝦果園自動澆水 v20230214.1');
     try {
         await preCheck();
         console.log('✅ 檢查成功');
-        const brandStores = await getBrandList();
-
-        let totalClaimedWater = 0;
-        for (const store of brandStores) {
-            if (!store.isClaimed) {
-                const token = await getBrandToken(store);
-                await delay(31);
-                let new_store = await componentReport(store, token);
-                delay(1);
-                await claim(new_store);
-                totalClaimedWater += parseInt(store.waterValue);
-
-            } else {
-                console.log(`✅ 今天已領過 ${store.brandName} 的水滴`);
-            }
-        }
+        let totalClaimedWater = await toBrandWater();
 
         surgeNotify(
             '領取成功 ✅',
