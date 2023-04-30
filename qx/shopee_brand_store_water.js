@@ -237,13 +237,14 @@ async function claim(store) {
 
             var requestOptions = {
                 method: 'POST',
+                url:"https://games.shopee.tw/farm/api/brands_ads/task/claim",
                 headers: myHeaders,
                 body: raw,
                 redirect: 'follow'
             };
 
            // console.log(JSON.stringify(request))
-            $task.fetch("https://games.shopee.tw/farm/api/brands_ads/task/claim", requestOptions).then(response => {
+            $task.fetch( requestOptions).then(response => {
                 console.log(JSON.stringify(response))
                 const data = response.body
                 if (response.statusCode == 200) {
