@@ -241,9 +241,7 @@ async function claim(store) {
                 redirect: 'follow'
             };
 
-            console.log(JSON.stringify(requestOptions))
             $task.fetch(requestOptions).then(response => {
-                console.log(JSON.stringify(response))
                 const data = response.body
                 if (response.statusCode == 200) {
                     const obj = JSON.parse(data);
@@ -293,10 +291,9 @@ async function delay(seconds) {
                 const token = await getBrandToken(store);
                 await delay(31);
                 let new_store = await componentReport(store, token);
-                console.log(JSON.stringify(new_store));
                 delay(1);
                 await claim(new_store);
-                otalClaimedWater += store.waterValue;
+                otalClaimedWater += parseInt(store.waterValue);
 
             } else {
                 console.log(`✅ 今天已領過 ${store.brandName} 的水滴`);
