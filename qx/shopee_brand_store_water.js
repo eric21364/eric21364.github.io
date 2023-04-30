@@ -243,7 +243,7 @@ async function claim(store) {
                 redirect: 'follow'
             };
 
-           // console.log(JSON.stringify(request))
+            console.log(JSON.stringify(requestOptions))
             $task.fetch( requestOptions).then(response => {
                 console.log(JSON.stringify(response))
                 const data = response.body
