@@ -230,9 +230,9 @@ async function claim(store) {
                 headers: config.shopeeHeaders,
                 body: JSON.stringify(
                     {
-                        'task_id': store.task_id,
-                        'request_id': request_id,
-                        'module_id': store.module_id.toString(),
+                        "task_id": 6961,
+                        "request_id": "__game_platform_task__0_33906694_1682790894414",
+                        "module_id": "404",
                     }
                 ),
                 redirect: 'follow',
