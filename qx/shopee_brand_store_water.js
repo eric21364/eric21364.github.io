@@ -75,10 +75,10 @@ async function preCheck() {
             return reject(['檢查失敗 ‼️', '沒有蝦蝦果園資料']);
         }
 
-        const shopeeHeaders = {
+        const shopeeHeaders =new Headers( {
             'Cookie': cookieToString(shopeeInfo.token),
             'Content-Type': 'application/json',
-        }
+        })
         config = {
             shopeeInfo: shopeeInfo,
             shopeeFarmInfo: shopeeFarmInfo,
@@ -225,9 +225,7 @@ async function claim(store) {
         try {
             const request_id = `__game_platform_task__${store.shop_id}_${parseInt(config.shopeeInfo.token.SPC_U)}_${Math.floor(new Date().getTime())}`;
 
-            var myHeaders = new Headers();
-            myHeaders.append("Cookie", "SPC_EC=dmFzMzJCVjNHeVkxNzNsSQVsqPt/BSlLhycmmlpMrLtwJ312I+dbJX5vX8CvpNMNDlWEfxFWBGmbayB7HGkZZe1u8litfMO9eOZeFtav4ogHbMHlY47K/HanZfHKbPa2lcega0MJaL4K0Lgr3Hy7wRT7MZP4+OQm/c4W3kz5xMA=;SPC_R_T_ID=FUSqYpDrgdSTHGXk2xHT+hrnWQ6YXhrxmX0sMeJtHzFZbvk4/BtYncyT9JEdZqGb+CAr6UO79dCLWus61M2rEAoUEKBlH1e4eJRiM1Lzbqo7qg0WewG5TUMrURMGfq6jdNt2SrH63LNkyDrxx2dvuYs9ZHxTpJSLx2xSDfJR7jk=;SPC_R_T_IV=RGJvelZ1cUNObmpPZlk1dg==;SPC_SI=EwM1ZAAAAABIYUM4d0JNdDsCLwAAAAAANnhidVdLV04=;SPC_ST=.Qk5sSUtlVGhSYzlPV0JSTFbBMRyFW0YOiFUmCofG8RLdj8nSMtmpVXND2Np6vCFhX5uX4IaZnI4+sPIHoxoEaJMxQhWywJL7Qk3VfS8mEc38WuN7oEw5iIZkjHYq8bS7XsO6AU60v4AGOHomw4KIv5b5MdQZL40LKhh1pLzb0517dSJ+h4V6QFOws7HLqpMyLZldDG2CanyCUoyqBpgBGw==;SPC_T_ID=FUSqYpDrgdSTHGXk2xHT+hrnWQ6YXhrxmX0sMeJtHzFZbvk4/BtYncyT9JEdZqGb+CAr6UO79dCLWus61M2rEAoUEKBlH1e4eJRiM1Lzbqo7qg0WewG5TUMrURMGfq6jdNt2SrH63LNkyDrxx2dvuYs9ZHxTpJSLx2xSDfJR7jk=;SPC_T_IV=RGJvelZ1cUNObmpPZlk1dg==;SPC_U=33906694;; SPC_EC=OTRBTE1UNHJwVXNmdnRPOaKfMzxxaE2yVR1tN7lgoCT7JV5jJAKlm2oPpz8N9Fh06WaBvO43uO5fynuI5VHsJKO3oRZecXekPquyNGM2aW1c9wxheRVNktBBN5SqK0IGGJ1uX5CubWMCRgKC/5OGPO+ENL5ZLB5k6b1bL6fBH3o=; SPC_R_T_ID=FUSqYpDrgdSTHGXk2xHT+hrnWQ6YXhrxmX0sMeJtHzFZbvk4/BtYncyT9JEdZqGb+CAr6UO79dCLWus61M2rEAoUEKBlH1e4eJRiM1Lzbqo7qg0WewG5TUMrURMGfq6jdNt2SrH63LNkyDrxx2dvuYs9ZHxTpJSLx2xSDfJR7jk=; SPC_R_T_IV=RGJvelZ1cUNObmpPZlk1dg==; SPC_SI=EwM1ZAAAAABIYUM4d0JNdDsCLwAAAAAANnhidVdLV04=; SPC_ST=.Y0hwcnJVT1lPaFdvaXBUceqapNbj6MmQCVpj0pYe/w5zY14EpqI0Aasbkm4v2hY/HsamlgEp3ScJeqaX/d/FFZhIi0JtQ0C5h8PplWVxbJ10DInbYxRH5Y76CYong7ZOOEooy14eN/TGOUfcaZ1Qqho7Uz33W206mPho4TiSDsyCauOKfpCXfB4c+uAZCOjILGyYF+GUOrzmT7QvWKc8Vg==; SPC_T_ID=FUSqYpDrgdSTHGXk2xHT+hrnWQ6YXhrxmX0sMeJtHzFZbvk4/BtYncyT9JEdZqGb+CAr6UO79dCLWus61M2rEAoUEKBlH1e4eJRiM1Lzbqo7qg0WewG5TUMrURMGfq6jdNt2SrH63LNkyDrxx2dvuYs9ZHxTpJSLx2xSDfJR7jk=; SPC_T_IV=RGJvelZ1cUNObmpPZlk1dg==; SPC_U=33906694");
-            myHeaders.append("Content-Type", "application/json");
+            var myHeaders = config.shopeeHeaders;
 
             var raw = JSON.stringify({
                 "task_id": 6961,
