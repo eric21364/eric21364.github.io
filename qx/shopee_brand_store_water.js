@@ -237,16 +237,16 @@ async function componentReport(store, token) {
 async function claim(store) {
     return new Promise((resolve, reject) => {
         try {
-
+            const request_id = `__game_platform_task__${store.shop_id}_${parseInt(config.shopeeInfo.token.SPC_U)}_${Math.floor(new Date().getTime())}`;
             const request = {
                 method: 'POST',
                 url: 'https://games.shopee.tw/farm/api/brands_ads/claim',
                 headers: config.shopeeHeaders,
                 body: JSON.stringify(
                     {
-                        "task_id": parseInt(store.task_id),
-                        "request_id": `__game_platform_task__${store.shop_id}_${parseInt(config.shopeeInfo.token.SPC_U)}_${Math.floor(new Date().getTime())}`,
-                        "module_id": store.module_id.toString()
+                        'task_id': store.task_id,
+                        'request_id': request_id,
+                        'module_id': store.module_id.toString(),
                     }
                 ),
                 redirect: 'follow'
