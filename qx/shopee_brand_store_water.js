@@ -293,7 +293,7 @@ async function delay(seconds) {
                 let new_store = await componentReport(store, token);
                 delay(1);
                 await claim(new_store);
-                otalClaimedWater += parseInt(store.waterValue);
+                totalClaimedWater += parseInt(store.waterValue);
 
             } else {
                 console.log(`✅ 今天已領過 ${store.brandName} 的水滴`);
