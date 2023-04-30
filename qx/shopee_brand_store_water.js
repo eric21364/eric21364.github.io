@@ -229,20 +229,20 @@ async function claim(store) {
 
             var raw = JSON.stringify({
                 "task_id": store.task_id,
-                "request_id": "__game_platform_task__0_33906694_1682790894414",
+                "request_id": "__game_platform_task__" + store.shop_id + "_" + config.shopeeInfo.token.SPC_U + "_" + Math.floor(new Date().getTime()),
                 "module_id": store.module_id,
             });
 
             var requestOptions = {
                 method: 'POST',
-                url:"https://games.shopee.tw/farm/api/brands_ads/task/claim",
+                url: "https://games.shopee.tw/farm/api/brands_ads/task/claim",
                 headers: myHeaders,
                 body: raw,
                 redirect: 'follow'
             };
 
             console.log(JSON.stringify(requestOptions))
-            $task.fetch( requestOptions).then(response => {
+            $task.fetch(requestOptions).then(response => {
                 console.log(JSON.stringify(response))
                 const data = response.body
                 if (response.statusCode == 200) {
