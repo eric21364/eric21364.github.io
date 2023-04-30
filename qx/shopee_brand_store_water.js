@@ -282,7 +282,7 @@ async function toBrandWater() {
     const brandStores = await getBrandList();
 
     let totalClaimedWater = 0;
-    if (brandStores > 0) {
+    if (brandStores.length > 0) {
         for (const store of brandStores) {
             const token = await getBrandToken(store);
             await delay(31);
