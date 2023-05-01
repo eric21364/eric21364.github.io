@@ -308,7 +308,7 @@ async function toBrandWater() {
             `本次共領取了 ${totalClaimedWater} 滴水 💧`
         );
         }else{
-         surgeNotify('取得品牌商店列表失敗 ‼️', '今天沒有品牌商店水滴活動')
+         handleError(['取得品牌商店列表失敗 ‼️', '今天沒有品牌商店水滴活動'])
         }
     } catch (error) {
         handleError(error);
