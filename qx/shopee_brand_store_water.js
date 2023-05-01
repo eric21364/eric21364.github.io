@@ -122,11 +122,8 @@ async function getBrandList() {
                                 });
                             }
                         }
-                        if (!brandStores.length) {
-                            return reject(['取得品牌商店列表失敗 ‼️', '今天沒有品牌商店水滴活動']);
-                        } else {
-                            return resolve(brandStores);
-                        }
+                        return resolve(brandStores);
+                        
                     } else {
                         return reject(['取得品牌商店列表失敗 ‼️', `錯誤代號：${obj.code}，訊息：${obj.msg}`]);
                     }
@@ -305,11 +302,14 @@ async function toBrandWater() {
         await preCheck();
         console.log('✅ 檢查成功');
         let totalClaimedWater = await toBrandWater();
-
+        if(totalClaimedWater>0){
         surgeNotify(
             '領取成功 ✅',
             `本次共領取了 ${totalClaimedWater} 滴水 💧`
         );
+        }else{
+         surgeNotify('取得品牌商店列表失敗 ‼️', '今天沒有品牌商店水滴活動')
+        }
     } catch (error) {
         handleError(error);
     }
