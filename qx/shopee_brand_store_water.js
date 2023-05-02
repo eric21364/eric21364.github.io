@@ -22,7 +22,7 @@ function handleError(error) {
 }
 
 function getSaveObject(key) {
-    const string = $persistentStore.read(key);
+    const string = $prefs.valueForKey(key);
     return !string || string.length === 0 ? {} : JSON.parse(string);
 }
 
