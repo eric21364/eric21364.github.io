@@ -6,7 +6,7 @@ function surgeNotify(subtitle = '', message = '') {
 
 
 (async () => {
-  console.log('date for 381');
+  console.log('date for 381💗');
     console.log(`
 
 老婆 
