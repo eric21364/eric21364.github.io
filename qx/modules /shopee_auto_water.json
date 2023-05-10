@@ -7,7 +7,7 @@
         "19 0,4 * * *      https://kinta.ma/surge/scripts/shopee_water_buy_free_item.js, tag=[蝦蝦果園]購買免費道具 , enabled=false",
         "14 * * * *  https://kinta.ma/surge/scripts/shopee_auto_water.js, tag=[蝦蝦果園]自動澆水, enabled=false",
         "50 23 * * * https://kinta.ma/surge/scripts/shopee_water_signin_bundle.js, tag=[蝦蝦果園]每日簽到獎勵   , enabled=false",
-        "50 23 * * * https://kinta.ma/surge/scripts/shopee_water_mission_claim.js, tag=[蝦蝦果園]領取水滴任務獎勵, enabled=false",
+        "50 23 * * * https://kinta.ma/surge/scripts/shopee_water_mission_claim.js, tag=[蝦蝦果園]領取水滴任務獎勵, enabled=false", 
         "50 15,19,23 * * *   https://kinta.ma/surge/scripts/shopee_grocery_store_water.js, tag=[蝦蝦果園]道具商店水滴, enabled=false",
         "20 0 * * *  https://kinta.ma/surge/scripts/shopee_brand_store_water.js, tag=[蝦蝦果園]品牌商店水滴, enabled=false",
     ]
