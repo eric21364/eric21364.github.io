@@ -1,0 +1,10 @@
+{
+    "name": "Shopee Checkin 🦐",
+    "description": "蝦皮自動簽到",
+    "task": [
+        "10 */8 * * * https://eric21364.github.io/qx/shopee_update_token.js, tag=[蝦皮]更新token, enabled=false",
+        "16 0 * * * https://eric21364.github.io/qx/shopee_checkin.js, tag=[蝦皮]每日簽到",
+        "17 0 * * * https://eric21364.github.io/qx/shopee_coin_lucky_draw.js, tag=[蝦皮]蝦幣寶箱",
+        "17 0 * * * https://eric21364.github.io/qx/shopee_shipping_lucky_draw.js, tag=[蝦皮]免運寶箱",
+    ]
+}
