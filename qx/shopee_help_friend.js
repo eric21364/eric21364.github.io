@@ -192,7 +192,7 @@ async function help(friend) {
                         showNotification = false;
                         return console.log(`澆水失敗 ‼️,已經幫助過${friend.userName}了`);
                     } else {
-                        return resolve();
+                        return resolve(`澆水失敗 ‼️`);
                     }
                 } else {
                     return reject(['幫助澆水失敗 ‼️', response.status]);
@@ -212,23 +212,15 @@ async function help(friend) {
 
 
 async function toHelpWater() {
-    let brandStores = await searchFriend();
-    let totalClaimedWater = 0;
-    if (brandStores.length > 0) {
-        await searchFriendCrop()
-        console.log(friends.length)
-        for (let i = 0; i < friends.length; i++) {
-            console.log(JSON.stringify(friends[i]))
-            await delay(1.1);
-            await help(friends[i]);
-
-            totalClaimedWater++;
-        }
-
-        return totalClaimedWater;
-    } else {
-        return 0;
+    await searchFriend();
+    await searchFriendCrop()
+    console.log(friends.length)
+    for (let i = 0; i < friends.length; i++) {
+        console.log(JSON.stringify(friends[i]))
+        await delay(1.1);
+        await help(friends[i]);
     }
+    return;
 }
 
 async function delay(seconds) {
@@ -246,8 +238,8 @@ async function delay(seconds) {
     try {
         await preCheck();
         console.log('✅ 檢查成功');
-        let user = await toHelpWater();
-        console.log(`共幫助${user}人`)
+        await toHelpWater();
+        console.log(`共幫助${helpFriends}人`)
     } catch (error) {
         handleError(error);
     }
