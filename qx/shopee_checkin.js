@@ -59,16 +59,16 @@ async function checkin() {
         try {
             const request = {
                 method: 'POST',
-                url: 'https://shopee.tw/mkt/coins/api/v2/checkin',
+                url: 'https://games-dailycheckin.shopee.tw/mkt/coins/api/v2/checkin_new',
                 headers: config.shopeeHeaders,
+                body: JSON.stringify(config.shopeeInfo.checkinPayload),
                 redirect: 'follow'
             };
 
             $task.fetch(request).then(response => {
                 const data = response.body
                 if (response.statusCode == 200) {
-                    const obj = JSON.parse(data);
-                    if (obj.data.success) {
+                    const obj = JSON.parse(data);if (obj.data.success) {
                         return resolve({
                             checkInDay: obj.data.check_in_day,
                             coins: obj.data.increase_coins,
@@ -78,12 +78,10 @@ async function checkin() {
                         return reject(['簽到失敗 ‼️', '本日已簽到']);
                     }
                 } else {
-                    return reject(['簽到失敗 ‼️', response.statusCode]);
+                    return reject(['簽到失敗 ‼️', response.status]);
                 }
-            }).catch(error => {
-                if (error) {
-                    return reject(['簽到失敗 ‼️', '連線錯誤']);
-                }
+            }).catch(error=>{
+                return reject(['簽到失敗 ‼️', '連線錯誤']);
             })
         } catch (error) {
             return reject(['簽到失敗 ‼️', error]);
@@ -92,7 +90,7 @@ async function checkin() {
 }
 
 (async () => {
-    console.log('ℹ️ 蝦皮每日簽到 v20230116.1');
+    console.log('ℹ️ 蝦皮每日簽到 v20230606.1');
     try {
         await preCheck();
         console.log('✅ 檢查成功');
