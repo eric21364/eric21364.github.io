@@ -190,7 +190,8 @@ async function help(friend) {
                         return resolve();
                     } else if (obj.code === 404000) {
                         showNotification = false;
-                        return console.log(`澆水失敗 ‼️,已經幫助過${friend.userName}了`);
+                        console.log(`澆水失敗 ‼️,已經幫助過${friend.userName}了`);
+                        return resolve(`澆水失敗 ‼️`);
                     } else {
                         return resolve(`澆水失敗 ‼️`);
                     }
@@ -218,7 +219,8 @@ async function toHelpWater() {
     for (let i = 0; i < friends.length; i++) {
         console.log(JSON.stringify(friends[i]))
         await delay(1.1);
-        await help(friends[i]);
+        let a = await help(friends[i]);
+        console.log(a)
     }
     return;
 }
