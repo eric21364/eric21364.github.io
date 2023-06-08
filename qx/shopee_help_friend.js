@@ -101,11 +101,10 @@ async function searchFriend() {
                 const data = response.body
                 if (response.statusCode == 200) {
                     const obj = JSON.parse(data);
-                    console.log('test', JSON.stringify(obj))
                     const friend = obj.data.friends;
                     // 紀錄朋友人數
                     for (let i = 0; i < friend.length; i++) {
-                        if (friend[i].isFarmUser === true && friend[i].hasCrop === 1 && friend[i].interactData.helpThisFriendCnt > 0) {
+                        if (friend[i].isFarmUser === true && friend[i].hasCrop === 1 && friend[i].interactData.helpThisFriendCnt == 0) {
                             friends.push({
                                 friendId: friend[i].id,
                             });
@@ -116,6 +115,7 @@ async function searchFriend() {
                         return resolve(friends);
                     }
                     else {
+                        console.log(friends.length)
                         return reject(['取得列表失敗 ‼️', '沒有可領取的獎勵']);
                     }
                 } else {
@@ -166,29 +166,30 @@ async function searchFriendCrop() {
 async function help(friend) {
     return new Promise((resolve, reject) => {
         try {
-            const waterRequest = {
+            const helpPayload = {
+                's': config.shopeeFarmInfo.currentCrop.s,
+                'friendId': friend.friendId,
+                'cropId': friend.cropsId,
+                'friendName': friend.userName
+            };
+            const request = {
                 method: 'POST',
                 url: 'https://games.shopee.tw/farm/api/friend/help',
                 headers: config.shopeeHeaders,
-                body: JSON.stringify(
-                    {
-                        's': config.shopeeFarmInfo.currentCrop.s,
-                        'friendId': friend.friendId,
-                        'cropId': friend.cropsId,
-                        'friendName': friend.userName
-                    }
-                ),
+                body: JSON.stringify( helpPayload ),
                 redirect: 'follow'
             };
-            $task.fetch(waterRequest).then(response => {
+
+            $task.fetch(request).then(response => {
                 const data = response.body
+                console.log(JSON.stringify(response))
                 if (response.statusCode == 200) {
                     const obj = JSON.parse(data);
                     if (obj.code === 0) {
                         helpFriends++;
                         console.log(`ℹ️ 已幫 ${friend.userName} 澆水`);
                         return resolve();
-                    } else if (obj.code === 404000) {
+                    } else if (obj.code === 409002) {
                         showNotification = false;
                         console.log(`澆水失敗 ‼️,已經幫助過${friend.userName}了`);
                         return resolve(`澆水失敗 ‼️`);
@@ -206,21 +207,16 @@ async function help(friend) {
         } catch (error) {
             return reject(['幫助澆水失敗 ‼️', error]);
         }
-
     });
-
 }
 
 
 async function toHelpWater() {
     await searchFriend();
     await searchFriendCrop()
-    console.log(friends.length)
     for (let i = 0; i < friends.length; i++) {
-        console.log(JSON.stringify(friends[i]))
         await delay(1.1);
-        let a = await help(friends[i]);
-        console.log(a)
+        await help(friends[i]);
     }
     return;
 }
