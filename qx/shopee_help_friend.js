@@ -172,11 +172,12 @@ async function help(friend) {
                 'cropId': friend.cropsId,
                 'friendName': friend.userName
             };
+
             const request = {
                 method: 'POST',
                 url: 'https://games.shopee.tw/farm/api/friend/help',
                 headers: config.shopeeHeaders,
-                body: JSON.stringify( helpPayload ),
+                body: JSON.stringify(helpPayload),
                 redirect: 'follow'
             };
 
