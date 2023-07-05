@@ -170,7 +170,7 @@ async function help(friend) {
                 's': config.shopeeFarmInfo.currentCrop.s,
                 'friendId': friend.friendId,
                 'cropId': friend.cropsId,
-                'friendName': friend.userName
+                'friendName': friend.userName,
             };
 
             const request = {
@@ -178,7 +178,7 @@ async function help(friend) {
                 url: 'https://games.shopee.tw/farm/api/friend/help',
                 headers: config.shopeeHeaders,
                 body: JSON.stringify(helpPayload),
-                redirect: 'follow'
+                redirect: 'follow',
             };
 
             $task.fetch(request).then(response => {
