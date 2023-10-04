@@ -132,33 +132,33 @@ async function searchFriend() {
     })
 }
 
-async function searchFriendCrop() {
+async function searchFriendCrop(friend) {
     return new Promise((resolve, reject) => {
-        for (let i = 0; i < friends.length; i++) {
-            const request = {
-                method: 'GET',
-                url: 'https://games.shopee.tw/farm/api/friend/orchard/context/get?friendId=' + friends[i].friendId,
-                headers: config.shopeeHeaders,
-            };
-            $task.fetch(request).then(response => {
-                const data = response.body
-                if (response.statusCode == 200) {
-                    const obj = JSON.parse(data);
-                    friends[i] = {
-                        friendId: friends[i].friendId,
-                        cropsId: obj.data.crops[0].id,
-                        userName: obj.data.user.name
-                    }
-                } else {
-                    return reject(['取得列表失敗 ‼️', response.status]);
+        const request = {
+            method: 'GET',
+            url: 'https://games.shopee.tw/farm/api/friend/orchard/context/get?friendId=' + friend.friendId,
+            headers: config.shopeeHeaders,
+        };
+        $task.fetch(request).then(response => {
+            const data = response.body
+            if (response.statusCode == 200) {
+                const obj = JSON.parse(data);
+                friend = {
+                    friendId: friend.friendId,
+                    cropsId: obj.data.crops[0].id,
+                    userName: obj.data.user.name
                 }
-            }).catch(error => {
-                if (error) {
-                    console.log(error)
-                    return reject(['取得好友列表失敗 ‼️', '連線錯誤']);
-                }
-            })
-        }
+
+            } else {
+                return reject(['取得列表失敗 ‼️', response.status]);
+            }
+        }).catch(error => {
+            if (error) {
+                console.log(error)
+                return reject(['取得好友列表失敗 ‼️', '連線錯誤']);
+            }
+        })
+
         return resolve();
     })
 }
@@ -214,9 +214,8 @@ async function help(friend) {
 
 async function toHelpWater() {
     await searchFriend();
-    await searchFriendCrop()
     for (let i = 0; i < friends.length; i++) {
-        await delay(1.1);
+        await searchFriendCrop(friends[i])
         await help(friends[i]);
     }
     return;
