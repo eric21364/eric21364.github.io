@@ -36,7 +36,7 @@ function isManualRun(checkRequest = false, checkResponse = false) {
 async function getCheckinPayload() { 
   return new Promise((resolve, reject) => {
     try {
-        console.log(JSON.stringify(resolve))
+        console.log(JSON.stringify($request))
         console.log(JSON.stringify(reject))
       const payload = JSON.parse(resolve.body);
       if (payload) {
