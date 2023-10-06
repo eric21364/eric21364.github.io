@@ -32,7 +32,7 @@ function isManualRun(checkRequest = false, checkResponse = false) {
   }
   return false;
 }
-Ｆ
+
 async function getCheckinPayload() {
   return new Promise((resolve, reject) => {
     try {
