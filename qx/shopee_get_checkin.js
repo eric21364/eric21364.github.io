@@ -36,9 +36,7 @@ function isManualRun(checkRequest = false, checkResponse = false) {
 async function getCheckinPayload() { 
   return new Promise((resolve, reject) => {
     try {
-        console.log(JSON.stringify($request))
-        console.log(JSON.stringify(reject))
-      const payload = JSON.parse(resolve.body);
+      const payload = JSON.parse($request.body);
       if (payload) {
         let shopeeInfo = getSaveObject('ShopeeInfo');
         shopeeInfo.checkinPayload = payload;
