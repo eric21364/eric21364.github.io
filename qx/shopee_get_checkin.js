@@ -33,7 +33,7 @@ function isManualRun(checkRequest = false, checkResponse = false) {
   return false;
 }
 
-async function getCheckinPayload() {
+async function getCheckinPayload() { 
   return new Promise((resolve, reject) => {
     try {
         console.log(JSON.stringify(resolve))
