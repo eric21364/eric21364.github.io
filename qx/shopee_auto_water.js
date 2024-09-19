@@ -103,8 +103,7 @@ async function water() {
                     cropId: config.shopeeFarmInfo.currentCrop.cropId, // 確認 cropId 存在
                     resourceId: config.shopeeFarmInfo.currentCrop.resourceId, // 確認 resourceId 存在
                     s: config.shopeeFarmInfo.currentCrop.s // 確認 s 存在
-                }),
-                redirect: 'follow'
+                })
             };
             console.log(JSON.stringify(waterRequest))
             $task.fetch(waterRequest).then(response => {
