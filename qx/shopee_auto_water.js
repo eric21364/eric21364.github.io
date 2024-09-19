@@ -96,49 +96,52 @@ async function water() {
             }
 
             const waterRequest = {
-                method: 'POST',
-                url: 'https://games.shopee.tw/farm/api/orchard/crop/water?t=' + new Date().getTime(),
-                headers: config.shopeeHeaders,
-                body: JSON.stringify(config.shopeeFarmInfo.currentCrop),
-                redirect: 'follow'
-            };
-            $task.fetch(waterRequest).then(response => {
-                const data = response.body
-                console.log(data)
-                if (response.statusCode == 200) {
-                    const obj = JSON.parse(data);
-                    if (obj.code === 0) {
-                        const useNumber = obj.data.useNumber;
-                        const state = obj.data.crop.state;
-                        const exp = obj.data.crop.exp;
-                        const levelExp = obj.data.crop.meta.config.levelConfig[state.toString()].exp;
-                        const remain = levelExp - exp;
-                        return resolve({
-                            state: state,
-                            useNumber: useNumber,
-                            remain: remain,
-                        });
-                    } else if (obj.code === 409000) {
-                        showNotification = false;
-                        return reject(['澆水失敗 ‼️', '水壺目前沒水']);
-                    } else if (obj.code === 403005) {
-                        return reject(['澆水失敗 ‼️', '作物狀態錯誤，請先手動澆水一次']);
-                    } else if (obj.code === 409004) {
-                        return reject(['澆水失敗 ‼️', '作物狀態錯誤，請檢查是否已收成']);
-                    } else {
-                        return reject(['澆水失敗 ‼️', `錯誤代號：${obj.code}，訊息：${obj.msg}`]);
-                    }
-                } else {
-                    return reject(['澆水失敗 ‼️', response.status]);
-                }
-            }).catch(error => {
-                if (error) {
-                    return reject(['澆水失敗 ‼️', '連線錯誤']);
-                }
-            })
-        } catch (error) {
-            return reject(['澆水失敗 ‼️', error]);
+    method: 'POST',
+    url: 'https://games.shopee.tw/farm/api/orchard/crop/water',
+    headers: config.shopeeHeaders,  // 確保 config.shopeeHeaders 內的 headers 完整
+    body: JSON.stringify({
+        cropId: config.shopeeFarmInfo.currentCrop.cropId, // 確認 cropId 存在
+        resourceId: config.shopeeFarmInfo.currentCrop.resourceId, // 確認 resourceId 存在
+        s: config.shopeeFarmInfo.currentCrop.s // 確認 s 存在
+    }),
+    redirect: 'follow'
+};
+
+$task.fetch(waterRequest).then(response => {
+    const data = response.body;
+    console.log(data);
+    
+    if (response.statusCode == 200) {
+        const obj = JSON.parse(data);
+        
+        if (obj.code === 0) {
+            const useNumber = obj.data.useNumber;
+            const state = obj.data.crop.state;
+            const exp = obj.data.crop.exp;
+            const levelExp = obj.data.crop.meta.config.levelConfig[state.toString()].exp;
+            const remain = levelExp - exp;
+            
+            return resolve({
+                state: state,
+                useNumber: useNumber,
+                remain: remain,
+            });
+        } else if (obj.code === 409000) {
+            showNotification = false;
+            return reject(['澆水失敗 ‼️', '水壺目前沒水']);
+        } else if (obj.code === 403005) {
+            return reject(['澆水失敗 ‼️', '作物狀態錯誤，請先手動澆水一次']);
+        } else if (obj.code === 409004) {
+            return reject(['澆水失敗 ‼️', '作物狀態錯誤，請檢查是否已收成']);
+        } else {
+            return reject(['澆水失敗 ‼️', `錯誤代號：${obj.code}，訊息：${obj.msg}`]);
         }
+    } else {
+        return reject(['澆水失敗 ‼️', response.status]);
+    }
+}).catch(error => {
+    return reject(['澆水失敗 ‼️', '連線錯誤']);
+});
     });
 }
 
