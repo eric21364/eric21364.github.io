@@ -106,7 +106,7 @@ async function water() {
                 }),
                 redirect: 'follow'
             };
-
+            console.log(JSON.stringify(waterRequest))
             $task.fetch(waterRequest).then(response => {
                 console.log(JSON.stringify(response))
                 const data = response.body;
