@@ -108,6 +108,7 @@ async function water() {
 };
 
 $task.fetch(waterRequest).then(response => {
+    console.log('response',response)
     const data = response.body;
     console.log(data);
     
