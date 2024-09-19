@@ -103,7 +103,8 @@ async function water() {
                     cropId: config.shopeeFarmInfo.currentCrop.cropId, // 確認 cropId 存在
                     resourceId: config.shopeeFarmInfo.currentCrop.resourceId, // 確認 resourceId 存在
                     s: config.shopeeFarmInfo.currentCrop.s // 確認 s 存在
-                })
+                }),
+                sessionIndex: 14255
             };
             console.log(JSON.stringify(waterRequest))
             $task.fetch(waterRequest).then(response => {
@@ -140,11 +141,11 @@ async function water() {
                     return reject(['澆水失敗 ‼️', response.status]);
                 }
             })
-            .catch(error => {
-                return reject(['澆水失敗 ‼️', '連線錯誤']);
-            });
+                .catch(error => {
+                    return reject(['澆水失敗 ‼️', '連線錯誤']);
+                });
         }
-        catch(e){
+        catch (e) {
             console.log(e)
         }
     });
