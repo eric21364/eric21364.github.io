@@ -156,11 +156,14 @@ body {
 }
 
 .my-test-container {
-    width: max-content;
+    width: calc(980 / 16 * 1rem);
     display: flex;
     border: calc(1 / 16 * 1rem) solid black;
     padding: calc(10 / 16 * 1rem);
-    background-color: rgb(110, 33, 125);
+    background-color: rgb(206, 17, 158);
+    @media screen and (max-width: 1023px) {
+        width: max-content;
+    }
 }
 
 .my-test-image {
@@ -179,7 +182,9 @@ body {
     flex-flow: column;
     text-align: center;
     gap: calc(10 / 16 * 1rem);
-
+    @media screen and (max-width: 1023px) {
+        width: max-content;
+    }
     .my-test-title {
         font-size: calc(20 / 16 * 1rem);
         font-weight: 500;
@@ -187,7 +192,7 @@ body {
     }
 
     .my-test-memo {
-        width: calc(200 / 16 * 1rem);
+        width: calc(500 / 16 * 1rem);
         font-size: calc(14 / 16 * 1rem);
         word-wrap: break-word;
         @media screen and (max-width: 1023px) {
@@ -211,11 +216,26 @@ body {
     gap: calc(10 / 16 * 1rem);
     margin: 0 auto;
     width: calc(900 / 16 * 1rem);
-    flex-flow: wrap;
+    flex-flow: column;
+    
     @media screen and (max-width: 1023px) {
         width: calc(320 / 16 * 1rem);
     }
 
+}
+.my-test-memo{
+  width:   calc(980 / 16 * 1rem);
+    ul{
+        list-style: circle;
+        li{
+            font-size: calc(14 / 16 * 1rem);
+            color: pink;
+            margin-top: calc(10 / 16 * 1rem);
+        }
+    }
+    @media screen and (max-width: 1023px) {
+        width: calc(280 / 16 * 1rem);
+    }
 }
 
 body {
