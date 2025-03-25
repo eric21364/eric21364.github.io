@@ -1,14 +1,91 @@
-/* ========== CSS Reset ========== */
-* {
-  margin: 0;
-  padding: 0;
-  border: 0;
-  vertical-align: baseline;
-  box-sizing: border-box;
-  font-family: "微軟正黑體", "Microsoft JhengHei", "Apple LiGothic Medium", 
-               "simhei", "Microsoft YaHei", "Heiti TC";
+html,
+body,
+div,
+span,
+applet,
+object,
+iframe,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+blockquote,
+pre,
+a,
+abbr,
+acronym,
+address,
+big,
+cite,
+code,
+del,
+dfn,
+em,
+img,
+ins,
+kbd,
+q,
+s,
+samp,
+small,
+strike,
+strong,
+sub,
+sup,
+tt,
+var,
+b,
+u,
+i,
+center,
+dl,
+dt,
+dd,
+ol,
+ul,
+li,
+fieldset,
+form,
+label,
+legend,
+table,
+caption,
+tbody,
+tfoot,
+thead,
+tr,
+th,
+td,
+article,
+aside,
+canvas,
+details,
+embed,
+figure,
+figcaption,
+footer,
+header,
+hgroup,
+menu,
+nav,
+output,
+ruby,
+section,
+summary,
+time,
+mark,
+audio,
+video {
+	margin: 0;
+	padding: 0;
+	border: 0; 
+	vertical-align: baseline;
 }
 
+/* HTML5 display-role reset for older browsers */
 article,
 aside,
 details,
@@ -20,83 +97,99 @@ hgroup,
 menu,
 nav,
 section {
-  display: block;
+	display: block;
 }
 
 body {
-  line-height: 1;
-  overflow-x: overlay;
-  overflow-y: overlay;
+	line-height: 1;
 }
 
-ol, ul {
-  list-style: none;
+ol,
+ul {
+	list-style: none;
 }
 
-blockquote, q {
-  quotes: none;
+blockquote,
+q {
+	quotes: none;
 }
 
-blockquote::before, blockquote::after,
-q::before, q::after {
-  content: "";
+blockquote:before,
+blockquote:after,
+q:before,
+q:after {
+	content: '';
+	content: none;
 }
 
 table {
-  border-collapse: collapse;
-  border-spacing: 0;
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+* {
+	font-family: "微軟正黑體", "Microsoft JhengHei", "Apple LiGothic Medium", "simhei", "Microsoft YaHei", "Heiti TC";
+}
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
 }
 
 a {
-  text-decoration: none;
-  color: inherit;
+	text-decoration: none;
+	color: inherit;
 }
 
-/* ========== 自訂樣式 ========== */
+body {
+	overflow-y: overlay;
+	overflow-x: overlay;
+}
+
 .my-test-container {
-  width: max-content;
-  display: flex;
-  border: calc(1 / 16 * 1rem) solid black;
-  padding: calc(10 / 16 * 1rem);
-  background-color: rgb(95, 39, 18);
+    width: max-content;
+    display: flex;
+    border: calc(1 / 16 * 1rem) solid black;
+    padding: calc(10 / 16 * 1rem);
+    background-color: rgb(95, 39, 18);
 }
 
-/* 圖片大小（響應式設計） */
 .my-test-image {
-  width: calc(200 / 16 * 1rem);
+    @media screen and (max-width: 1023px) {
+        width: calc(150 / 16 * 1rem);
+    }
 
-  @media screen and (max-width: 1023px) {
-    width: calc(150 / 16 * 1rem);
-  }
+    @media screen and (min-width: 1024px) {
+        width: calc(200 / 16 * 1rem);
+    }
 }
 
-/* 內容區塊 */
 .my-test-content {
-  display: flex;
-  flex-flow: column;
-  text-align: center;
-  gap: calc(10 / 16 * 1rem);
-  padding-left: calc(10 / 16 * 1rem);
+    display: flex;
+    padding-left: calc(10 / 16 * 1rem);
+    flex-flow: column;
+    text-align: center;
+    gap:calc(10 / 16 * 1rem);
+    .my-test-title {
+        font-size: calc(20 / 16 * 1rem);
+        font-weight: 500;
+        color: sandybrown;
+    }
 
-  .my-test-title {
-    font-size: calc(20 / 16 * 1rem);
-    font-weight: 500;
-    color: sandybrown;
-  }
+    .my-test-memo {
+        width: calc(200 / 16 * 1rem);
+        font-size: calc(14 / 16 * 1rem);
+        word-wrap: break-word;
+    }
 
-  .my-test-memo {
-    width: calc(200 / 16 * 1rem);
-    font-size: calc(14 / 16 * 1rem);
-    word-wrap: break-word;
-  }
-
-  .my-test-btn {
-    width: 100%;
-    height: calc(30 / 16 * 1rem);
-    padding: calc(5 / 16 * 1rem);
-    font-size: calc(14 / 16 * 1rem);
-    background-color: rgb(255, 255, 255);
-    border-radius: 10px;
-    border: none;
-  }
+    .my-test-btn {
+        padding: calc(5 / 16 * 1rem);
+        font-size: calc(14 / 16 * 1rem);
+        width: 100%;
+        height: calc(30 / 16 * 1rem);
+        background-color: rgb(255, 255, 255);
+        border-radius: 10px;
+        border: none;
+    }
 }
