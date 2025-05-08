@@ -101,11 +101,11 @@ async function water() {
                 method: 'POST',
                 url: 'https://games.shopee.tw/farm/api/orchard/crop/water',
                 headers: config.shopeeHeaders,  // 確保 config.shopeeHeaders 內的 headers 完整
-                body: JSON.stringify({
-                    cropId: config.shopeeFarmInfo.currentCrop.cropId, // 確認 cropId 存在
-                    resourceId: config.shopeeFarmInfo.currentCrop.resourceId, // 確認 resourceId 存在
-                    s: config.shopeeFarmInfo.currentCrop.s // 確認 s 存在
-                }),
+               // body: JSON.stringify({
+               //     cropId: config.shopeeFarmInfo.currentCrop.cropId, // 確認 cropId 存在
+               //     resourceId: config.shopeeFarmInfo.currentCrop.resourceId, // 確認 resourceId 存在
+                //    s: config.shopeeFarmInfo.currentCrop.s // 確認 s 存在
+               // }),
                 sessionIndex: 14255
             };
             console.log(JSON.stringify(waterRequest))
