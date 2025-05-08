@@ -51,7 +51,8 @@ async function preCheck() {
         const shopeeHeaders = {
             'Cookie': cookieToString(shopeeInfo.token),
             'Content-Type': 'application/x-www-form-urlencoded',
-            'User-Agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Mobile Safari/537.36'
+            'Sec-Fetch-Mode':'cors',
+            'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Beeshop locale=zh-Hant version=34938 appver=34938 rnver=1745927938 shopee_rn_bundle_version=6056009 Shopee language=zh-Hant app_type=1 platform=web_ios os_ver=18.4.1'
         }
         config = {
             shopeeInfo: shopeeInfo,
