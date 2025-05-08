@@ -49,7 +49,7 @@ async function preCheck() {
         }
 
         const shopeeHeaders = {
-            'Cookie': cookieToString(shopeeInfo.token)+'shopee_token=EFDH2InsA1tFjF+17stheVsLPX3T/ntOEek8y+flo2Cb9SKUSg352Qyx8OhqIIWwpb4WW08p7CuFqABzmuTU; shopid=33905310; userid=33906694; username=gale1;',
+            'Cookie': cookieToString(shopeeInfo.token)+'shopee_token=EFDH2InsA1tFjF+17stheVsLPX3T/ntOEek8y+flo2Cb9SKUSg352Qyx8OhqIIWwpb4WW08p7CuFqABzmuTU; shopid=33905310; userid=33906694; username=gale1;csrftoken=fNu9SY9IFqjkLSdNnMlEv26g7gBtfX9d;',
             'Content-Type': 'application/x-www-form-urlencoded',
             'Sec-Fetch-Mode':'cors',
             'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Beeshop locale=zh-Hant version=34938 appver=34938 rnver=1745927938 shopee_rn_bundle_version=6056009 Shopee language=zh-Hant app_type=1 platform=web_ios os_ver=18.4.1'
