@@ -53,6 +53,15 @@ async function preCheck() {
             'Content-Type': 'application/x-www-form-urlencoded',
             'Sec-Fetch-Mode':'cors',
             "games-runtime":"EgretH5",
+            "Content-Type":"application/json",
+"Referer":"https://games.shopee.tw/farm/",
+"games-app-version":"34938",
+"Accept-Language":"en-US,en;q=0.9",
+"game-operation-source":"fruit_farm",
+"fruit-version-type":"h5",
+"Accept":"*/*",
+"games-rn-bundle-version":"6056009",
+"games-biz-version":"9.1.0",
             'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Beeshop locale=zh-Hant version=34938 appver=34938 rnver=1745927938 shopee_rn_bundle_version=6056009 Shopee language=zh-Hant app_type=1 platform=web_ios os_ver=18.4.1'
         }
         config = {
