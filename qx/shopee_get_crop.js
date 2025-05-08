@@ -38,6 +38,7 @@ function surgeNotify(subtitle = '', message = '') {
         if (body && body.cropId && body.resourceId && body.s) {
           let shopeeFarmInfo = getSaveObject('ShopeeFarmInfo');
           shopeeFarmInfo.currentCrop = body;
+            console.log("📦 收到的 crop 資料: ", JSON.stringify(body, null, 2));
           const save = $prefs.setValueForKey(JSON.stringify(shopeeFarmInfo, null, 4), 'ShopeeFarmInfo');
           if (!save) {
             return reject(['保存失敗 ‼️', '無法儲存作物資料']);
@@ -60,8 +61,6 @@ function surgeNotify(subtitle = '', message = '') {
       }
       await getCropData();
       console.log('✅ 作物資料保存成功');
-      console.log("📦 收到的 crop 資料: ", JSON.stringify(body, null, 2));
-
       surgeNotify(`作物資料保存成功 🌱`, '');
   
     } catch (error) {
