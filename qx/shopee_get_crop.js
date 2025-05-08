@@ -60,6 +60,8 @@ function surgeNotify(subtitle = '', message = '') {
       }
       await getCropData();
       console.log('✅ 作物資料保存成功');
+      console.log("📦 收到的 crop 資料: ", JSON.stringify(body, null, 2));
+
       surgeNotify(`作物資料保存成功 🌱`, '');
   
     } catch (error) {
