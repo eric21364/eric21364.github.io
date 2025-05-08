@@ -107,17 +107,20 @@ async function water() {
                 return reject(['澆水失敗 ‼️', '目前沒有作物']);
             }
 
-            const waterRequest = {
-                method: 'POST',
-                url: 'https://games.shopee.tw/farm/api/orchard/crop/water',
-                headers: config.shopeeHeaders,  // 確保 config.shopeeHeaders 內的 headers 完整
-                body: '{"cropId":2044345061,"resourceId":3620951,"s":"AAAAAAAAAAAAAAAAAAAAAKqQYRPqhd0j/m7rFRBH6mPC/ryocwYgfhhzZuxvkiMD","device_id":"3EA661251F5F4C0082F22BB49CD6377B","security_dfp":"NFS/CWcIjToLWh/jbv80yQ==|AGNkYH529a11OUgKrxsdaBX0X4UKpTdA7dsSuJWnoGMK2E4W5ue5gzw0I91GHdWneXSPbsAWirwNvSoY6+I=|yDxtIu7cSGe7337j|08|3"}'
-               //     cropId: config.shopeeFarmInfo.currentCrop.cropId, // 確認 cropId 存在
-               //     resourceId: config.shopeeFarmInfo.currentCrop.resourceId, // 確認 resourceId 存在
-                //    s: config.shopeeFarmInfo.currentCrop.s // 確認 s 存在
-               // }),
-                //sessionIndex: 14255
-            };
+            const crop = config.shopeeFarmInfo.currentCrop;
+const waterRequest = {
+    method: 'POST',
+    url: 'https://games.shopee.tw/farm/api/orchard/crop/water',
+    headers: config.shopeeHeaders,
+    body: JSON.stringify({
+        cropId: crop.cropId,
+        resourceId: crop.resourceId,
+        s: crop.s,
+        device_id: config.shopeeInfo.device_id || '',
+        security_dfp: config.shopeeInfo.security_dfp || ''
+    })
+};
+            
             console.log(JSON.stringify(waterRequest))
             $task.fetch(waterRequest).then(response => {
                 console.log(JSON.stringify(response))
