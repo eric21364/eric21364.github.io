@@ -57,6 +57,7 @@ function isManualRun(checkRequest = false, checkResponse = false) {
 async function getToken() {
   return new Promise((resolve, reject) => {
     try {
+      console.log($request.headers)
       const cookie = $request.headers['Cookie'] || $request.headers['cookie'];
       if (cookie) {
         const cookieObject = parseCookie(cookie);
