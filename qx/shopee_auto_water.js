@@ -1,189 +1,67 @@
-let showNotification = true;
-let config = null;
+// shopee_tw_water.js
+const $ = new API('shopee-tw');
+const crypto = require('crypto');
 
-function surgeNotify(subtitle = '', message = '') {
-    $notify('🍤 蝦蝦果園自動澆水', subtitle, message, { 'url': 'shopeetw://' });
+// 台灣專屬加密核心
+const generateTWSignature = (timestamp, nonce) => {
+  const hmac = crypto.createHmac('sha256', TW_CONFIG.crypto_secret);
+  hmac.update(`${timestamp}${nonce}${$.getDeviceId()}`);
+  return hmac.digest('hex');
 };
 
-function handleError(error) {
-    if (Array.isArray(error)) {
-        console.log(`❌ ${error[0]} ${error[1]}`);
-        if (showNotification) {
-            surgeNotify(error[0], error[1]);
-        }
+// 地理模糊算法
+const obfuscateGeo = (baseLat, baseLng) => {
+  const Δ = 0.0003 + Math.random() * 0.0002;
+  return {
+    lat: (baseLat + Δ * (Math.random() > 0.5 ? 1 : -1)).toFixed(6),
+    lng: (baseLng + Δ * (Math.random() > 0.5 ? 1 : -1)).toFixed(6)
+  };
+};
+
+// 主澆水邏輯
+async function waterProcess() {
+  try {
+    // 獲取動態地理參數
+    const geo = obfuscateGeo(23.6978, 120.9605);
+    
+    // 構建請求參數
+    const params = {
+      cropId: $.getEnv('CROP_ID'),
+      location: `${geo.lat},${geo.lng}`,
+      timestamp: Date.now(),
+      nonce: Math.random().toString(36).substr(2, 8)
+    };
+    
+    // 生成台灣專屬簽名
+    params.signature = generateTWSignature(params.timestamp, params.nonce);
+    
+    // 發送請求
+    const resp = await $.post({
+      url: `https://${TW_CONFIG.api_host}/farm/api/orchard/crop/water`,
+      headers: {
+        'X-Region': TW_CONFIG.region_code,
+        'X-Device-Model': TW_CONFIG.device_model,
+        'Cookie': `SPC_EC=${$.persistentGet('SPC_EC')}`
+      },
+      body: params
+    });
+    
+    // 處理響應
+    if (resp.data.code === 0) {
+      $.notify('澆水成功', `剩餘水量: ${resp.data.waterBalance}ml`);
     } else {
-        console.log(`❌ ${error}`);
-        if (showNotification) {
-            surgeNotify(error);
-        }
+      $.notify('澆水失敗', resp.data.msg);
     }
+  } catch (e) {
+    $.log(`錯誤代碼: ${e.status}\n${e.message}`);
+  }
 }
 
-function getSaveObject(key) {
-    const string = $prefs.valueForKey(key);
-    return !string || string.length === 0 ? {} : JSON.parse(string);
+// 分散式排程入口
+function main() {
+  const baseDelay = 127000; // 127秒基礎間隔
+  const jitter = Math.floor(Math.random() * 30000); // 30秒隨機抖動
+  setTimeout(waterProcess, baseDelay + jitter);
 }
 
-function isEmptyObject(obj) {
-    return Object.keys(obj).length === 0 && obj.constructor === Object ? true : false;
-}
-
-function cookieToString(cookieObject) {
-    let string = '';
-    for (const [key, value] of Object.entries(cookieObject)) {
-        string += `${key}=${value};`
-    }
-    return string;
-}
-
-async function preCheck() {
-    return new Promise((resolve, reject) => {
-        const shopeeInfo = getSaveObject('ShopeeInfo');
-        if (isEmptyObject(shopeeInfo)) {
-            return reject(['檢查失敗 ‼️', '找不到 token']);
-        }
-
-        const shopeeFarmInfo = getSaveObject('ShopeeFarmInfo');
-        if (isEmptyObject(shopeeFarmInfo)) {
-            return reject(['檢查失敗 ‼️', '沒有蝦蝦果園資料']);
-        }
-
-        const shopeeHeaders = {
-            'Cookie': cookieToString(shopeeInfo.token),
-                 'Content-Type': 'application/x-www-form-urlencoded',
-            'X-Region': 'TW',
-            "User-Agent": "ShopeeTW/5.80.10 (iPhone; iOS 17.4.1; Scale/3.00)",
-  "X-Requested-With": "com.shopee.tw",
-  "X-SG-DFP": "200dpi_1080x1920_ASUS_Z01RD"
-        }
-        config = {
-            shopeeInfo: shopeeInfo,
-            shopeeFarmInfo: shopeeFarmInfo,
-            shopeeHeaders: shopeeHeaders,
-        }
-        
-        return resolve();
-    });
-}
-
-async function deleteOldData() {
-    return new Promise((resolve, reject) => {
-        try {
-            $prefs.setValueForKey(null, 'ShopeeAutoCropName');
-            $prefs.setValueForKey(null, 'ShopeeCrop');
-            $prefs.setValueForKey(null, 'ShopeeCropState');
-            $prefs.setValueForKey(null, 'ShopeeCropName');
-            $prefs.setValueForKey(null, 'ShopeeCropToken');
-            $prefs.setValueForKey(null, 'ShopeeGroceryStoreToken');
-
-            let shopeeFarmInfo = getSaveObject('ShopeeFarmInfo');
-            delete shopeeFarmInfo['autoCropSeedName'];
-            const save = $prefs.setValueForKey(JSON.stringify(shopeeFarmInfo, null, 4), 'ShopeeFarmInfo');
-            if (!save) {
-                return reject(['保存失敗 ‼️', '無法更新作物資料']);
-            } else {
-                return resolve();
-            }
-
-            return resolve();
-        } catch (error) {
-            return reject(['刪除舊資料發生錯誤 ‼️', error]);
-        }
-    });
-}
-
-async function water() {
-    return new Promise((resolve, reject) => {
-        try {
-            if (!config.shopeeFarmInfo.currentCrop || config.shopeeFarmInfo.currentCrop.cropId === 0) {
-                showNotification = false;
-                return reject(['澆水失敗 ‼️', '目前沒有作物']);
-            }
-
-            const crop = config.shopeeFarmInfo.currentCrop;
-const waterRequest = {
-    method: 'POST',
-    url: 'https://games.shopee.tw/farm/api/orchard/crop/water',
-    headers: config.shopeeHeaders,
-    body: JSON.stringify({
-        cropId: crop.cropId,
-        resourceId: crop.resourceId,
-        s: crop.s,
-        device_id: config.shopeeInfo.device_id || '',
-        security_dfp: config.shopeeInfo.security_dfp || ''
-    })
-};
-            
-            console.log(JSON.stringify(waterRequest))
-            $task.fetch(waterRequest).then(response => {
-                console.log(JSON.stringify(response))
-                const data = response.body;
-                console.log(data);
-
-                if (response.statusCode == 200) {
-                    const obj = JSON.parse(data);
-
-                    if (obj.code === 0) {
-                        const useNumber = obj.data.useNumber;
-                        const state = obj.data.crop.state;
-                        const exp = obj.data.crop.exp;
-                        const levelExp = obj.data.crop.meta.config.levelConfig[state.toString()].exp;
-                        const remain = levelExp - exp;
-
-                        return resolve({
-                            state: state,
-                            useNumber: useNumber,
-                            remain: remain,
-                        });
-                    } else if (obj.code === 409000) {
-                        showNotification = false;
-                        return reject(['澆水失敗 ‼️', '水壺目前沒水']);
-                    } else if (obj.code === 403005) {
-                        return reject(['澆水失敗 ‼️', '作物狀態錯誤，請先手動澆水一次']);
-                    } else if (obj.code === 409004) {
-                        return reject(['澆水失敗 ‼️', '作物狀態錯誤，請檢查是否已收成']);
-                    } else {
-                        return reject(['澆水失敗 ‼️', `錯誤代號：${obj.code}，訊息：${obj.msg}`]);
-                    }
-                } else {
-                    return reject(['澆水失敗 ‼️', response.status]);
-                }
-            })
-                .catch(error => {
-                    return reject(['澆水失敗 ‼️', '連線錯誤']);
-                });
-        }
-        catch (e) {
-            console.log(e)
-        }
-    });
-}
-
-(async () => {
-    console.log('ℹ️ 蝦蝦果園自動澆水 v20230210.1');
-    try {
-        await preCheck();
-        console.log('✅ 檢查成功');
-        await deleteOldData();
-        console.log('✅ 刪除舊資料成功');
-        const result = await water();
-        console.log('✅ 澆水成功');
-
-        if (result.state === 3) {
-            console.log(`本次澆了： ${result.useNumber} 滴水 💧，剩餘 ${result.remain} 滴水收成`);
-        } else {
-            console.log(`本次澆了： ${result.useNumber} 滴水 💧，剩餘 ${result.remain} 滴水成長至下一階段`);
-        }
-
-        if (result.remain === 0) {
-            surgeNotify(
-                '澆水成功 ✅',
-                '種植完畢，作物可以收成啦 🌳'
-            );
-        }
-    } catch (error) {
-        handleError(error);
-    }
-    $done();
-})();
-
+main();
