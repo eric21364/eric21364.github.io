@@ -1,134 +1,124 @@
-// ==UserScript==
-// @name         蝦皮台灣自動澆水
-// @namespace    http://your.namespace/
-// @version      1.0
-// @description  Quantumult X 輸出純 JS 載入自動澆水
-// @author       你
-// @match        https://raw.githubusercontent.com/eric21364/eric21364.github.io/refs/heads/main/qx/shopee_auto_water.js
-// @grant        none
-// ==/UserScript==
-async function preCheck() {
-    return new Promise((resolve, reject) => {
-        const shopeeInfo = getSaveObject('ShopeeInfo');
-        if (isEmptyObject(shopeeInfo)) {
-            return reject(['檢查失敗 ‼️', '找不到 token']);
-        }
+// ================== 核心配置區塊 ==================
+const CONFIG = {
+  api_host: "games.shopee.tw",
+  check_interval: 127000,  // 請求間隔(毫秒)
+  max_retries: 3           // 最大重試次數
+};
 
-        const shopeeFarmInfo = getSaveObject('ShopeeFarmInfo');
-        if (isEmptyObject(shopeeFarmInfo)) {
-            return reject(['檢查失敗 ‼️', '沒有蝦蝦果園資料']);
-        }
-
-        const shopeeHeaders = {
-            'Cookie': cookieToString(shopeeInfo.token),
-            'Content-Type': 'application/x-www-form-urlencoded',
-        }
-        config = {
-            shopeeInfo: shopeeInfo,
-            shopeeFarmInfo: shopeeFarmInfo,
-            shopeeHeaders: shopeeHeaders,
-        }
-        return resolve();
-    });
+// ================== 持久化儲存處理 ==================
+function getSavedData(key) {
+  return JSON.parse($persistentStore.read(key) || "{}");
 }
-(async () => {
-    const CROP_ID = '6013820'; // 輸入你的作物ID
-    const SECRET_KEY = 'TW_2024_SECRET_V2'; // 你的密鑰
-    const API_HOST = 'games.shopee.tw';
 
-    // 生成簽名（HMAC-SHA256）
-    function generateSignature(timestamp, nonce, deviceId) {
-        const str = `${timestamp}${nonce}${deviceId}`;
-        const encoder = new TextEncoder();
-        const keyData = encoder.encode(SECRET_KEY);
-        const data = encoder.encode(str);
-        return crypto.subtle.importKey('raw', keyData, {name: 'HMAC', hash: 'SHA-256'}, false, ['sign'])
-            .then(cryptoKey => crypto.subtle.sign('HMAC', cryptoKey, data))
-            .then(signature => {
-                const hashArray = Array.from(new Uint8Array(signature));
-                return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-            });
+function saveData(key, value) {
+  return $persistentStore.write(JSON.stringify(value), key);
+}
+
+// ================== 通知功能 ==================
+function notify(subtitle, message) {
+  $notification.post("🍤 蝦蝦果園自動澆水", subtitle, message, { "url": "shopeetw://" });
+}
+
+// ================== 初始化檢查 ==================
+async function preCheck() {
+  const shopeeInfo = getSavedData("ShopeeInfo");
+  if (Object.keys(shopeeInfo).length === 0) {
+    throw ["檢查失敗 ‼️", "找不到必要憑證"];
+  }
+
+  const cookies = Object.entries(shopeeInfo.token)
+    .map(([k, v]) => `${k}=${v}`)
+    .join("; ");
+
+  return {
+    headers: {
+      "Cookie": cookies,
+      "Content-Type": "application/json",
+      "X-Requested-With": "com.shopee.tw"
+    },
+    farmInfo: getSavedData("ShopeeFarmInfo")
+  };
+}
+
+// ================== 澆水核心邏輯 ==================
+async function waterPlant(config) {
+  const cropInfo = config.farmInfo.currentCrop;
+  if (!cropInfo || cropInfo.cropId === 0) {
+    notify("澆水中斷", "目前沒有可澆水的作物");
+    return;
+  }
+
+  const response = await $http.post({
+    url: `https://${CONFIG.api_host}/farm/api/orchard/crop/water`,
+    headers: config.headers,
+    body: {
+      cropId: cropInfo.cropId,
+      resourceId: cropInfo.resourceId,
+      s: cropInfo.s
     }
+  });
 
-    // 地理模糊
-    function obfuscateGeo(baseLat, baseLng) {
-        const gaussian = (μ, σ) => {
-            let u = 0, v = 0;
-            while (u === 0) u = Math.random();
-            while (v === 0) v = Math.random();
-            return μ + σ * Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
-        };
-        const delta = 0.0003;
-        return {
-            lat: (baseLat + gaussian(0, delta)).toFixed(6),
-            lng: (baseLng + gaussian(0, delta)).toFixed(6)
-        };
+  if (response.statusCode !== 200) {
+    throw [`HTTP 錯誤`, `狀態碼: ${response.statusCode}`];
+  }
+
+  const data = response.data;
+  if (data.code !== 0) {
+    handleErrorCode(data.code, data.msg);
+    return;
+  }
+
+  const result = {
+    state: data.data.crop.state,
+    used: data.data.useNumber,
+    remain: data.data.crop.meta.config.levelConfig[data.data.crop.state.toString()].exp - data.data.crop.exp
+  };
+
+  notify("澆水成功", `本次使用 ${result.used} 滴水💧\n距離下一階段還需 ${result.remain} 滴`);
+}
+
+// ================== 錯誤代碼處理 ==================
+function handleErrorCode(code, msg) {
+  const errorMap = {
+    409000: ["水量不足", "水壺已空需補充"],
+    403005: ["狀態錯誤", "請先手動澆水一次"],
+    409004: ["作物異常", "請檢查是否已收成"]
+  };
+  
+  if (errorMap[code]) {
+    throw errorMap[code];
+  }
+  throw ["操作失敗", `錯誤代碼: ${code}\n${msg}`];
+}
+
+// ================== 主執行流程 ==================
+async function main() {
+  try {
+    const config = await preCheck();
+    await waterPlant(config);
+  } catch (error) {
+    if (Array.isArray(error)) {
+      notify(error[0], error[1]);
+    } else {
+      notify("未知錯誤", error.message);
     }
+  }
+  $done();
+}
 
-    // 取得設備ID（模擬）
-    function getDeviceId() {
-        return 'ASUS_Z01RD'; // 可自訂或固定
+// ================== 定時任務控制 ==================
+let retryCount = 0;
+function scheduleTask() {
+  main().finally(() => {
+    const delay = CONFIG.check_interval + Math.random() * 30000;
+    setTimeout(scheduleTask, delay);
+    
+    if (retryCount++ >= CONFIG.max_retries) {
+      notify("系統警告", "已達最大重試次數，請檢查設定");
+      $done();
     }
+  });
+}
 
-    // 發送請求
-    async function water() {
-        const geo = obfuscateGeo(23.6978, 120.9605);
-        const timestamp = Date.now();
-        const nonce = Math.random().toString(36).substr(2,8);
-        const deviceId = getDeviceId();
-
-        const signature = await generateSignature(timestamp, nonce, deviceId);
-
-        const url = `https://${API_HOST}/farm/api/orchard/crop/water`;
-        const headers = {
-            'Content-Type': 'application/json',
-            'X-Region': 'TW',
-            'X-Device-Model': deviceId,
-            'Cookie': `SPC_EC=${$persistentStore.read('SPC_EC')}`,
-            'User-Agent': 'ShopeeTW/5.80.10 (iPhone; iOS 17.4.1; Scale/3.00)'
-        };
-        const body = {
-            cropId: CROP_ID,
-            location: `${geo.lat},${geo.lng}`,
-            timestamp: timestamp,
-            nonce: nonce,
-            signature: signature
-        };
-
-        try {
-            const resp = await $httpRequest({
-                method: 'POST',
-                url: url,
-                headers: headers,
-                body: JSON.stringify(body)
-            });
-            const data = JSON.parse(resp.body);
-            if (data.code === 0) {
-                $notify('澆水成功', `剩餘水量: ${data.waterBalance}ml`);
-            } else {
-                $notify('澆水失敗', data.msg || '未知錯誤');
-            }
-        } catch (e) {
-            $notify('請求失敗', e.message);
-        }
-    }
-
-    // 定時自動執行
-    function schedule() {
-        const interval = 127 * 1000; // 127秒
-        const jitter = Math.random() * 30 * 1000; // 0-30秒
-        setTimeout(async () => {
-            await water();
-            schedule();
-        }, interval + jitter);
-    }
-
-    // 初始化
-    if ($persistentStore.read('SPC_EC') == null) {
-        $notify('請先獲取Cookie', '請在瀏覽器中登入蝦皮並設置MitM攔截Cookie');
-        return;
-    }
-	await preCheck();
-    await water();
-	$done();
-})();
+// ================== 初始化執行 ==================
+scheduleTask();
