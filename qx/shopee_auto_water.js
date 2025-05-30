@@ -1,124 +1,182 @@
-// ================== 核心配置區塊 ==================
-const CONFIG = {
-  api_host: "games.shopee.tw",
-  check_interval: 127000,  // 請求間隔(毫秒)
-  max_retries: 3           // 最大重試次數
-};
+let showNotification = true;
+let config = null;
 
-// ================== 持久化儲存處理 ==================
-function getSavedData(key) {
-  return JSON.parse($persistentStore.read(key) || "{}");
+// 通知
+function surgeNotify(subtitle = '', message = '') {
+    $notify('🍤 蝦蝦果園自動澆水', subtitle, message, { 'url': 'shopeetw://' });
 }
 
-function saveData(key, value) {
-  return $persistentStore.write(JSON.stringify(value), key);
-}
-
-// ================== 通知功能 ==================
-function notify(subtitle, message) {
-  $notification.post("🍤 蝦蝦果園自動澆水", subtitle, message, { "url": "shopeetw://" });
-}
-
-// ================== 初始化檢查 ==================
-async function preCheck() {
-  const shopeeInfo = getSavedData("ShopeeInfo");
-  if (Object.keys(shopeeInfo).length === 0) {
-    throw ["檢查失敗 ‼️", "找不到必要憑證"];
-  }
-
-  const cookies = Object.entries(shopeeInfo.token)
-    .map(([k, v]) => `${k}=${v}`)
-    .join("; ");
-
-  return {
-    headers: {
-      "Cookie": cookies,
-      "Content-Type": "application/json",
-      "X-Requested-With": "com.shopee.tw"
-    },
-    farmInfo: getSavedData("ShopeeFarmInfo")
-  };
-}
-
-// ================== 澆水核心邏輯 ==================
-async function waterPlant(config) {
-  const cropInfo = config.farmInfo.currentCrop;
-  if (!cropInfo || cropInfo.cropId === 0) {
-    notify("澆水中斷", "目前沒有可澆水的作物");
-    return;
-  }
-
-  const response = await $http.post({
-    url: `https://${CONFIG.api_host}/farm/api/orchard/crop/water`,
-    headers: config.headers,
-    body: {
-      cropId: cropInfo.cropId,
-      resourceId: cropInfo.resourceId,
-      s: cropInfo.s
-    }
-  });
-
-  if (response.statusCode !== 200) {
-    throw [`HTTP 錯誤`, `狀態碼: ${response.statusCode}`];
-  }
-
-  const data = response.data;
-  if (data.code !== 0) {
-    handleErrorCode(data.code, data.msg);
-    return;
-  }
-
-  const result = {
-    state: data.data.crop.state,
-    used: data.data.useNumber,
-    remain: data.data.crop.meta.config.levelConfig[data.data.crop.state.toString()].exp - data.data.crop.exp
-  };
-
-  notify("澆水成功", `本次使用 ${result.used} 滴水💧\n距離下一階段還需 ${result.remain} 滴`);
-}
-
-// ================== 錯誤代碼處理 ==================
-function handleErrorCode(code, msg) {
-  const errorMap = {
-    409000: ["水量不足", "水壺已空需補充"],
-    403005: ["狀態錯誤", "請先手動澆水一次"],
-    409004: ["作物異常", "請檢查是否已收成"]
-  };
-  
-  if (errorMap[code]) {
-    throw errorMap[code];
-  }
-  throw ["操作失敗", `錯誤代碼: ${code}\n${msg}`];
-}
-
-// ================== 主執行流程 ==================
-async function main() {
-  try {
-    const config = await preCheck();
-    await waterPlant(config);
-  } catch (error) {
+// 錯誤處理
+function handleError(error) {
     if (Array.isArray(error)) {
-      notify(error[0], error[1]);
+        console.log(`❌ ${error[0]} ${error[1]}`);
+        if (showNotification) surgeNotify(error[0], error[1]);
     } else {
-      notify("未知錯誤", error.message);
+        console.log(`❌ ${error}`);
+        if (showNotification) surgeNotify(error);
     }
-  }
-  $done();
 }
 
-// ================== 定時任務控制 ==================
-let retryCount = 0;
-function scheduleTask() {
-  main().finally(() => {
-    const delay = CONFIG.check_interval + Math.random() * 30000;
-    setTimeout(scheduleTask, delay);
-    
-    if (retryCount++ >= CONFIG.max_retries) {
-      notify("系統警告", "已達最大重試次數，請檢查設定");
-      $done();
-    }
-  });
+// 讀取本地存儲
+function getSaveObject(key) {
+    const string = $prefs.valueForKey(key);
+    return !string || string.length === 0 ? {} : JSON.parse(string);
 }
 
-// ================== 初始化執行 ==================
-scheduleTask();
+function isEmptyObject(obj) {
+    return Object.keys(obj).length === 0 && obj.constructor === Object;
+}
+
+// Cookie 物件轉字串
+function cookieToString(cookieObject) {
+    let string = '';
+    for (const [key, value] of Object.entries(cookieObject)) {
+        string += `${key}=${value}; `;
+    }
+    return string.trim();
+}
+
+// 前置檢查
+async function preCheck() {
+    return new Promise((resolve, reject) => {
+        const shopeeInfo = getSaveObject('ShopeeInfo');
+        if (isEmptyObject(shopeeInfo)) return reject(['檢查失敗 ‼️', '找不到 token']);
+
+        const shopeeFarmInfo = getSaveObject('ShopeeFarmInfo');
+        if (isEmptyObject(shopeeFarmInfo)) return reject(['檢查失敗 ‼️', '沒有蝦蝦果園資料']);
+
+        // 這裡請根據你自己的存儲方式調整欄位
+        const cookie = shopeeInfo.token ? cookieToString(shopeeInfo.token) : '';
+        config = {
+            shopeeInfo,
+            shopeeFarmInfo,
+            cookie,
+        };
+        resolve();
+    });
+}
+
+// 刪除舊資料
+async function deleteOldData() {
+    return new Promise((resolve, reject) => {
+        try {
+            $prefs.setValueForKey(null, 'ShopeeAutoCropName');
+            $prefs.setValueForKey(null, 'ShopeeCrop');
+            $prefs.setValueForKey(null, 'ShopeeCropState');
+            $prefs.setValueForKey(null, 'ShopeeCropName');
+            $prefs.setValueForKey(null, 'ShopeeCropToken');
+            $prefs.setValueForKey(null, 'ShopeeGroceryStoreToken');
+            let shopeeFarmInfo = getSaveObject('ShopeeFarmInfo');
+            delete shopeeFarmInfo['autoCropSeedName'];
+            $prefs.setValueForKey(JSON.stringify(shopeeFarmInfo, null, 4), 'ShopeeFarmInfo');
+            resolve();
+        } catch (error) {
+            reject(['刪除舊資料發生錯誤 ‼️', error]);
+        }
+    });
+}
+
+// 澆水主程式
+async function water() {
+    return new Promise((resolve, reject) => {
+        try {
+            const crop = config.shopeeFarmInfo.currentCrop;
+            if (!crop || !crop.cropId) {
+                showNotification = false;
+                return reject(['澆水失敗 ‼️', '目前沒有作物']);
+            }
+
+            // 必要欄位
+            const bodyObj = {
+                cropId: crop.cropId,
+                resourceId: crop.resourceId,
+                s: crop.s,
+                device_id: config.shopeeInfo.device_id || '3EA661251F5F4C0082F22BB49CD6377B', // 需自行補齊
+                security_dfp: config.shopeeInfo.security_dfp || 'pa29qBzQrg4fwT5DKMUN/g==|uWJkYH529a11OUgKrxsdaBX0X4UKpTdA7dsSuLCbQuwL2E4W5ue5gzw0I91GHdWneXSPbsAWirwNvSoY6+I=|yDxtIu7cSGe7337j|08|3', // 需自行補齊
+            };
+
+            // 完整 headers
+            const headers = {
+                'Accept-Encoding': 'gzip, deflate, br',
+                'fruit-app-version': '35155',
+                'Host': 'games.shopee.tw',
+                'Origin': 'https://games.shopee.tw',
+                'Sec-Fetch-Dest': 'empty',
+                'Connection': 'keep-alive',
+                'game-entrance': 'normal',
+                'Sec-Fetch-Site': 'same-origin',
+                'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Beeshop locale=zh-Hant version=35155 appver=35155 rnver=1747813207 shopee_rn_bundle_version=6059005 Shopee language=zh-Hant app_type=1 platform=web_ios os_ver=18.5.0',
+                'Content-Type': 'application/json',
+                'Referer': 'https://games.shopee.tw/farm/?utm_medium=notification&utm_source=apppn&__source__=push_notification&__dsrn__=1',
+                'games-app-version': '35155',
+                'Accept-Language': 'en-US,en;q=0.9',
+                'game-operation-source': 'fruit_farm',
+                'fruit-version-type': 'h5',
+                'Accept': '*/*',
+                'games-rn-bundle-version': '6059005',
+                'games-biz-version': '9.1.0',
+                'Cookie': config.cookie,
+                'Sec-Fetch-Mode': 'cors',
+                'games-runtime': 'EgretH5'
+            };
+
+            const waterRequest = {
+                method: 'POST',
+                url: 'https://games.shopee.tw/farm/api/orchard/crop/water',
+                headers: headers,
+                body: JSON.stringify(bodyObj)
+            };
+
+            $task.fetch(waterRequest).then(response => {
+                const data = response.body;
+                if (response.statusCode == 200) {
+                    const obj = JSON.parse(data);
+                    if (obj.code === 0) {
+                        const useNumber = obj.data.useNumber;
+                        const state = obj.data.crop.state;
+                        const exp = obj.data.crop.exp;
+                        const levelExp = obj.data.crop.meta.config.levelConfig[state.toString()].exp;
+                        const remain = levelExp - exp;
+                        return resolve({ state, useNumber, remain });
+                    } else if (obj.code === 409000) {
+                        showNotification = false;
+                        return reject(['澆水失敗 ‼️', '水壺目前沒水']);
+                    } else if (obj.code === 403005) {
+                        return reject(['澆水失敗 ‼️', '作物狀態錯誤，請先手動澆水一次']);
+                    } else if (obj.code === 409004) {
+                        return reject(['澆水失敗 ‼️', '作物狀態錯誤，請檢查是否已收成']);
+                    } else {
+                        return reject(['澆水失敗 ‼️', `錯誤代號：${obj.code}，訊息：${obj.msg}`]);
+                    }
+                } else {
+                    return reject(['澆水失敗 ‼️', response.status]);
+                }
+            }).catch(error => {
+                return reject(['澆水失敗 ‼️', '連線錯誤']);
+            });
+        } catch (e) {
+            reject(['澆水失敗 ‼️', e]);
+        }
+    });
+}
+
+// 主流程
+(async () => {
+    console.log('ℹ️ 蝦蝦果園自動澆水 v20240530.1');
+    try {
+        await preCheck();
+        await deleteOldData();
+        const result = await water();
+        if (result.state === 3) {
+            console.log(`本次澆了：${result.useNumber} 滴水 💧，剩餘 ${result.remain} 滴水收成`);
+        } else {
+            console.log(`本次澆了：${result.useNumber} 滴水 💧，剩餘 ${result.remain} 滴水成長至下一階段`);
+        }
+        if (result.remain === 0) {
+            surgeNotify('澆水成功 ✅', '種植完畢，作物可以收成啦 🌳');
+        }
+    } catch (error) {
+        handleError(error);
+    }
+    $done();
+})();
