@@ -129,6 +129,7 @@ async function water() {
 
       $task.fetch(waterRequest).then(response => {
         const data = response.body;
+        console.log(`ℹ️ 澆水回應：${JSON.stringify(data)}`);
         if (response.statusCode == 200) {
           const obj = JSON.parse(data);
           console.log(`ℹ️ 澆水回應：${JSON.stringify(obj)}`);
