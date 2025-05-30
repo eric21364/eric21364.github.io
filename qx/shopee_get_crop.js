@@ -48,7 +48,7 @@ async function getCropData() {
           device_id: body.device_id,
           security_dfp: body.security_dfp
         };
-        const save = $prefs.setValueForKey(JSON.stringify(shopeeFarmInfo) + 'ShopeeFarmInfo');
+        const save = $prefs.setValueForKey(JSON.stringify(shopeeFarmInfo,null,4) + 'ShopeeFarmInfo');
         if (!save) {
           return reject(['保存失敗 ‼️', '無法儲存作物資料']);
         }
