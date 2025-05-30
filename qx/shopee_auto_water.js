@@ -96,7 +96,7 @@ async function water() {
       };
       const body = JSON.stringify(bodyObj);
       const bodyAsString = JSON.stringify(body);
-      console.log(`ℹ️ 正在澆水作物：${crop.cropName}，ID：${crop.cropId}` + JSON.stringify(bodyObj));
+      console.log(`ℹ️ 正在澆水作物：${crop.cropName}，ID：${crop.cropId}` + bodyAsString);
       // 完整 headers
       const headers = {
         'Accept-Encoding': 'gzip, deflate, br',
