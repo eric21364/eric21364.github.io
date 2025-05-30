@@ -52,8 +52,8 @@ async function getCropData() {
         if (!save) {
           return reject(['保存失敗 ‼️', '無法儲存作物資料']);
         }
-        console.log('作物資料:', JSON.stringify(shopeeFarmInfo.currentCrop.cropId));
-        console.log('作物資料:', JSON.stringify(shopeeFarmInfo.currentCrop.resourceId));
+        console.log('作物資料:'+ JSON.stringify(shopeeFarmInfo.currentCrop.cropId));
+        console.log('作物資料:'+ JSON.stringify(shopeeFarmInfo.currentCrop.resourceId));
         return resolve();
       } else {
         return reject(['作物資料儲存失敗 ‼️', '缺少必要欄位，請重新獲得 Cookie 後再嘗試']);
