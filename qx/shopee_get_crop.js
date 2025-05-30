@@ -35,6 +35,7 @@ async function getCropData() {
   return new Promise((resolve, reject) => {
     try {
       const body = JSON.parse($request.body);
+      console.log(JSON.stringify(body));
       // 必須包含所有欄位
       if (body && body.cropId && body.resourceId && body.s && body.device_id && body.security_dfp) {
         let shopeeFarmInfo = getSaveObject('ShopeeFarmInfo');
@@ -50,7 +51,7 @@ async function getCropData() {
         if (!save) {
           return reject(['保存失敗 ‼️', '無法儲存作物資料']);
         }
-        console.log('作物資料:', shopeeFarmInfo.currentCrop);
+        console.log('作物資料:', JSON.stringify(shopeeFarmInfo.currentCrop));
         return resolve();
       } else {
         return reject(['作物資料儲存失敗 ‼️', '缺少必要欄位，請重新獲得 Cookie 後再嘗試']);
