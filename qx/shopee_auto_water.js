@@ -94,6 +94,8 @@ async function water() {
         device_id: config.shopeeInfo.device_id || '3EA661251F5F4C0082F22BB49CD6377B', // 需自行補齊
         security_dfp: config.shopeeInfo.security_dfp || 'pa29qBzQrg4fwT5DKMUN/g==|uWJkYH529a11OUgKrxsdaBX0X4UKpTdA7dsSuLCbQuwL2E4W5ue5gzw0I91GHdWneXSPbsAWirwNvSoY6+I=|yDxtIu7cSGe7337j|08|3', // 需自行補齊
       };
+      const body = JSON.stringify(bodyObj);
+      const bodyAsString = JSON.stringify(body);
       console.log(`ℹ️ 正在澆水作物：${crop.cropName}，ID：${crop.cropId}` + JSON.stringify(bodyObj));
       // 完整 headers
       const headers = {
@@ -124,7 +126,7 @@ async function water() {
         method: 'POST',
         url: 'https://games.shopee.tw/farm/api/orchard/crop/water',
         headers: headers,
-        body: JSON.stringify(bodyObj)
+        body: bodyAsString
       };
 
       $task.fetch(waterRequest).then(response => {
