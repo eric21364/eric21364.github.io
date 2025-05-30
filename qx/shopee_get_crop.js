@@ -38,8 +38,8 @@ async function getCropData() {
       // 必須包含所有欄位
       if (body && body.cropId && body.resourceId && body.s && body.device_id && body.security_dfp) {
         let shopeeFarmInfo = getSaveObject('ShopeeFarmInfo');
-        console.log('作物資料:', JSON.stringify(body));
-        console.log('cropid', body.cropId, 'resourceId', body.resourceId, 's', body.s, 'device_id', body.device_id, 'security_dfp', body.security_dfp);
+        console.log('作物資料:' + JSON.stringify(body));
+        console.log('cropid' + body.cropId + 'resourceId' + body.resourceId + 's' + body.s + 'device_id' + body.device_id + 'security_dfp' + body.security_dfp);
         // 完整存入
         shopeeFarmInfo.currentCrop = {
           cropId: body.cropId,
@@ -48,7 +48,7 @@ async function getCropData() {
           device_id: body.device_id,
           security_dfp: body.security_dfp
         };
-        const save = $prefs.setValueForKey(JSON.stringify(shopeeFarmInfo), 'ShopeeFarmInfo');
+        const save = $prefs.setValueForKey(JSON.stringify(shopeeFarmInfo) + 'ShopeeFarmInfo');
         if (!save) {
           return reject(['保存失敗 ‼️', '無法儲存作物資料']);
         }
