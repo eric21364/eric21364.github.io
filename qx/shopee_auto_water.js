@@ -131,6 +131,7 @@ async function water() {
         const data = response.body;
         if (response.statusCode == 200) {
           const obj = JSON.parse(data);
+          console.log(`ℹ️ 澆水回應：${JSON.stringify(obj)}`);
           if (obj.code === 0) {
             const useNumber = obj.data.useNumber;
             const state = obj.data.crop.state;
