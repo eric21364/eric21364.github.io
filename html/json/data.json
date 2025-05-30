@@ -1,0 +1,43 @@
+{
+    "list": [
+        {
+            "image": "https://resize-image.vocus.cc/resize?compression=6&norotation=true&url=https%3A%2F%2Fimages.vocus.cc%2Fe9e3f934-a271-4e82-a0a0-b368dc51fbdc.png&width=740&sign=U2Z0a7348sTDo3pwgWPeb2cUkkdHUuOihpw8h3BUvzk",
+            "title": "海綿寶寶",
+            "memo": "海綿寶寶是動畫《海綿寶寶》的主角，特徵為黃色方形海綿，穿著棕色短褲、白色襯衫、紅色領帶和黑色皮鞋。住在「比奇堡」的鳳梨屋，擔任蟹堡王餐廳的主廚。",
+            "btn": [
+                "這是按鈕數量",
+                "1999",
+                "1986年7月14日",
+                "巨蟹座"
+            ],
+            "backgroudColor": "#FF0000",
+            "secmemo": [
+                "美味蟹堡",
+                "美味蟹堡",
+                "美味蟹堡",
+                "美味蟹堡",
+                "美味蟹堡"
+            ]
+        },
+        {
+            "image": "https://zxz841.ueuo.com/pictures/4706331404_f9e4a2217b.jpg",
+            "title": "海綿寶寶1",
+            "memo": "海綿寶寶是動畫《海綿寶寶》的主角，特徵為黃色方形海綿，穿著棕色短褲、白色襯衫、紅色領帶和黑色皮鞋。住在「比奇堡」的鳳梨屋，擔任蟹堡王餐廳的主廚。",
+            "btn": [
+                "19929",
+                "1986年27月14日",
+                "巨蟹座"
+            ]
+        },
+        {
+            "image": "https://zxz841.ueuo.com/pictures/2917730571_bd31ac2a57.jpg",
+            "title": "海綿寶寶2",
+            "memo": "海綿寶寶是動畫《海綿寶寶》的主角，特徵為黃色方形海綿，穿著棕色短褲、白色襯衫、紅色領帶和黑色皮鞋。住在「比奇堡」的鳳梨屋，擔任蟹堡王餐廳的主廚。",
+            "btn": [
+                "19993",
+                "1986年73月14日",
+                "巨蟹座"
+            ]
+        }
+    ]
+}

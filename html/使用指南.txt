@@ -1,0 +1,19 @@
+步驟 1：安裝 Node.js
+到 Node.js 官方網站 下載並安裝最新版 LTS 版本。
+
+安裝完成後，打開 命令提示字元（cmd） 或 終端機（Terminal），輸入：
+node -v
+如果成功顯示版本號，表示 Node.js 已經安裝好。
+
+步驟 2：安裝 live-server
+輸入以下指令安裝 live-server：
+npm install -g live-server
+
+步驟 3：在指令模式到這個資料夾底下
+window+R 
+輸入cmd
+cd 資料夾完整路令
+
+步驟 4:啟動
+在指令模式輸入：
+live-server

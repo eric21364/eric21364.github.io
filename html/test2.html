@@ -6,33 +6,58 @@
   <title>My test page</title>
   <link rel="stylesheet" href="./test2.css">
 </head>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
 <body>
   <div class="my-test-header">標頭</div>
   <div class="my-test-body">
-    <div class="my-test-container">
-      <div>
-        <img class="my-test-image"
-          src="https://resize-image.vocus.cc/resize?compression=6&norotation=true&url=https%3A%2F%2Fimages.vocus.cc%2Fe9e3f934-a271-4e82-a0a0-b368dc51fbdc.png&width=740&sign=U2Z0a7348sTDo3pwgWPeb2cUkkdHUuOihpw8h3BUvzk"
-          alt="海綿寶寶" />
-      </div>
-      <div class="my-test-content">
-        <span class="my-test-title">海綿寶寶</span>
-        <span class="my-test-memo">海綿寶寶也是《海綿寶寶》的同名角色及全系列主角的其中之一，特徵為黃色的方形海綿，
-          以棕色短褲、白色襯衫、紅色領帶和黑色皮鞋為主要服裝。居住在作品虛設城市「比奇堡」郊區的鳳梨屋，並擔任當地著名快餐店蟹堡王餐廳的主廚，是蟹老闆的最佳員工。</span>
-      </div>
-    </div>
-    <div class="my-test-memo">
-      <ul>
-        <li>美味蟹堡</li>
-        <li>美味蟹堡</li>
-        <li>美味蟹堡</li>
-        <li>美味蟹堡</li>
-        <li>美味蟹堡</li>
-        <li>美味蟹堡</li>
-      </ul>
-    </div>
   </div>
 </body>
+
+<script>
+  $(document).ready(function () {
+    const params = new URLSearchParams(window.location.search);
+    console.log(params); // URLSearchParams { 'title' => '海綿寶寶' }
+    // 取得特定參數
+    const titlename = params.get("title");  // 取得 'page' 參數
+
+    console.log("Name:", titlename); // Name: To
+    $.getJSON("json/data.json", (data) => {
+      console.log(data)
+      let getData = data.list.find(element => element.title == titlename);
+      console.log(getData);
+      let body = $('.my-test-body');
+      let container = $('<div>').addClass('my-test-container');
+      let img = $('<img>').addClass('my-test-image').attr('src', getData.image).attr('alt', getData.title);
+      let content = $('<div>').addClass('my-test-content');
+      let title = $('<span>').addClass('my-test-title').text(getData.title);
+      let memo = $('<span>').addClass('my-test-memo').text(getData.memo);
+      container.append(img);
+      content.append(title);
+      content.append(memo);
+      container.append(content);
+      if (getData.backgroudColor) {
+        container.css('background-color', getData.backgroudColor);
+      }
+      let memoC = $('<div>').addClass('my-test-memo');
+      if (getData.secmemo) {
+        let ul = $('<ul>');
+        getData.secmemo.forEach(element => {
+          let li = $('<li>').text(element);
+          ul.append(li);
+        });
+        memoC.append(ul);
+      }
+
+      
+      
+
+      body.append(container);
+      body.append(memoC);
+      ;
+
+    })
+  });
+</script>
 
 </html>
