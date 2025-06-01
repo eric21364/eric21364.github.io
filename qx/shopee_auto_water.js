@@ -99,22 +99,6 @@ async function water() {
       console.log(`ℹ️ 正在澆水作物：${crop.cropName}，ID：${crop.cropId}` + bodyAsString);
       // 完整 headers
       const headers = {
-        'Accept-Encoding': 'gzip, deflate, br',
-        'fruit-app-version': '35155',
-        'Host': 'games.shopee.tw',
-        'Origin': 'https://games.shopee.tw',
-        'Sec-Fetch-Dest': 'empty',
-        'Connection': 'keep-alive',
-        'game-entrance': 'normal',
-        'Sec-Fetch-Site': 'same-origin',
-        'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Beeshop locale=zh-Hant version=35155 appver=35155 rnver=1747813207 shopee_rn_bundle_version=6059005 Shopee language=zh-Hant app_type=1 platform=web_ios os_ver=18.5.0',
-        'Content-Type': 'application/json',
-        'Referer': 'https://games.shopee.tw/farm/?utm_medium=notification&utm_source=apppn&__source__=push_notification&__dsrn__=1',
-        'games-app-version': '35155',
-        'Accept-Language': 'en-US,en;q=0.9',
-        'game-operation-source': 'fruit_farm',
-        'fruit-version-type': 'h5',
-        'Accept': '*/*',
         'games-rn-bundle-version': '6059005',
         'games-biz-version': '9.1.0',
         'Cookie': config.cookie,
