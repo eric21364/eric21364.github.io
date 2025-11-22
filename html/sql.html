@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SQL Table & View 重建工具 (精準控制版)</title>
+    <title>SQL Schema Designer (Table + View + Index)</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f1f5f9; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f3f4f6; }
         .sql-output { font-family: 'Consolas', 'Monaco', monospace; white-space: pre; font-size: 13px; line-height: 1.5; }
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: #1f2937; }
@@ -20,12 +20,12 @@
     
     <div class="mb-6 flex justify-between items-end border-b pb-4">
         <div>
-            <h1 class="text-3xl font-bold text-slate-800">🛠️ SQL 重建工具 <span class="text-sm font-normal text-slate-500 ml-2">v3.0</span></h1>
-            <p class="text-slate-500 text-sm mt-1">精準控制 Null 屬性變更 • View 自動重建流程</p>
+            <h1 class="text-3xl font-bold text-slate-800">🛠️ SQL Schema Designer <span class="text-sm font-normal text-slate-500 ml-2">v4.0</span></h1>
+            <p class="text-slate-500 text-sm mt-1">Columns • Indexes • Unique Constraints • Views 依賴處理</p>
         </div>
         <div class="flex bg-gray-200 p-1 rounded-lg">
-            <button @click="mode = 'create'" :class="mode === 'create' ? 'bg-white shadow text-blue-600' : 'text-gray-600'" class="px-4 py-2 rounded-md font-bold transition">建立 (Create)</button>
-            <button @click="mode = 'alter'" :class="mode === 'alter' ? 'bg-white shadow text-purple-600' : 'text-gray-600'" class="px-4 py-2 rounded-md font-bold transition">修改 (Alter)</button>
+            <button @click="setMode('create')" :class="mode === 'create' ? 'bg-white shadow text-blue-600' : 'text-gray-600'" class="px-4 py-2 rounded-md font-bold transition">建立 (Create)</button>
+            <button @click="setMode('alter')" :class="mode === 'alter' ? 'bg-white shadow text-purple-600' : 'text-gray-600'" class="px-4 py-2 rounded-md font-bold transition">修改 (Alter)</button>
         </div>
     </div>
 
@@ -49,34 +49,37 @@
                 </div>
 
                 <div v-if="mode === 'alter'" class="mt-4 pt-4 border-t border-gray-100">
-                    <div class="flex flex-wrap items-center justify-between gap-4">
-                        <div class="flex gap-4">
-                            <label class="flex items-center cursor-pointer">
-                                <input type="radio" v-model="alterType" value="ADD" class="mr-2"> <span class="text-sm font-medium">新增</span>
-                            </label>
-                            <label class="flex items-center cursor-pointer">
-                                <input type="radio" v-model="alterType" value="MODIFY" class="mr-2"> <span class="text-sm font-medium">修改 (Type)</span>
-                            </label>
-                            <label class="flex items-center cursor-pointer">
-                                <input type="radio" v-model="alterType" value="DROP" class="mr-2 text-red-600"> <span class="text-sm font-medium text-red-600">刪除</span>
-                            </label>
-                        </div>
+                    <label class="block text-xs font-bold text-gray-500 mb-2 uppercase">操作類型</label>
+                    <div class="flex flex-wrap gap-3">
+                        <label class="flex items-center cursor-pointer bg-slate-100 px-3 py-1.5 rounded hover:bg-slate-200">
+                            <input type="radio" v-model="alterType" value="ADD" class="mr-2"> <span class="text-sm">新增欄位</span>
+                        </label>
+                        <label class="flex items-center cursor-pointer bg-slate-100 px-3 py-1.5 rounded hover:bg-slate-200">
+                            <input type="radio" v-model="alterType" value="MODIFY" class="mr-2"> <span class="text-sm">修改欄位</span>
+                        </label>
+                        <label class="flex items-center cursor-pointer bg-slate-100 px-3 py-1.5 rounded hover:bg-slate-200">
+                            <input type="radio" v-model="alterType" value="DROP" class="mr-2"> <span class="text-sm text-red-600">刪除欄位</span>
+                        </label>
+                        
+                        <div class="w-px h-8 bg-gray-300 mx-1"></div>
 
-                        <div v-if="alterType === 'MODIFY'" class="flex items-center bg-blue-50 px-3 py-1 rounded border border-blue-100">
-                            <label class="flex items-center cursor-pointer text-sm font-bold text-blue-700 select-none">
-                                <input type="checkbox" v-model="updateNull" class="mr-2 w-4 h-4 text-blue-600 rounded">
-                                同時修改 Null 屬性
-                            </label>
-                        </div>
+                        <label class="flex items-center cursor-pointer bg-indigo-50 px-3 py-1.5 rounded hover:bg-indigo-100 border border-indigo-100">
+                            <input type="radio" v-model="alterType" value="ADD_INDEX" class="mr-2"> <span class="text-sm font-bold text-indigo-700">Add Index/UQ</span>
+                        </label>
+                        <label class="flex items-center cursor-pointer bg-indigo-50 px-3 py-1.5 rounded hover:bg-indigo-100 border border-indigo-100">
+                            <input type="radio" v-model="alterType" value="DROP_INDEX" class="mr-2"> <span class="text-sm font-bold text-red-600">Drop Index/UQ</span>
+                        </label>
                     </div>
-                    
-                    <div v-if="alterType === 'MODIFY' && dbType === 'mysql' && !updateNull" class="mt-2 text-xs text-orange-500">
-                        * MySQL 提示：由於 MySQL 語法特性，即使不勾選「同時修改」，重新定義欄位時若未指定 NOT NULL 則會預設為 NULL。
+
+                    <div v-if="alterType === 'MODIFY'" class="mt-3 flex items-center">
+                        <label class="flex items-center cursor-pointer text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded">
+                            <input type="checkbox" v-model="updateNull" class="mr-1"> 同時更新 Null 屬性
+                        </label>
                     </div>
                 </div>
             </div>
 
-            <div class="bg-white p-5 rounded-lg shadow-sm border border-gray-200">
+            <div v-if="showColumnSection" class="bg-white p-5 rounded-lg shadow-sm border border-gray-200 transition-all">
                 <div class="flex justify-between items-center mb-3">
                     <h2 class="text-sm font-bold text-slate-400 uppercase tracking-wider">
                         {{ mode === 'create' ? '欄位定義' : '目標欄位' }}
@@ -88,13 +91,12 @@
 
                 <div class="space-y-3">
                     <div v-for="(col, index) in columns" :key="index" class="flex flex-wrap md:flex-nowrap gap-2 items-start bg-slate-50 p-3 rounded border border-slate-200">
-                        
                         <div class="w-full md:w-1/4">
                             <div class="text-xs text-gray-500 mb-1">欄位名稱</div>
                             <input type="text" v-model="col.name" class="w-full border rounded p-1 text-sm font-mono" placeholder="column_name">
                         </div>
 
-                        <template v-if="!(mode === 'alter' && alterType === 'DROP')">
+                        <template v-if="alterType !== 'DROP'">
                             <div class="w-full md:w-1/4">
                                 <div class="text-xs text-gray-500 mb-1">型別</div>
                                 <select v-model="col.type" class="w-full border rounded p-1 text-sm">
@@ -106,15 +108,13 @@
                                     <option value="DATE">DATE</option>
                                     <option value="BOOLEAN">BOOLEAN</option>
                                     <option value="DECIMAL">DECIMAL</option>
-                                    <option value="JSONB">JSONB (PG) / JSON</option>
+                                    <option value="JSONB">JSONB/JSON</option>
                                 </select>
                             </div>
-
                             <div class="w-1/2 md:w-1/6">
                                 <div class="text-xs text-gray-500 mb-1">長度</div>
-                                <input type="text" v-model="col.length" :disabled="!needsLength(col.type)" class="w-full border rounded p-1 text-sm disabled:bg-gray-100" placeholder="e.g. 255">
+                                <input type="text" v-model="col.length" :disabled="!needsLength(col.type)" class="w-full border rounded p-1 text-sm disabled:bg-gray-100" placeholder="255">
                             </div>
-
                             <div class="w-1/2 md:w-1/3 flex items-center justify-around pt-5">
                                 <label class="flex items-center space-x-1 cursor-pointer text-xs font-bold text-gray-600" :class="{'opacity-40': mode === 'alter'}">
                                     <input type="checkbox" v-model="col.pk" :disabled="mode === 'alter'"> <span>PK</span>
@@ -122,18 +122,12 @@
                                 <label class="flex items-center space-x-1 cursor-pointer text-xs font-bold text-gray-600" :class="{'opacity-40': mode === 'alter'}">
                                     <input type="checkbox" v-model="col.ai" :disabled="mode === 'alter'"> <span>AI</span>
                                 </label>
-                                
-                                <label class="flex items-center space-x-1 cursor-pointer text-xs font-bold transition-colors"
-                                    :class="isNullDisabled ? 'text-gray-300 cursor-not-allowed' : 'text-blue-600'">
+                                <label class="flex items-center space-x-1 cursor-pointer text-xs font-bold" :class="isNullDisabled ? 'text-gray-300' : 'text-blue-600'">
                                     <input type="checkbox" v-model="col.notNull" :disabled="isNullDisabled"> <span>NN</span>
                                 </label>
                             </div>
                         </template>
-                        
-                        <div v-else class="flex-grow flex items-center pt-5 px-4 text-red-500 text-sm font-bold">
-                            ⚠️ 此欄位將被移除
-                        </div>
-
+                        <div v-else class="flex-grow flex items-center pt-5 px-4 text-red-500 text-sm font-bold">⚠️ 即將刪除此欄位</div>
                         <div v-if="mode === 'create'" class="pt-5">
                             <button @click="removeColumn(index)" class="text-gray-400 hover:text-red-500 px-2">&times;</button>
                         </div>
@@ -141,32 +135,65 @@
                 </div>
             </div>
 
-            <div v-if="mode === 'alter'" class="bg-amber-50 p-5 rounded-lg shadow-sm border border-amber-200">
-                <div class="flex justify-between items-center mb-4">
-                    <div class="flex items-center">
-                        <h2 class="text-sm font-bold text-amber-700 uppercase tracking-wider mr-2">View 依賴處理</h2>
-                        <span class="text-xs text-amber-600 bg-amber-100 px-2 py-0.5 rounded-full">Drop -> Alter -> Recreate</span>
-                    </div>
-                    <button @click="addView" class="text-xs bg-amber-500 text-white px-3 py-1 rounded hover:bg-amber-600 shadow">
-                        + 加入受影響的 View
+            <div v-if="showIndexSection" class="bg-indigo-50 p-5 rounded-lg shadow-sm border border-indigo-200 transition-all">
+                <div class="flex justify-between items-center mb-3">
+                    <h2 class="text-sm font-bold text-indigo-700 uppercase tracking-wider">
+                        索引與約束 (Indexes & UQ)
+                    </h2>
+                    <button @click="addIndex" class="text-xs bg-indigo-600 text-white px-3 py-1 rounded hover:bg-indigo-700 shadow">
+                        + 新增索引
                     </button>
                 </div>
-                
-                <div v-if="views.length === 0" class="text-center py-4 text-sm text-gray-400 italic border-2 border-dashed border-amber-200 rounded">
-                    若此修改會影響 View，請點擊上方按鈕加入 View 定義。
+
+                <div v-if="indexes.length === 0" class="text-center py-4 text-xs text-gray-400 italic">
+                    尚未定義索引 (Optional)
                 </div>
 
-                <div class="space-y-4">
-                    <div v-for="(view, idx) in views" :key="idx" class="bg-white p-4 rounded border border-amber-200 shadow-sm relative">
-                        <button @click="removeView(idx)" class="absolute top-2 right-2 text-gray-400 hover:text-red-500 font-bold">&times;</button>
-                        <div class="mb-2">
-                            <label class="block text-xs font-bold text-gray-500 mb-1">View 名稱</label>
-                            <input type="text" v-model="view.name" class="w-full border border-gray-300 rounded p-1.5 text-sm font-mono" placeholder="view_name">
+                <div class="space-y-3">
+                    <div v-for="(idx, index) in indexes" :key="index" class="flex flex-wrap md:flex-nowrap gap-2 items-start bg-white p-3 rounded border border-indigo-100 shadow-sm relative">
+                        <button @click="removeIndex(index)" class="absolute -top-2 -right-2 bg-red-100 text-red-500 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold hover:bg-red-200">&times;</button>
+                        
+                        <div class="w-1/4">
+                            <div class="text-xs text-gray-500 mb-1">類型</div>
+                            <select v-model="idx.type" class="w-full border border-gray-300 rounded p-1 text-sm font-bold text-gray-700">
+                                <option value="INDEX">INDEX (一般)</option>
+                                <option value="UNIQUE">UNIQUE (唯一)</option>
+                            </select>
                         </div>
-                        <div>
-                            <label class="block text-xs font-bold text-gray-500 mb-1">View 定義</label>
-                            <textarea v-model="view.definition" class="w-full border border-gray-300 rounded p-1.5 text-xs font-mono h-16 focus:ring-1 focus:ring-amber-500 outline-none" placeholder="SELECT ..."></textarea>
+
+                        <div class="w-1/3">
+                            <div class="text-xs text-gray-500 mb-1">索引名稱 (Optional)</div>
+                            <input type="text" v-model="idx.name" class="w-full border border-gray-300 rounded p-1 text-sm font-mono placeholder-gray-300" :placeholder="generateIndexName(idx) || 'idx_name'">
                         </div>
+
+                        <div class="w-full md:flex-grow">
+                            <div class="text-xs text-gray-500 mb-1">
+                                {{ alterType === 'DROP_INDEX' ? '需注意：刪除時僅需名稱' : '欄位 (逗號分隔)' }}
+                            </div>
+                            <input type="text" v-model="idx.cols" :disabled="alterType === 'DROP_INDEX'" class="w-full border border-gray-300 rounded p-1 text-sm font-mono" placeholder="col1, col2">
+                        </div>
+                    </div>
+                </div>
+                
+                <div v-if="alterType === 'DROP_INDEX'" class="mt-2 text-xs text-red-500 font-medium">
+                    * 刪除索引/約束時，請確保「索引名稱」正確。PostgreSQL 刪除 UNIQUE 需使用 Drop Constraint。
+                </div>
+            </div>
+
+            <div v-if="mode === 'alter'" class="bg-amber-50 p-5 rounded-lg shadow-sm border border-amber-200">
+                <div class="flex justify-between items-center mb-2">
+                    <h2 class="text-sm font-bold text-amber-700 uppercase tracking-wider flex items-center">
+                        View 依賴處理 <span class="ml-2 text-[10px] bg-amber-200 text-amber-800 px-1 rounded">Drop & Recreate</span>
+                    </h2>
+                    <button @click="addView" class="text-xs bg-amber-500 text-white px-2 py-1 rounded hover:bg-amber-600 shadow">
+                        + View
+                    </button>
+                </div>
+                <div class="space-y-2">
+                    <div v-for="(view, idx) in views" :key="idx" class="bg-white p-2 rounded border border-amber-200 shadow-sm relative grid grid-cols-1 md:grid-cols-3 gap-2">
+                        <button @click="removeView(idx)" class="absolute top-1 right-1 text-gray-300 hover:text-red-500 font-bold leading-none">&times;</button>
+                        <input type="text" v-model="view.name" class="border rounded p-1 text-xs font-mono" placeholder="view_name">
+                        <textarea v-model="view.definition" class="md:col-span-2 border rounded p-1 text-xs font-mono h-8 focus:h-20 transition-all resize-none" placeholder="SELECT ..."></textarea>
                     </div>
                 </div>
             </div>
@@ -177,11 +204,6 @@
             <div class="sticky top-6">
                 <div class="bg-gray-800 rounded-xl shadow-xl overflow-hidden flex flex-col h-[calc(100vh-100px)]">
                     <div class="bg-gray-900 px-4 py-3 flex justify-between items-center border-b border-gray-700">
-                        <div class="flex space-x-2">
-                            <div class="w-3 h-3 rounded-full bg-red-500"></div>
-                            <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
-                            <div class="w-3 h-3 rounded-full bg-green-500"></div>
-                        </div>
                         <div class="text-xs font-mono text-gray-400">SQL Output</div>
                         <button @click="copySQL" class="text-xs bg-gray-700 hover:bg-gray-600 text-gray-200 px-2 py-1 rounded transition">Copy</button>
                     </div>
@@ -189,12 +211,11 @@
                         <div class="text-gray-300 sql-output" v-html="highlightedSQL"></div>
                     </div>
                     <div class="bg-gray-900 p-2 text-center text-xs text-gray-500">
-                        {{ dbType === 'pgsql' ? 'PostgreSQL Mode' : 'MySQL Mode' }}
+                        {{ dbType === 'pgsql' ? 'PostgreSQL' : 'MySQL' }} Mode
                     </div>
                 </div>
             </div>
         </div>
-
     </div>
 </div>
 
@@ -204,46 +225,59 @@
     createApp({
         data() {
             return {
-                mode: 'alter',
+                mode: 'create', // create | alter
                 dbType: 'pgsql',
-                alterType: 'MODIFY',
+                alterType: 'ADD', // ADD, MODIFY, DROP, ADD_INDEX, DROP_INDEX
                 tableName: 'users',
-                updateNull: false, // 🌟 控制是否修改 Null 屬性
+                updateNull: false,
                 columns: [
-                    { name: 'email', type: 'VARCHAR', length: '255', pk: false, ai: false, notNull: true }
+                    { name: 'id', type: 'INT', length: '', pk: true, ai: true, notNull: true },
+                    { name: 'email', type: 'VARCHAR', length: '100', pk: false, ai: false, notNull: true }
+                ],
+                indexes: [
+                     { name: '', type: 'UNIQUE', cols: 'email' } // 範例
                 ],
                 views: []
             }
         },
         watch: {
-            mode(newMode) {
-                if (newMode === 'create') {
+            // 切換模式時重置部分數據，避免混亂
+            mode(newVal) {
+                if (newVal === 'alter') {
+                    this.columns = [{ name: 'new_col', type: 'VARCHAR', length: '50', pk: false, ai: false, notNull: false }];
+                    this.indexes = [];
+                } else {
                     this.columns = [
                         { name: 'id', type: 'INT', length: '', pk: true, ai: true, notNull: true },
-                        { name: 'name', type: 'VARCHAR', length: '100', pk: false, ai: false, notNull: false }
+                        { name: 'email', type: 'VARCHAR', length: '100', pk: false, ai: false, notNull: true }
                     ];
-                    this.views = [];
-                } else {
-                    this.columns = [{ name: 'target_col', type: 'VARCHAR', length: '100', pk: false, ai: false, notNull: false }];
+                    this.indexes = [{ name: '', type: 'UNIQUE', cols: 'email' }];
                 }
             }
         },
         computed: {
-            // 控制 NN Checkbox 是否禁用
+            showColumnSection() {
+                // 在 Create 模式總是顯示
+                if (this.mode === 'create') return true;
+                // 在 Alter 模式，只有當操作不是 Index 相關時才顯示
+                return !['ADD_INDEX', 'DROP_INDEX'].includes(this.alterType);
+            },
+            showIndexSection() {
+                // 在 Create 模式總是顯示
+                if (this.mode === 'create') return true;
+                // 在 Alter 模式，只有當操作是 Index 相關時才顯示
+                return ['ADD_INDEX', 'DROP_INDEX'].includes(this.alterType);
+            },
             isNullDisabled() {
-                // 如果是 Alter + Modify 且 沒有勾選 updateNull -> 禁用
-                if (this.mode === 'alter' && this.alterType === 'MODIFY' && !this.updateNull) {
-                    return true;
-                }
-                return false; // 其他情況 (Create, Add Column) 預設啟用
+                return (this.mode === 'alter' && this.alterType === 'MODIFY' && !this.updateNull);
             },
             rawSQL() {
-                if (!this.tableName) return '-- 請輸入 Table Name';
+                if (!this.tableName) return '-- Please enter Table Name';
                 return this.mode === 'create' ? this.buildCreateSQL() : this.buildAlterSQL();
             },
             highlightedSQL() {
                 let sql = this.rawSQL.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-                const keywords = ['CREATE', 'TABLE', 'ALTER', 'DROP', 'VIEW', 'IF', 'EXISTS', 'COLUMN', 'TYPE', 'ADD', 'MODIFY', 'AS', 'SELECT', 'FROM', 'WHERE', 'PRIMARY', 'KEY', 'NOT', 'NULL', 'AUTO_INCREMENT', 'SERIAL', 'BIGSERIAL', 'CASCADE', 'BEGIN', 'COMMIT', 'SET', 'USING'];
+                const keywords = ['CREATE', 'TABLE', 'ALTER', 'DROP', 'VIEW', 'INDEX', 'UNIQUE', 'CONSTRAINT', 'IF', 'EXISTS', 'COLUMN', 'TYPE', 'ADD', 'MODIFY', 'AS', 'SELECT', 'FROM', 'WHERE', 'PRIMARY', 'KEY', 'NOT', 'NULL', 'AUTO_INCREMENT', 'SERIAL', 'BIGSERIAL', 'CASCADE', 'BEGIN', 'COMMIT', 'SET', 'USING', 'ON'];
                 keywords.forEach(kw => {
                     sql = sql.replace(new RegExp(`\\b${kw}\\b`, 'g'), `<span class="text-purple-400 font-bold">${kw}</span>`);
                 });
@@ -253,14 +287,13 @@
             }
         },
         methods: {
+            setMode(m) { this.mode = m; },
             q(name) {
                 if (!name) return '';
                 const char = this.dbType === 'mysql' ? '`' : '"';
                 return `${char}${name}${char}`;
             },
-            needsLength(type) {
-                return ['VARCHAR', 'CHAR', 'DECIMAL'].includes(type);
-            },
+            needsLength(type) { return ['VARCHAR', 'CHAR', 'DECIMAL'].includes(type); },
             getRealType(col) {
                 let type = col.type;
                 if (this.dbType === 'pgsql') {
@@ -274,87 +307,162 @@
                 }
                 return type;
             },
+            // Column CRUD
             addColumn() { this.columns.push({ name: '', type: 'VARCHAR', length: '255', pk: false, ai: false, notNull: false }); },
             removeColumn(idx) { this.columns.splice(idx, 1); },
+            // Index CRUD
+            addIndex() { this.indexes.push({ name: '', type: 'INDEX', cols: '' }); },
+            removeIndex(idx) { this.indexes.splice(idx, 1); },
+            generateIndexName(idx) {
+                if(idx.name) return idx.name;
+                // 自動產生建議名稱
+                const prefix = idx.type === 'UNIQUE' ? 'uq' : 'idx';
+                const colPart = idx.cols ? idx.cols.replace(/,\s*/g, '_').replace(/[^a-zA-Z0-9_]/g, '') : 'cols';
+                return `${prefix}_${this.tableName}_${colPart}`;
+            },
+            // View CRUD
             addView() { this.views.push({ name: '', definition: '' }); },
             removeView(idx) { this.views.splice(idx, 1); },
 
-            buildColumnDef(col, isModify = false) {
+            // SQL Builders
+            buildColumnDef(col) {
                 const realType = this.getRealType(col);
                 let line = `  ${this.q(col.name)} ${realType}`;
                 if (col.length && this.needsLength(col.type) && !col.ai) line += `(${col.length})`;
                 
-                // 邏輯核心：是否加入 NOT NULL
-                // 1. Create / Add: 總是根據 checkbox
-                // 2. Modify: 只有在 updateNull 為 true 時才加入 (PostgreSQL 特殊處理在外面，這裡主要給 MySQL)
-                // MySQL 需要在這裡就給出完整的定義
-                
-                let shouldAddNullSql = true;
-                if (this.mode === 'alter' && this.alterType === 'MODIFY' && this.dbType === 'pgsql') {
-                    // PG 的 modify 是分開的，所以這裡 buildColumnDef 只負責 Type 部分，不加 NN
-                    shouldAddNullSql = false; 
-                }
+                let shouldAddNull = true;
+                if (this.mode === 'alter' && this.alterType === 'MODIFY' && this.dbType === 'pgsql') shouldAddNull = false;
 
-                if (shouldAddNullSql) {
+                if (shouldAddNull) {
                     if (col.notNull && !col.ai) line += ' NOT NULL';
                     if (this.dbType === 'mysql' && col.ai) line += ' AUTO_INCREMENT';
                 }
-                
                 return line;
             },
 
             buildCreateSQL() {
-                // (Create SQL 邏輯保持不變)
                 let sql = `CREATE TABLE ${this.q(this.tableName)} (\n`;
                 let pkList = [];
-                let colDefs = this.columns.map(col => {
-                    if (!col.name) return null;
-                    if (col.pk) pkList.push(col.name);
-                    return this.buildColumnDef(col);
-                }).filter(x => x);
-                if (pkList.length > 0) colDefs.push(`  PRIMARY KEY (${pkList.map(k => this.q(k)).join(', ')})`);
-                sql += colDefs.join(',\n') + `\n);`;
+                let lines = [];
+                
+                // 1. Columns
+                this.columns.forEach(col => {
+                    if(col.name) {
+                        if(col.pk) pkList.push(col.name);
+                        lines.push(this.buildColumnDef(col));
+                    }
+                });
+
+                // 2. PK
+                if (pkList.length > 0) {
+                    lines.push(`  PRIMARY KEY (${pkList.map(k => this.q(k)).join(', ')})`);
+                }
+
+                // 3. Inline Indexes / Constraints
+                let postCreateSQL = ''; // For PG Indexes that must be outside
+                
+                this.indexes.forEach(idx => {
+                    if(!idx.cols) return;
+                    const idxName = idx.name || this.generateIndexName(idx);
+                    const colsFormatted = idx.cols.split(',').map(c => this.q(c.trim())).join(', ');
+
+                    if (this.dbType === 'mysql') {
+                        // MySQL: All inside
+                        if (idx.type === 'UNIQUE') {
+                            lines.push(`  UNIQUE KEY ${this.q(idxName)} (${colsFormatted})`);
+                        } else {
+                            lines.push(`  KEY ${this.q(idxName)} (${colsFormatted})`);
+                        }
+                    } else {
+                        // PostgreSQL: UNIQUE inside (constraint), INDEX outside
+                        if (idx.type === 'UNIQUE') {
+                            lines.push(`  CONSTRAINT ${this.q(idxName)} UNIQUE (${colsFormatted})`);
+                        } else {
+                            postCreateSQL += `CREATE INDEX ${this.q(idxName)} ON ${this.q(this.tableName)} (${colsFormatted});\n`;
+                        }
+                    }
+                });
+
+                sql += lines.join(',\n');
+                sql += `\n);`;
+                
+                if (postCreateSQL) sql += '\n\n' + postCreateSQL;
+                
                 return sql;
             },
 
             buildAlterSQL() {
-                const col = this.columns[0];
-                if (!col || !col.name) return '-- 請輸入欄位名稱';
                 const tbl = this.q(this.tableName);
-                const colName = this.q(col.name);
                 let mainSql = '';
 
-                if (this.alterType === 'ADD') {
-                    mainSql = `ALTER TABLE ${tbl} ADD COLUMN ${this.buildColumnDef(col).trim()};`;
-                } else if (this.alterType === 'DROP') {
-                    mainSql = `ALTER TABLE ${tbl} DROP COLUMN ${colName};`;
-                } else if (this.alterType === 'MODIFY') {
-                    if (this.dbType === 'mysql') {
-                        // MySQL: MODIFY 需要完整定義
-                        // 注意：如果 updateNull 為 false，這裡產生的 SQL 若沒有 NOT NULL，MySQL 會視為 NULL
-                        // 但這是 MySQL 語法限制，無法像 PG 那樣 "只改 Type 不改 Null" (除非先 query 原本 schema，前端做不到)
-                        mainSql = `ALTER TABLE ${tbl} MODIFY COLUMN ${this.buildColumnDef(col).trim()};`;
-                    } else {
-                        // PostgreSQL: ALTER TYPE
-                        // 1. 只改 Type
-                        let realType = this.getRealType(col);
-                        if (col.length && this.needsLength(col.type)) realType += `(${col.length})`;
-                        const usingClause = ` USING ${colName}::${realType.split('(')[0]}`; 
+                // Handle Index Operations
+                if (['ADD_INDEX', 'DROP_INDEX'].includes(this.alterType)) {
+                    let statements = [];
+                    this.indexes.forEach(idx => {
+                        const idxName = idx.name || this.generateIndexName(idx);
                         
-                        mainSql = `ALTER TABLE ${tbl} ALTER COLUMN ${colName} TYPE ${realType}${usingClause};`;
-                        
-                        // 2. 只有當使用者勾選「同時修改 Null 屬性」時，才產生這一行
-                        if (this.updateNull) {
-                             if (col.notNull) {
-                                 mainSql += `\nALTER TABLE ${tbl} ALTER COLUMN ${colName} SET NOT NULL;`;
-                             } else {
-                                 mainSql += `\nALTER TABLE ${tbl} ALTER COLUMN ${colName} DROP NOT NULL;`;
-                             }
+                        if (this.alterType === 'ADD_INDEX') {
+                            if (!idx.cols) return;
+                            const colsFormatted = idx.cols.split(',').map(c => this.q(c.trim())).join(', ');
+                            
+                            if (this.dbType === 'mysql') {
+                                const keyType = idx.type === 'UNIQUE' ? 'UNIQUE INDEX' : 'INDEX';
+                                statements.push(`ALTER TABLE ${tbl} ADD ${keyType} ${this.q(idxName)} (${colsFormatted});`);
+                            } else {
+                                // PG
+                                if (idx.type === 'UNIQUE') {
+                                    statements.push(`ALTER TABLE ${tbl} ADD CONSTRAINT ${this.q(idxName)} UNIQUE (${colsFormatted});`);
+                                } else {
+                                    statements.push(`CREATE INDEX ${this.q(idxName)} ON ${tbl} (${colsFormatted});`);
+                                }
+                            }
+                        } else {
+                            // DROP_INDEX
+                            if (!idxName && !idx.name) return; // Need name
+                            const realName = idx.name || 'unknown_idx';
+                            
+                            if (this.dbType === 'mysql') {
+                                statements.push(`DROP INDEX ${this.q(realName)} ON ${tbl};`);
+                            } else {
+                                // PG: Need to know if it's constraint or index
+                                if (idx.type === 'UNIQUE') {
+                                    statements.push(`ALTER TABLE ${tbl} DROP CONSTRAINT ${this.q(realName)};`);
+                                } else {
+                                    statements.push(`DROP INDEX ${this.q(realName)};`);
+                                }
+                            }
+                        }
+                    });
+                    mainSql = statements.join('\n');
+                } 
+                // Handle Column Operations (ADD, MODIFY, DROP)
+                else {
+                    const col = this.columns[0];
+                    if (!col || !col.name) return '-- 請輸入欄位名稱';
+                    const colName = this.q(col.name);
+
+                    if (this.alterType === 'ADD') {
+                        mainSql = `ALTER TABLE ${tbl} ADD COLUMN ${this.buildColumnDef(col).trim()};`;
+                    } else if (this.alterType === 'DROP') {
+                        mainSql = `ALTER TABLE ${tbl} DROP COLUMN ${colName};`;
+                    } else if (this.alterType === 'MODIFY') {
+                        if (this.dbType === 'mysql') {
+                            mainSql = `ALTER TABLE ${tbl} MODIFY COLUMN ${this.buildColumnDef(col).trim()};`;
+                        } else {
+                            // PG
+                            let realType = this.getRealType(col);
+                            if (col.length && this.needsLength(col.type)) realType += `(${col.length})`;
+                            mainSql = `ALTER TABLE ${tbl} ALTER COLUMN ${colName} TYPE ${realType} USING ${colName}::${realType.split('(')[0]};`;
+                            
+                            if (this.updateNull) {
+                                mainSql += `\nALTER TABLE ${tbl} ALTER COLUMN ${colName} ${col.notNull ? 'SET' : 'DROP'} NOT NULL;`;
+                            }
                         }
                     }
                 }
 
-                if (this.views.length === 0) return mainSql;
+                // View Logic Wrapper
+                if (this.views.length === 0) return mainSql || '-- No changes generated';
 
                 let fullSql = '';
                 if (this.dbType === 'pgsql') fullSql += 'BEGIN;\n\n';
@@ -362,12 +470,13 @@
                 this.views.forEach(v => {
                     fullSql += `DROP VIEW IF EXISTS ${v.name ? this.q(v.name) : 'view_name'} CASCADE;\n`;
                 });
-                fullSql += `\n-- 2. Modify Table\n${mainSql}\n`;
+                fullSql += `\n-- 2. Apply Changes\n${mainSql}\n`;
                 fullSql += `\n-- 3. Recreate Views\n`;
                 this.views.forEach(v => {
                     fullSql += `CREATE VIEW ${v.name ? this.q(v.name) : 'view_name'} AS\n${v.definition || '-- SELECT ...'};\n`;
                 });
                 if (this.dbType === 'pgsql') fullSql += '\nCOMMIT;';
+                
                 return fullSql;
             },
             copySQL() { navigator.clipboard.writeText(this.rawSQL).then(() => alert('Copied!')); }
