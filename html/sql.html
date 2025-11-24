@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SQL Schema Tool (離線純淨版)</title>
+<title>SQL Schema Tool (離線批次版 v4.1)</title>
 <style>
     :root {
         --primary: #2563eb;
@@ -66,9 +66,9 @@
     .sql-footer { background: #2d2d2d; padding: 5px; text-align: center; color: #6b7280; font-size: 0.75rem; }
 
     /* Syntax Highlight Classes */
-    .hl-kw { color: #c678dd; font-weight: bold; } /* Keywords */
-    .hl-str { color: #98c379; } /* Strings */
-    .hl-comment { color: #5c6370; font-style: italic; } /* Comments */
+    .hl-kw { color: #c678dd; font-weight: bold; }
+    .hl-str { color: #98c379; }
+    .hl-comment { color: #5c6370; font-style: italic; }
     
     /* Utilities */
     .hidden { display: none; }
@@ -86,7 +86,7 @@
         <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: end;">
             <div>
                 <h1 style="margin:0; font-size: 1.5rem; color: #1e293b;">SQL Schema Tool</h1>
-                <span style="font-size: 0.8rem; color: #64748b;">離線版 v4.0 • 無外部依賴</span>
+                <span style="font-size: 0.8rem; color: #64748b;">離線版 v4.1 • 支援批次修改</span>
             </div>
             <div class="btn-group">
                 <button class="btn btn-toggle active" id="mode-create" onclick="setMode('create')">建立 (Create)</button>
@@ -215,10 +215,7 @@
     };
 
     // --- CORE FUNCTIONS ---
-
-    function init() {
-        renderAll();
-    }
+    function init() { renderAll(); }
 
     function updateState(key, value) {
         state[key] = value;
@@ -228,7 +225,6 @@
 
     function setMode(mode) {
         state.mode = mode;
-        // Reset defaults for cleaner UX
         if (mode === 'create') {
             state.columns = [
                 { name: 'id', type: 'INT', length: '', pk: true, ai: true, notNull: true },
@@ -237,13 +233,13 @@
             state.indexes = [{ name: '', type: 'UNIQUE', cols: 'email' }];
             state.views = [];
         } else {
-            // Alter Defaults
+            // Alter Defaults (預設一個，但現在允許增加)
             state.alterType = 'ADD';
             state.columns = [{ name: 'new_col', type: 'VARCHAR', length: '50', pk: false, ai: false, notNull: false }];
             state.indexes = [];
         }
         
-        // Update UI Classes
+        // Update UI Logic
         if(mode === 'create') {
             els.modeCreate.classList.add('active');
             els.modeAlter.classList.remove('active');
@@ -254,7 +250,6 @@
             els.modeAlter.classList.add('active');
             els.alterOptions.classList.remove('hidden');
             els.sectionViews.classList.remove('hidden');
-            // Reset radio to ADD
             document.querySelector(`input[name="alterType"][value="ADD"]`).checked = true;
         }
         renderAll();
@@ -262,15 +257,17 @@
 
     function updateAlterType(type) {
         state.alterType = type;
-        state.indexes = []; // clear indexes to avoid confusion
+        state.indexes = []; 
         if (type === 'ADD_INDEX' || type === 'DROP_INDEX') {
             state.indexes.push({ name: '', type: 'INDEX', cols: '' });
+        } else {
+            // 如果切換回欄位操作，預設保留現有欄位或重置
+            if(state.columns.length === 0) state.columns.push({ name: '', type: 'VARCHAR', length: '50' });
         }
         renderAll();
     }
 
     // --- RENDER FUNCTIONS ---
-
     function renderAll() {
         renderVisibility();
         renderColumns();
@@ -285,13 +282,23 @@
         // Column Section Visibility
         if (state.mode === 'create' || !isIndexOp) {
             els.sectionColumns.classList.remove('hidden');
-            els.colHeaderText.innerText = state.mode === 'create' ? '欄位定義' : (state.alterType === 'DROP' ? '目標欄位 (將被刪除)' : '目標欄位');
-            els.btnAddCol.style.display = state.mode === 'create' ? 'block' : 'none';
+            
+            // 根據模式調整標題與按鈕顯示
+            let headerText = '欄位定義';
+            if (state.mode === 'alter') {
+                if (state.alterType === 'ADD') headerText = '批次新增欄位 (Batch Add)';
+                else if (state.alterType === 'MODIFY') headerText = '批次修改欄位 (Batch Modify)';
+                else if (state.alterType === 'DROP') headerText = '批次刪除欄位 (Batch Drop)';
+            }
+            els.colHeaderText.innerText = headerText;
+
+            // ★ 修正：現在 Alter 模式下也顯示「+」按鈕
+            els.btnAddCol.style.display = 'block'; 
         } else {
             els.sectionColumns.classList.add('hidden');
         }
 
-        // Index Section Visibility
+        // Index Section
         if (state.mode === 'create' || isIndexOp) {
             els.sectionIndexes.classList.remove('hidden');
             els.indexHint.classList.toggle('hidden', state.alterType !== 'DROP_INDEX');
@@ -299,7 +306,6 @@
             els.sectionIndexes.classList.add('hidden');
         }
 
-        // Null Option Visibility
         els.optionUpdateNull.classList.toggle('hidden', !(state.mode === 'alter' && state.alterType === 'MODIFY'));
     }
 
@@ -309,13 +315,11 @@
             const div = document.createElement('div');
             div.className = 'list-item';
             
-            // Logic for disabling controls
             const isAlter = state.mode === 'alter';
             const isDrop = isAlter && state.alterType === 'DROP';
             const disableAttr = isAlter ? 'disabled' : '';
             const disableNull = (isAlter && state.alterType === 'MODIFY' && !state.updateNull);
 
-            // HTML Construction
             let html = `
                 <div class="col">
                     <label>欄位名稱</label>
@@ -343,12 +347,11 @@
                 </div>
                 `;
             } else {
-                html += `<div class="col" style="display:flex; align-items:center; color:#ef4444; font-weight:bold; font-size:0.9rem; padding-top:20px;">⚠️ 即將刪除此欄位</div>`;
+                html += `<div class="col" style="display:flex; align-items:center; color:#ef4444; font-weight:bold; font-size:0.9rem; padding-top:20px;">⚠️ 將刪除此欄位</div>`;
             }
 
-            if (state.mode === 'create') {
-                html += `<button class="btn btn-danger remove-btn" onclick="removeItem('columns', ${idx})">&times;</button>`;
-            }
+            // ★ 修正：現在不論任何模式都顯示刪除鈕，允許使用者管理列表
+            html += `<button class="btn btn-danger remove-btn" onclick="removeItem('columns', ${idx})">&times;</button>`;
 
             div.innerHTML = html;
             els.columnList.appendChild(div);
@@ -365,10 +368,8 @@
         state.indexes.forEach((idx, i) => {
             const div = document.createElement('div');
             div.className = 'list-item';
-            
             const isDrop = state.alterType === 'DROP_INDEX';
             const autoName = generateIndexName(idx);
-
             div.innerHTML = `
                 <div class="col-small" style="width:120px;">
                     <label>類型</label>
@@ -394,11 +395,10 @@
     function renderViews() {
         els.viewList.innerHTML = '';
         els.viewEmptyMsg.style.display = state.views.length === 0 ? 'block' : 'none';
-        
         state.views.forEach((v, i) => {
             const div = document.createElement('div');
             div.className = 'list-item';
-            div.style.display = 'block'; // Block layout for views
+            div.style.display = 'block';
             div.innerHTML = `
                 <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
                     <label>View Name</label>
@@ -412,22 +412,16 @@
         });
     }
 
-    // --- DATA MANIPULATION ---
-
+    // --- LOGIC ---
     function addColumn() { state.columns.push({ name: '', type: 'VARCHAR', length: '255', pk: false, ai: false, notNull: false }); renderColumns(); renderSQL(); }
     function addIndex() { state.indexes.push({ name: '', type: 'INDEX', cols: '' }); renderIndexes(); renderSQL(); }
     function addView() { state.views.push({ name: '', definition: '' }); renderViews(); renderSQL(); }
-    
     function removeItem(listName, index) { state[listName].splice(index, 1); renderAll(); }
-    
     function updateItem(listName, index, key, value) {
         state[listName][index][key] = value;
-        // If type changed for columns, re-render to check length disable state
         if(listName === 'columns' && key === 'type') renderColumns(); 
         renderSQL();
     }
-
-    // --- SQL GENERATION LOGIC ---
 
     function q(name) {
         if (!name) return '';
@@ -461,12 +455,8 @@
         let line = `  ${q(col.name)} ${realType}`;
         const needsLen = ['VARCHAR', 'CHAR', 'DECIMAL'].includes(col.type);
         if (col.length && needsLen && !col.ai) line += `(${col.length})`;
-
-        // Logic for appending attributes
         let shouldAddNull = true;
-        // Postgres modify: type change doesn't include null constraint inline usually, unless strictly creating
         if (state.mode === 'alter' && state.alterType === 'MODIFY' && state.dbType === 'pgsql') shouldAddNull = false;
-
         if (shouldAddNull) {
             if (col.notNull && !col.ai) line += ' NOT NULL';
             if (state.dbType === 'mysql' && col.ai) line += ' AUTO_INCREMENT';
@@ -476,54 +466,39 @@
 
     function generateSQL() {
         if (!state.tableName) return '-- Please enter Table Name';
-        
         let sql = '';
         const tbl = q(state.tableName);
 
-        // --- CREATE ---
         if (state.mode === 'create') {
             sql = `CREATE TABLE ${tbl} (\n`;
             let pkList = [];
             let lines = [];
-
             state.columns.forEach(col => {
                 if(col.name) {
                     if(col.pk) pkList.push(col.name);
                     lines.push(buildColumnDef(col));
                 }
             });
-
             if (pkList.length > 0) lines.push(`  PRIMARY KEY (${pkList.map(k => q(k)).join(', ')})`);
-
-            // Inline Index/Constraint
             let postCreateSQL = '';
             state.indexes.forEach(idx => {
                 if(!idx.cols) return;
                 const idxName = idx.name || generateIndexName(idx);
                 const colsFormatted = idx.cols.split(',').map(c => q(c.trim())).join(', ');
-
                 if (state.dbType === 'mysql') {
                     const k = idx.type === 'UNIQUE' ? 'UNIQUE KEY' : 'KEY';
                     lines.push(`  ${k} ${q(idxName)} (${colsFormatted})`);
                 } else {
-                    if (idx.type === 'UNIQUE') {
-                        lines.push(`  CONSTRAINT ${q(idxName)} UNIQUE (${colsFormatted})`);
-                    } else {
-                        postCreateSQL += `CREATE INDEX ${q(idxName)} ON ${tbl} (${colsFormatted});\n`;
-                    }
+                    if (idx.type === 'UNIQUE') lines.push(`  CONSTRAINT ${q(idxName)} UNIQUE (${colsFormatted})`);
+                    else postCreateSQL += `CREATE INDEX ${q(idxName)} ON ${tbl} (${colsFormatted});\n`;
                 }
             });
-
             sql += lines.join(',\n');
             sql += `\n);`;
             if (postCreateSQL) sql += '\n\n' + postCreateSQL;
         } 
-        
-        // --- ALTER ---
         else {
             let mainSql = '';
-
-            // Index Operations
             if (['ADD_INDEX', 'DROP_INDEX'].includes(state.alterType)) {
                 let statements = [];
                 state.indexes.forEach(idx => {
@@ -539,7 +514,6 @@
                              else statements.push(`CREATE INDEX ${q(idxName)} ON ${tbl} (${colsFormatted});`);
                         }
                     } else {
-                        // DROP
                         const realName = idx.name || 'unknown_idx';
                         if (state.dbType === 'mysql') {
                             statements.push(`DROP INDEX ${q(realName)} ON ${tbl};`);
@@ -551,32 +525,34 @@
                 });
                 mainSql = statements.join('\n');
             }
-            // Column Operations
             else {
-                const col = state.columns[0];
-                if (!col || !col.name) return '-- 請輸入欄位名稱';
-                const colName = q(col.name);
-
-                if (state.alterType === 'ADD') {
-                    mainSql = `ALTER TABLE ${tbl} ADD COLUMN ${buildColumnDef(col).trim()};`;
-                } else if (state.alterType === 'DROP') {
-                    mainSql = `ALTER TABLE ${tbl} DROP COLUMN ${colName};`;
-                } else if (state.alterType === 'MODIFY') {
-                    if (state.dbType === 'mysql') {
-                        mainSql = `ALTER TABLE ${tbl} MODIFY COLUMN ${buildColumnDef(col).trim()};`;
-                    } else {
-                        // PG
-                        let realType = getRealType(col);
-                        if (col.length && ['VARCHAR','CHAR','DECIMAL'].includes(col.type)) realType += `(${col.length})`;
-                        mainSql = `ALTER TABLE ${tbl} ALTER COLUMN ${colName} TYPE ${realType} USING ${colName}::${realType.split('(')[0]};`;
-                        if (state.updateNull) {
-                            mainSql += `\nALTER TABLE ${tbl} ALTER COLUMN ${colName} ${col.notNull ? 'SET' : 'DROP'} NOT NULL;`;
+                // Batch Alter Column Logic
+                let clauses = [];
+                state.columns.forEach(col => {
+                    if (!col.name) return;
+                    const colName = q(col.name);
+                    if (state.alterType === 'ADD') {
+                        clauses.push(`ADD COLUMN ${buildColumnDef(col).trim()}`);
+                    } 
+                    else if (state.alterType === 'DROP') {
+                        clauses.push(`DROP COLUMN ${colName}`);
+                    } 
+                    else if (state.alterType === 'MODIFY') {
+                        if (state.dbType === 'mysql') {
+                            clauses.push(`MODIFY COLUMN ${buildColumnDef(col).trim()}`);
+                        } else {
+                            let realType = getRealType(col);
+                            if (col.length && ['VARCHAR','CHAR','DECIMAL'].includes(col.type)) realType += `(${col.length})`;
+                            clauses.push(`ALTER COLUMN ${colName} TYPE ${realType} USING ${colName}::${realType.split('(')[0]}`);
+                            if (state.updateNull) {
+                                clauses.push(`ALTER COLUMN ${colName} ${col.notNull ? 'SET' : 'DROP'} NOT NULL`);
+                            }
                         }
                     }
-                }
+                });
+                if (clauses.length > 0) mainSql = `ALTER TABLE ${tbl} \n  ${clauses.join(',\n  ')};`;
             }
 
-            // View Wrapping
             if (state.views.length > 0 && mainSql) {
                 let fullSql = '';
                 if (state.dbType === 'pgsql') fullSql += 'BEGIN;\n\n';
@@ -600,22 +576,18 @@
 
     function renderSQL() {
         const raw = generateSQL();
-        // Syntax Highlighting
         let html = raw.replace(/</g, '&lt;').replace(/>/g, '&gt;');
         const keywords = ['CREATE', 'TABLE', 'ALTER', 'DROP', 'VIEW', 'INDEX', 'UNIQUE', 'CONSTRAINT', 'IF', 'EXISTS', 'COLUMN', 'TYPE', 'ADD', 'MODIFY', 'AS', 'SELECT', 'FROM', 'WHERE', 'PRIMARY', 'KEY', 'NOT', 'NULL', 'AUTO_INCREMENT', 'SERIAL', 'BIGSERIAL', 'CASCADE', 'BEGIN', 'COMMIT', 'SET', 'USING', 'ON'];
-        
         keywords.forEach(kw => {
             html = html.replace(new RegExp(`\\b${kw}\\b`, 'g'), `<span class="hl-kw">${kw}</span>`);
         });
         html = html.replace(/('.*?')/g, '<span class="hl-str">$1</span>');
         html = html.replace(/(--.*)/g, '<span class="hl-comment">$1</span>');
-        
         els.sqlOutput.innerHTML = html;
     }
 
     function copySQL() {
-        const text = generateSQL();
-        navigator.clipboard.writeText(text).then(() => {
+        navigator.clipboard.writeText(generateSQL()).then(() => {
             const btn = document.querySelector('.sql-header button');
             const original = btn.innerText;
             btn.innerText = 'Copied!';
@@ -623,9 +595,7 @@
         });
     }
 
-    // INIT
     init();
-
 </script>
 </body>
 </html>
