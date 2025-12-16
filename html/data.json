@@ -1,8 +1,12 @@
 {
-  "topBanner": {
-    "image": "https://via.placeholder.com/900x520?text=Top+Banner",
-    "titleText": "妮妹專屬"
-  },
+  "currentCity": "台中",
+  "cities": ["台北", "新北", "桃園", "台中", "台南", "高雄"],
+
+  "topBanners": [
+    { "image": "https://via.placeholder.com/900x520?text=Banner+1", "titleText": "妮妹專屬" },
+    { "image": "https://via.placeholder.com/900x520?text=Banner+2", "titleText": "活動公告" }
+  ],
+
   "searchBar": {
     "avatar": "https://via.placeholder.com/90x90?text=A",
     "placeholder": "輸入關鍵字搜尋",
@@ -10,13 +14,9 @@
     "marquee": "!!!舊客帶新客優惠活動起跑!!!",
     "soundText": "起跑!!!!"
   },
-  "locationBar": {
-    "locationText": "位置：台中",
-    "switchCityText": "切換城市"
-  },
-  "leaderboard": {
-    "title": "排行榜"
-  },
+
+  "leaderboard": { "title": "排行榜" },
+
   "tabs": [
     { "key": "home", "label": "首頁" },
     { "key": "rank", "label": "排行" },
@@ -24,6 +24,7 @@
     { "key": "new", "label": "新菜" },
     { "key": "me", "label": "我的" }
   ],
+
   "cards": [
     {
       "rank": 1,
