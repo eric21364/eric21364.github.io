@@ -1,260 +1,262 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-Hant">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Video Page Clone</title>
-    <style>
-        /* CSS Reset & Dark Theme Base */
-        :root {
-            --bg-color: #0f0f0f;
-            --card-bg: #1f1f1f;
-            --text-main: #e1e1e1;
-            --text-sub: #aaaaaa;
-            --accent: #ff4757; /* 仿照常見網站的強調色 */
-            --spacing: 16px;
-        }
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>卡片列表</title>
+<style>
+  :root{
+    --bg1:#f7d6e6;
+    --bg2:#fbe9f2;
+    --card:#ffffffcc;
+    --pink:#ff6fa5;
+    --pink2:#ff86b4;
+    --text:#4a2b36;
+    --muted:#7b5a66;
+    --shadow: 0 10px 22px rgba(0,0,0,.12);
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans TC", sans-serif;
+    color:var(--text);
+    background: radial-gradient(1200px 600px at 30% 10%, var(--bg2), var(--bg1));
+  }
 
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-        }
+  .app{
+    max-width: 520px; /* 模擬手機 */
+    margin: 0 auto;
+    min-height: 100vh;
+    padding: 12px 12px 78px;
+  }
 
-        /* Container */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: var(--spacing);
-        }
+  .card{
+    position: relative;
+    display:flex;
+    gap: 10px;
+    padding: 12px;
+    margin: 10px 0 16px;
+    border-radius: 18px;
+    background: var(--card);
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(6px);
+    overflow: hidden;
+  }
 
-        /* Header */
-        header {
-            background: #1a1a1a;
-            padding: 1rem;
-            border-bottom: 1px solid #333;
-            margin-bottom: 20px;
-        }
-        .logo { font-size: 1.5rem; font-weight: bold; color: var(--accent); }
+  .thumb{
+    width: 130px;
+    min-width: 130px;
+    height: 170px;
+    border-radius: 16px;
+    overflow:hidden;
+    position: relative;
+    background:#eee;
+  }
+  .thumb img{width:100%; height:100%; object-fit:cover; display:block;}
+  .score{
+    position:absolute;
+    left: 8px;
+    bottom: 8px;
+    background:#fff;
+    color:#ff2f7c;
+    font-weight: 800;
+    border-radius: 999px;
+    padding: 4px 10px;
+    box-shadow: 0 6px 14px rgba(0,0,0,.15);
+  }
+  .badge{
+    position:absolute;
+    right: 8px;
+    top: 8px;
+    background: rgba(255,255,255,.75);
+    border: 1px solid rgba(255,111,165,.35);
+    color:#ff2f7c;
+    border-radius: 10px;
+    padding: 3px 8px;
+    font-size: 12px;
+    font-weight: 700;
+  }
 
-        /* Video Player Area */
-        .video-wrapper {
-            position: relative;
-            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
-            height: 0;
-            background: #000;
-            margin-bottom: 20px;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-        .video-wrapper video {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-        }
+  .content{
+    flex:1;
+    padding-right: 54px; /* 留給右側直排 */
+  }
 
-        /* Video Info */
-        .video-info h1 {
-            font-size: 1.4rem;
-            margin: 0 0 10px 0;
-            line-height: 1.4;
-        }
-        .meta-row {
-            display: flex;
-            justify-content: space-between;
-            color: var(--text-sub);
-            font-size: 0.9rem;
-            margin-bottom: 15px;
-            border-bottom: 1px solid #333;
-            padding-bottom: 15px;
-        }
-        
-        /* Tags Section */
-        .tags-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 30px;
-        }
-        .tag-pill {
-            background-color: #2d2d2d;
-            color: var(--text-main);
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            text-decoration: none;
-            transition: background 0.2s;
-            cursor: pointer;
-        }
-        .tag-pill:hover {
-            background-color: var(--accent);
-            color: white;
-        }
+  .namebar{
+    display:flex;
+    align-items:center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .pill{
+    background: linear-gradient(90deg, var(--pink), var(--pink2));
+    color:#fff;
+    border-radius: 999px;
+    padding: 6px 10px;
+    font-weight: 800;
+    box-shadow: 0 8px 16px rgba(255,111,165,.25);
+    line-height:1;
+  }
+  .sub{
+    color: var(--muted);
+    font-weight: 700;
+    font-size: 13px;
+  }
 
-        /* Related Grid */
-        .section-title {
-            font-size: 1.2rem;
-            margin-bottom: 15px;
-            border-left: 4px solid var(--accent);
-            padding-left: 10px;
-        }
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-            gap: 20px;
-        }
-        .card {
-            background: var(--card-bg);
-            border-radius: 6px;
-            overflow: hidden;
-            transition: transform 0.2s;
-            cursor: pointer;
-        }
-        .card:hover { transform: translateY(-5px); }
-        .card-thumb {
-            position: relative;
-            padding-top: 56.25%;
-        }
-        .card-thumb img {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            object-fit: cover;
-        }
-        .duration {
-            position: absolute;
-            bottom: 5px; right: 5px;
-            background: rgba(0,0,0,0.8);
-            color: #fff;
-            padding: 2px 6px;
-            font-size: 12px;
-            border-radius: 4px;
-        }
-        .card-body { padding: 10px; }
-        .card-title {
-            font-size: 0.95rem;
-            margin: 0 0 5px 0;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-        .card-meta { font-size: 0.8rem; color: var(--text-sub); }
+  .grid{
+    display:grid;
+    grid-template-columns: 60px 1fr;
+    gap: 6px 10px;
+    font-size: 13px;
+    line-height: 1.15;
+  }
+  .k{ color: var(--muted); font-weight: 700;}
+  .v{ color: var(--text); font-weight: 800;}
+  .v.highlight{ color:#ff2f7c; }
 
-    </style>
+  .rank{
+    position:absolute;
+    right: 12px;
+    top: 10px;
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+    background: #e9f1ff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight: 900;
+    color:#3a77ff;
+    box-shadow: 0 10px 18px rgba(58,119,255,.15);
+  }
+
+  .side{
+    position:absolute;
+    right: 10px;
+    top: 54px;
+    width: 42px;
+    border-radius: 16px;
+    background: rgba(111, 73, 255, 0.14);
+    border: 1px solid rgba(111, 73, 255, 0.18);
+    padding: 8px 6px;
+    display:flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items:center;
+  }
+  .side .item{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap: 3px;
+    color:#6a3cff;
+    font-weight: 900;
+    font-size: 12px;
+  }
+  .ico{
+    width: 18px; height:18px;
+    display:inline-block;
+  }
+  .ico svg{width:100%; height:100%;}
+  .tabbar{
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 0;
+    width: min(520px, 100%);
+    background: rgba(255,255,255,.75);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid rgba(0,0,0,.06);
+    display:flex;
+    justify-content: space-around;
+    padding: 10px 6px 14px;
+  }
+  .tab{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap: 4px;
+    font-size: 12px;
+    color: #7a5c66;
+    font-weight: 800;
+  }
+  .tab.active{ color:#ff2f7c; }
+</style>
 </head>
 <body>
+<div class="app" id="app"></div>
+<div class="tabbar" id="tabbar"></div>
 
-    <header>
-        <div class="container" style="padding:0;">
-            <div class="logo">SITE LOGO</div>
+<script>
+  const ICONS = {
+    like: `<svg viewBox="0 0 24 24" fill="none"><path d="M12 21s-7-4.5-9.5-8.8C.5 8.2 3 5.5 6.2 5.5c1.8 0 3.1 1 3.8 2 0 0 .8-2 3.9-2 3.2 0 5.7 2.7 3.7 6.7C19 16.5 12 21 12 21Z" fill="#8b5cf6"/></svg>`,
+    star: `<svg viewBox="0 0 24 24" fill="none"><path d="M12 2l2.9 6.3 6.9.6-5.2 4.5 1.6 6.7L12 16.8 5.8 20l1.6-6.7L2.2 8.9l6.9-.6L12 2Z" fill="#8b5cf6"/></svg>`,
+    chat: `<svg viewBox="0 0 24 24" fill="none"><path d="M4 4h16v12H7l-3 3V4Z" fill="#8b5cf6"/></svg>`
+  };
+
+  async function main(){
+    const res = await fetch('./data.json');
+    const data = await res.json();
+    renderCards(data.cards || []);
+    renderTabs(data.tabs || []);
+  }
+
+  function renderCards(cards){
+    const app = document.getElementById('app');
+    app.innerHTML = cards.map(c => {
+      const fieldsHtml = (c.fields||[]).map(f => `
+        <div class="k">${escapeHtml(f.k)}：</div>
+        <div class="v ${f.highlight ? 'highlight':''}">${escapeHtml(f.v)}</div>
+      `).join('');
+
+      const sideHtml = (c.sideStats||[]).map(s => `
+        <div class="item">
+          <span class="ico">${ICONS[s.icon] || ''}</span>
+          <span>${escapeHtml(String(s.value ?? ''))}</span>
         </div>
-    </header>
+      `).join('');
 
-    <div class="container">
-        <!-- 影片播放區 -->
-        <div class="video-wrapper">
-            <video id="main-player" controls preload="none">
-                <source src="" type="video/mp4">
-                您的瀏覽器不支援 HTML5 影片。
-            </video>
-        </div>
+      const badges = (c.badges||[]).slice(0,2).map(b => `<div class="badge">${escapeHtml(b)}</div>`).join('');
 
-        <!-- 影片資訊與標籤 -->
-        <div class="video-info">
-            <h1 id="video-title">載入中...</h1>
-            <div class="meta-row">
-                <span id="video-stats">觀看次數: - • 發布日期: -</span>
+      return `
+        <div class="card">
+          <div class="thumb">
+            <img src="${escapeAttr(c.thumb||'')}" alt="">
+            ${badges}
+            <div class="score">${escapeHtml(String(c.score ?? ''))} 分</div>
+          </div>
+
+          <div class="content">
+            <div class="namebar">
+              <div class="pill">${escapeHtml(c.name||'')}</div>
+              <div class="sub">${escapeHtml(c.subtitle||'')}</div>
             </div>
-            
-            <!-- 這裡就是您可以自由調整的標籤區域 -->
-            <div class="tags-container" id="tags-list">
-                <!-- Tags will be injected here via JS -->
-            </div>
-            
-            <p id="video-desc" style="color: #ccc; font-size: 0.95rem; line-height: 1.6;"></p>
+            <div class="grid">${fieldsHtml}</div>
+          </div>
+
+          <div class="rank">${escapeHtml(String(c.rank ?? ''))}</div>
+          <div class="side">${sideHtml}</div>
         </div>
+      `;
+    }).join('');
+  }
 
-        <!-- 推薦列表 -->
-        <div class="related-section">
-            <h2 class="section-title">猜你喜歡</h2>
-            <div class="grid" id="related-grid">
-                <!-- Grid items injected via JS -->
-            </div>
-        </div>
-    </div>
+  function renderTabs(tabs){
+    const tb = document.getElementById('tabbar');
+    tb.innerHTML = tabs.map((t, i) => `
+      <div class="tab ${i===0?'active':''}" data-key="${escapeAttr(t.key)}">
+        <div style="width:22px;height:22px;border-radius:8px;background:#ffd1e2;opacity:.9"></div>
+        <div>${escapeHtml(t.label||'')}</div>
+      </div>
+    `).join('');
+  }
 
-    <script>
-        // 初始化載入
-        document.addEventListener('DOMContentLoaded', () => {
-            fetchData();
-        });
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+  function escapeAttr(s){ return escapeHtml(s); }
 
-        async function fetchData() {
-            try {
-                // 讀取本機 json 檔案
-                const response = await fetch('https://raw.githubusercontent.com/eric21364/eric21364.github.io/refs/heads/main/html/data.json');
-                if (!response.ok) throw new Error("無法讀取 JSON");
-                const data = await response.json();
-                renderPage(data);
-            } catch (error) {
-                console.error('Error:', error);
-                document.querySelector('.container').innerHTML = 
-                    '<h3 style="text-align:center; color:#f00;">無法讀取 data.json，請確認您是使用 Web Server (如 Live Server) 開啟此頁面，而非直接點擊 HTML 檔案。</h3>';
-            }
-        }
-
-        function renderPage(data) {
-            const v = data.currentVideo;
-            
-            // 1. 設定 Meta Title
-            document.title = v.title + " - " + data.pageTitle;
-
-            // 2. 填充主要影片資訊
-            const player = document.getElementById('main-player');
-            player.src = v.videoSrc;
-            player.poster = v.poster;
-            
-            document.getElementById('video-title').textContent = v.title;
-            document.getElementById('video-stats').textContent = `觀看次數: ${v.views} • 發布日期: ${v.date} • 時長: ${v.duration}`;
-            document.getElementById('video-desc').textContent = v.description;
-
-            // 3. 渲染標籤 (Tags)
-            const tagsContainer = document.getElementById('tags-list');
-            tagsContainer.innerHTML = ''; // 清空
-            v.tags.forEach(tag => {
-                const a = document.createElement('a');
-                a.className = 'tag-pill';
-                a.textContent = tag;
-                // 這裡可以加上點擊後的過濾邏輯
-                a.href = `#search?tag=${encodeURIComponent(tag)}`;
-                tagsContainer.appendChild(a);
-            });
-
-            // 4. 渲染推薦列表
-            const grid = document.getElementById('related-grid');
-            grid.innerHTML = '';
-            data.relatedVideos.forEach(item => {
-                const card = document.createElement('div');
-                card.className = 'card';
-                card.innerHTML = `
-                    <div class="card-thumb">
-                        <img src="${item.thumb}" alt="${item.title}">
-                        <span class="duration">${item.duration}</span>
-                    </div>
-                    <div class="card-body">
-                        <h3 class="card-title">${item.title}</h3>
-                        <div class="card-meta">觀看: ${item.views}</div>
-                    </div>
-                `;
-                // 點擊模擬跳轉
-                card.onclick = () => { alert(`前往影片 ID: ${item.id}`); };
-                grid.appendChild(card);
-            });
-        }
-    </script>
+  main();
+</script>
 </body>
 </html>
