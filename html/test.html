@@ -195,7 +195,7 @@
   };
 
   async function main(){
-    const res = await fetch('./data.json');
+    const res = await fetch('https://raw.githubusercontent.com/eric21364/eric21364.github.io/refs/heads/main/html/data.json');
     const data = await res.json();
     renderCards(data.cards || []);
     renderTabs(data.tabs || []);
