@@ -1,43 +1,34 @@
 {
-  "pageTitle": "模擬頁面 - 影片詳情",
-  "currentVideo": {
-    "title": "範例影片標題：這裡可以放很長的描述文字",
-    "videoSrc": "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4",
-    "poster": "https://via.placeholder.com/1280x720/333333/ffffff?text=Video+Cover",
-    "views": "12,345",
-    "date": "2025-01-16",
-    "duration": "12:34",
-    "description": "這是一個描述區塊，您可以在 JSON 中修改這段文字。這裡支援基本的純文字顯示。",
-    "tags": ["高清", "獨家", "亞洲", "熱門推薦", "2025精選", "動態標籤"]
-  },
-  "relatedVideos": [
+  "tabs": [
+    { "key": "home", "label": "首頁" },
+    { "key": "rank", "label": "排行" },
+    { "key": "support", "label": "客服" },
+    { "key": "new", "label": "新菜" },
+    { "key": "me", "label": "我的" }
+  ],
+  "cards": [
     {
-      "id": 1,
-      "title": "推薦影片 01",
-      "thumb": "https://via.placeholder.com/320x180/444444/ffffff?text=Thumb+1",
-      "duration": "05:00",
-      "views": "5K"
-    },
-    {
-      "id": 2,
-      "title": "推薦影片 02 - 自動生成",
-      "thumb": "https://via.placeholder.com/320x180/444444/ffffff?text=Thumb+2",
-      "duration": "10:20",
-      "views": "8.2K"
-    },
-    {
-      "id": 3,
-      "title": "推薦影片 03",
-      "thumb": "https://via.placeholder.com/320x180/444444/ffffff?text=Thumb+3",
-      "duration": "08:15",
-      "views": "12K"
-    },
-    {
-      "id": 4,
-      "title": "推薦影片 04",
-      "thumb": "https://via.placeholder.com/320x180/444444/ffffff?text=Thumb+4",
-      "duration": "22:10",
-      "views": "33K"
+      "rank": 2,
+      "name": "淳兒",
+      "subtitle": "國籍：越南妹",
+      "score": 10.0,
+      "thumb": "https://via.placeholder.com/280x360?text=Thumb",
+      "fields": [
+        { "k": "年齡", "v": "20" },
+        { "k": "身高", "v": "165" },
+        { "k": "體重", "v": "45" },
+        { "k": "罩杯", "v": "E" },
+        { "k": "環境", "v": "套房" },
+        { "k": "類型", "v": "定點" },
+        { "k": "托播價", "v": "3200~3500", "highlight": true },
+        { "k": "上架", "v": "8小時29分鐘前" }
+      ],
+      "sideStats": [
+        { "icon": "like", "value": 357 },
+        { "icon": "star", "value": 991 },
+        { "icon": "chat", "value": 580 }
+      ],
+      "badges": ["限定VIP"]
     }
   ]
 }
