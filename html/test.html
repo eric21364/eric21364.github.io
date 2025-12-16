@@ -1,46 +1,260 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="zh-Hant">
 <head>
-  <meta charset="utf-8" />
-  <title>My test page</title>
-  <link rel="stylesheet" href="./test.css">
-</head>
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-
-<body>
-  <div class="my-test-header">標頭</div>
-  <div class="my-test-body">
-  </div>
-</body>
-
-<script>
-  $(document).ready(function () {
-    $.getJSON("json/data.json", (data) => {
-      console.log(data);
-      let body = $('.my-test-body');
-      data.list.forEach(element => {
-        let container = $('<div>').addClass('my-test-container');
-        let img = $('<img>').addClass('my-test-image').attr('src', element.image).attr('alt', element.title);
-        let content = $('<div>').addClass('my-test-content');
-        let title = $('<span>').addClass('my-test-title').text(element.title);
-        let memo = $('<span>').addClass('my-test-memo').text(element.memo.substring(0, 72) + "...");
-        container.append(img);
-        content.append(title);
-        content.append(memo);
-        element.btn.forEach(btntext => {
-          let btn = $('<a>').addClass('my-test-btn').text(btntext).attr('href', `test2.html?title=${element.title}`);
-          content.append(btn);
-        });
-        container.append(content);
-        if (element.backgroudColor) {
-          container.css('background-color', element.backgroudColor);
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Page Clone</title>
+    <style>
+        /* CSS Reset & Dark Theme Base */
+        :root {
+            --bg-color: #0f0f0f;
+            --card-bg: #1f1f1f;
+            --text-main: #e1e1e1;
+            --text-sub: #aaaaaa;
+            --accent: #ff4757; /* 仿照常見網站的強調色 */
+            --spacing: 16px;
         }
-        body.append(container);
-      });
 
-    })
-  });
-</script>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+        }
 
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--spacing);
+        }
+
+        /* Header */
+        header {
+            background: #1a1a1a;
+            padding: 1rem;
+            border-bottom: 1px solid #333;
+            margin-bottom: 20px;
+        }
+        .logo { font-size: 1.5rem; font-weight: bold; color: var(--accent); }
+
+        /* Video Player Area */
+        .video-wrapper {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+            height: 0;
+            background: #000;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .video-wrapper video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Video Info */
+        .video-info h1 {
+            font-size: 1.4rem;
+            margin: 0 0 10px 0;
+            line-height: 1.4;
+        }
+        .meta-row {
+            display: flex;
+            justify-content: space-between;
+            color: var(--text-sub);
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 15px;
+        }
+        
+        /* Tags Section */
+        .tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+        .tag-pill {
+            background-color: #2d2d2d;
+            color: var(--text-main);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            text-decoration: none;
+            transition: background 0.2s;
+            cursor: pointer;
+        }
+        .tag-pill:hover {
+            background-color: var(--accent);
+            color: white;
+        }
+
+        /* Related Grid */
+        .section-title {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--accent);
+            padding-left: 10px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 20px;
+        }
+        .card {
+            background: var(--card-bg);
+            border-radius: 6px;
+            overflow: hidden;
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
+        .card:hover { transform: translateY(-5px); }
+        .card-thumb {
+            position: relative;
+            padding-top: 56.25%;
+        }
+        .card-thumb img {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            object-fit: cover;
+        }
+        .duration {
+            position: absolute;
+            bottom: 5px; right: 5px;
+            background: rgba(0,0,0,0.8);
+            color: #fff;
+            padding: 2px 6px;
+            font-size: 12px;
+            border-radius: 4px;
+        }
+        .card-body { padding: 10px; }
+        .card-title {
+            font-size: 0.95rem;
+            margin: 0 0 5px 0;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .card-meta { font-size: 0.8rem; color: var(--text-sub); }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container" style="padding:0;">
+            <div class="logo">SITE LOGO</div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- 影片播放區 -->
+        <div class="video-wrapper">
+            <video id="main-player" controls preload="none">
+                <source src="" type="video/mp4">
+                您的瀏覽器不支援 HTML5 影片。
+            </video>
+        </div>
+
+        <!-- 影片資訊與標籤 -->
+        <div class="video-info">
+            <h1 id="video-title">載入中...</h1>
+            <div class="meta-row">
+                <span id="video-stats">觀看次數: - • 發布日期: -</span>
+            </div>
+            
+            <!-- 這裡就是您可以自由調整的標籤區域 -->
+            <div class="tags-container" id="tags-list">
+                <!-- Tags will be injected here via JS -->
+            </div>
+            
+            <p id="video-desc" style="color: #ccc; font-size: 0.95rem; line-height: 1.6;"></p>
+        </div>
+
+        <!-- 推薦列表 -->
+        <div class="related-section">
+            <h2 class="section-title">猜你喜歡</h2>
+            <div class="grid" id="related-grid">
+                <!-- Grid items injected via JS -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 初始化載入
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchData();
+        });
+
+        async function fetchData() {
+            try {
+                // 讀取本機 json 檔案
+                const response = await fetch('data.json');
+                if (!response.ok) throw new Error("無法讀取 JSON");
+                const data = await response.json();
+                renderPage(data);
+            } catch (error) {
+                console.error('Error:', error);
+                document.querySelector('.container').innerHTML = 
+                    '<h3 style="text-align:center; color:#f00;">無法讀取 data.json，請確認您是使用 Web Server (如 Live Server) 開啟此頁面，而非直接點擊 HTML 檔案。</h3>';
+            }
+        }
+
+        function renderPage(data) {
+            const v = data.currentVideo;
+            
+            // 1. 設定 Meta Title
+            document.title = v.title + " - " + data.pageTitle;
+
+            // 2. 填充主要影片資訊
+            const player = document.getElementById('main-player');
+            player.src = v.videoSrc;
+            player.poster = v.poster;
+            
+            document.getElementById('video-title').textContent = v.title;
+            document.getElementById('video-stats').textContent = `觀看次數: ${v.views} • 發布日期: ${v.date} • 時長: ${v.duration}`;
+            document.getElementById('video-desc').textContent = v.description;
+
+            // 3. 渲染標籤 (Tags)
+            const tagsContainer = document.getElementById('tags-list');
+            tagsContainer.innerHTML = ''; // 清空
+            v.tags.forEach(tag => {
+                const a = document.createElement('a');
+                a.className = 'tag-pill';
+                a.textContent = tag;
+                // 這裡可以加上點擊後的過濾邏輯
+                a.href = `#search?tag=${encodeURIComponent(tag)}`;
+                tagsContainer.appendChild(a);
+            });
+
+            // 4. 渲染推薦列表
+            const grid = document.getElementById('related-grid');
+            grid.innerHTML = '';
+            data.relatedVideos.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <div class="card-thumb">
+                        <img src="${item.thumb}" alt="${item.title}">
+                        <span class="duration">${item.duration}</span>
+                    </div>
+                    <div class="card-body">
+                        <h3 class="card-title">${item.title}</h3>
+                        <div class="card-meta">觀看: ${item.views}</div>
+                    </div>
+                `;
+                // 點擊模擬跳轉
+                card.onclick = () => { alert(`前往影片 ID: ${item.id}`); };
+                grid.appendChild(card);
+            });
+        }
+    </script>
+</body>
 </html>
