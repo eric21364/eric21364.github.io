@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SQL Schema Tool (v4.2 - 含備註功能)</title>
+<title>SQL Schema Tool (v4.3 - 支援 MSSQL)</title>
 <style>
     :root {
         --primary: #2563eb;
@@ -26,11 +26,11 @@
     .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #f0f0f0; padding-bottom: 10px; }
     .card-title { font-weight: bold; font-size: 0.9rem; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.05em; margin: 0; }
 
-    /* Layout tweaks for extra column */
+    /* Layout tweaks */
     .row { display: flex; gap: 10px; margin-bottom: 15px; }
     .col { flex: 1; }
     .col-small { width: 90px; flex: none; }
-    .col-med { width: 140px; flex: none; } /* For Types */
+    .col-med { width: 140px; flex: none; }
     .col-checkbox { display: flex; align-items: center; justify-content: center; gap: 8px; padding-top: 24px; font-size: 0.8rem; }
     
     label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px; color: var(--text); }
@@ -79,7 +79,7 @@
         <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: end;">
             <div>
                 <h1 style="margin:0; font-size: 1.5rem; color: #1e293b;">SQL Schema Tool</h1>
-                <span style="font-size: 0.8rem; color: #64748b;">v4.2 • 含欄位備註功能</span>
+                <span style="font-size: 0.8rem; color: #64748b;">v4.3 • 支援 MySQL / PG / MSSQL</span>
             </div>
             <div class="btn-group">
                 <button class="btn btn-toggle active" id="mode-create" onclick="setMode('create')">建立 (Create)</button>
@@ -95,6 +95,7 @@
                     <select id="dbType" onchange="updateState('dbType', this.value)">
                         <option value="pgsql">PostgreSQL</option>
                         <option value="mysql">MySQL / MariaDB</option>
+                        <option value="mssql">Microsoft SQL Server</option>
                     </select>
                 </div>
                 <div class="col">
@@ -136,9 +137,7 @@
                 <button class="btn btn-primary" style="background:#4f46e5" onclick="addIndex()">+ 新增索引</button>
             </div>
             <div id="index-list"></div>
-            <div id="index-hint" class="hidden" style="margin-top:10px; font-size: 0.8rem; color:#ef4444;">
-                * 刪除時請確保索引名稱正確。PostgreSQL 刪除 UNIQUE 需使用 Drop Constraint。
-            </div>
+            <div id="index-hint" class="hidden" style="margin-top:10px; font-size: 0.8rem; color:#ef4444;"></div>
         </div>
 
         <div id="section-views" class="card bg-amber hidden">
@@ -198,7 +197,16 @@
     };
 
     function init() { renderAll(); }
-    function updateState(key, value) { state[key] = value; renderSQL(); if(key==='dbType') els.sqlFooter.innerText = (value==='pgsql'?'PostgreSQL':'MySQL')+' Mode'; }
+    
+    function updateState(key, value) { 
+        state[key] = value; 
+        renderSQL(); 
+        if(key==='dbType') {
+            const map = {'pgsql': 'PostgreSQL', 'mysql': 'MySQL', 'mssql': 'SQL Server'};
+            els.sqlFooter.innerText = map[value] + ' Mode';
+            renderVisibility(); // Update hints
+        }
+    }
     
     function setMode(mode) {
         state.mode = mode;
@@ -255,6 +263,8 @@
         if (state.mode === 'create' || isIndexOp) {
             els.sectionIndexes.classList.remove('hidden');
             els.indexHint.classList.toggle('hidden', state.alterType !== 'DROP_INDEX');
+            if(state.alterType === 'DROP_INDEX' && state.dbType === 'pgsql') els.indexHint.innerText = '* PostgreSQL 刪除 UNIQUE 需使用 DROP CONSTRAINT';
+            else if (state.alterType === 'DROP_INDEX') els.indexHint.innerText = '';
         } else { els.sectionIndexes.classList.add('hidden'); }
         
         els.optionUpdateNull.classList.toggle('hidden', !(state.mode === 'alter' && state.alterType === 'MODIFY'));
@@ -375,11 +385,14 @@
         if(listName === 'columns' && key === 'type') renderColumns(); 
         renderSQL();
     }
+    
     function q(name) {
         if (!name) return '';
+        if (state.dbType === 'mssql') return `[${name}]`; // MSSQL Brackets
         const char = state.dbType === 'mysql' ? '`' : '"';
         return `${char}${name}${char}`;
     }
+    
     function getRealType(col) {
         let type = col.type;
         if (state.dbType === 'pgsql') {
@@ -391,8 +404,16 @@
             if (type === 'TIMESTAMP') return 'DATETIME';
             if (type === 'JSONB') return 'JSON';
         }
+        if (state.dbType === 'mssql') {
+            if (type === 'BOOLEAN') return 'BIT';
+            if (type === 'JSON' || type === 'JSONB') return 'NVARCHAR(MAX)';
+            if (type === 'TEXT') return 'VARCHAR(MAX)';
+            if (type === 'TIMESTAMP') return 'DATETIME2';
+            // MSSQL Identity uses INT/BIGINT + IDENTITY property
+        }
         return type;
     }
+    
     function generateIndexName(idx) {
         if(idx.name) return idx.name;
         const prefix = idx.type === 'UNIQUE' ? 'uq' : 'idx';
@@ -404,29 +425,37 @@
         const realType = getRealType(col);
         let line = `  ${q(col.name)} ${realType}`;
         const needsLen = ['VARCHAR', 'CHAR', 'DECIMAL'].includes(col.type);
-        if (col.length && needsLen && !col.ai) line += `(${col.length})`;
+        if (col.length && needsLen && !col.ai && realType.indexOf('MAX') === -1) line += `(${col.length})`;
+        
         let shouldAddNull = true;
+        // Postgres modify special case
         if (state.mode === 'alter' && state.alterType === 'MODIFY' && state.dbType === 'pgsql') shouldAddNull = false;
+        
         if (shouldAddNull) {
+            if (state.dbType === 'mssql' && col.ai) line += ' IDENTITY(1,1)'; // MSSQL AI
             if (col.notNull && !col.ai) line += ' NOT NULL';
             if (state.dbType === 'mysql' && col.ai) line += ' AUTO_INCREMENT';
         }
         
-        // 🌟 MySQL Comment (Inline)
+        // MySQL Inline Comment
         if (state.dbType === 'mysql' && col.comment) {
-            // 簡單處理單引號 escape
             line += ` COMMENT '${col.comment.replace(/'/g, "''")}'`;
         }
         return line;
     }
 
-    // Helper: PostgreSQL Comments Generation
-    function generatePGComments(tblName, columns) {
-        if (state.dbType !== 'pgsql') return '';
+    function generateExtendedComments(tblName, columns) {
         let comments = [];
         columns.forEach(col => {
             if(col.name && col.comment) {
-                comments.push(`COMMENT ON COLUMN ${q(tblName)}.${q(col.name)} IS '${col.comment.replace(/'/g, "''")}';`);
+                const c = col.comment.replace(/'/g, "''");
+                if (state.dbType === 'pgsql') {
+                    comments.push(`COMMENT ON COLUMN ${q(tblName)}.${q(col.name)} IS '${c}';`);
+                } 
+                else if (state.dbType === 'mssql') {
+                    // MSSQL Extended Property
+                    comments.push(`EXEC sp_addextendedproperty @name=N'MS_Description', @value=N'${c}', @level0type=N'SCHEMA', @level0name=N'dbo', @level1type=N'TABLE', @level1name=N'${tblName}', @level2type=N'COLUMN', @level2name=N'${col.name}';`);
+                }
             }
         });
         return comments.length > 0 ? comments.join('\n') : '';
@@ -465,9 +494,9 @@
             sql += `\n);`;
             if (postCreateSQL) sql += '\n\n' + postCreateSQL;
             
-            // 🌟 PG Create Comments
-            const pgComments = generatePGComments(state.tableName, state.columns);
-            if(pgComments) sql += '\n\n' + pgComments;
+            // Comments
+            const extComments = generateExtendedComments(state.tableName, state.columns);
+            if(extComments) sql += '\n\n' + extComments;
         } 
         else {
             let mainSql = '';
@@ -491,7 +520,7 @@
                             statements.push(`DROP INDEX ${q(realName)} ON ${tbl};`);
                         } else {
                             if (idx.type === 'UNIQUE') statements.push(`ALTER TABLE ${tbl} DROP CONSTRAINT ${q(realName)};`);
-                            else statements.push(`DROP INDEX ${q(realName)};`);
+                            else statements.push(`DROP INDEX ${q(realName)} ON ${tbl};`); // MSSQL requires ON tbl
                         }
                     }
                 });
@@ -499,11 +528,16 @@
             }
             else {
                 let clauses = [];
+                let mssqlStatements = []; // MSSQL often needs separate statements for Modify
+
                 state.columns.forEach(col => {
                     if (!col.name) return;
                     const colName = q(col.name);
+                    
                     if (state.alterType === 'ADD') {
-                        clauses.push(`ADD COLUMN ${buildColumnDef(col).trim()}`);
+                        const def = buildColumnDef(col).trim();
+                        if (state.dbType === 'mysql') clauses.push(`ADD COLUMN ${def}`);
+                        else clauses.push(`ADD ${def}`); // PG & MSSQL use ADD column_def
                     } 
                     else if (state.alterType === 'DROP') {
                         clauses.push(`DROP COLUMN ${colName}`);
@@ -511,39 +545,58 @@
                     else if (state.alterType === 'MODIFY') {
                         if (state.dbType === 'mysql') {
                             clauses.push(`MODIFY COLUMN ${buildColumnDef(col).trim()}`);
-                        } else {
+                        } else if (state.dbType === 'pgsql') {
                             let realType = getRealType(col);
                             if (col.length && ['VARCHAR','CHAR','DECIMAL'].includes(col.type)) realType += `(${col.length})`;
                             clauses.push(`ALTER COLUMN ${colName} TYPE ${realType} USING ${colName}::${realType.split('(')[0]}`);
                             if (state.updateNull) {
                                 clauses.push(`ALTER COLUMN ${colName} ${col.notNull ? 'SET' : 'DROP'} NOT NULL`);
                             }
+                        } else if (state.dbType === 'mssql') {
+                            // MSSQL Modify: ALTER COLUMN ... (One per statement usually safer)
+                            const realType = getRealType(col);
+                            let typeDef = realType;
+                            if (col.length && ['VARCHAR','CHAR','DECIMAL'].includes(col.type) && typeDef.indexOf('MAX')===-1) typeDef += `(${col.length})`;
+                            const nullDef = col.notNull ? 'NOT NULL' : 'NULL';
+                            // MSSQL does NOT support multiple ALTER COLUMN in one statement easily
+                            mssqlStatements.push(`ALTER TABLE ${tbl} ALTER COLUMN ${colName} ${typeDef} ${nullDef};`);
                         }
                     }
                 });
-                if (clauses.length > 0) mainSql = `ALTER TABLE ${tbl} \n  ${clauses.join(',\n  ')};`;
 
-                // 🌟 PG Alter Comments
-                // 只有在 ADD 或 MODIFY 模式下，才產生 Comment 語法
-                if(state.dbType === 'pgsql' && ['ADD', 'MODIFY'].includes(state.alterType)) {
-                    const pgComments = generatePGComments(state.tableName, state.columns);
-                    if(pgComments) mainSql += '\n\n' + pgComments;
+                if (state.dbType === 'mssql' && state.alterType === 'MODIFY') {
+                    mainSql = mssqlStatements.join('\n');
+                } else if (clauses.length > 0) {
+                    mainSql = `ALTER TABLE ${tbl} \n  ${clauses.join(',\n  ')};`;
+                }
+
+                // Add comments for new columns (ADD/MODIFY)
+                if(state.dbType !== 'mysql' && ['ADD', 'MODIFY'].includes(state.alterType)) {
+                    const extComments = generateExtendedComments(state.tableName, state.columns);
+                    if(extComments) mainSql += '\n\n' + extComments;
                 }
             }
 
             if (state.views.length > 0 && mainSql) {
                 let fullSql = '';
                 if (state.dbType === 'pgsql') fullSql += 'BEGIN;\n\n';
+                
                 fullSql += `-- 1. Drop Dependent Views\n`;
                 state.views.forEach(v => {
-                    fullSql += `DROP VIEW IF EXISTS ${v.name ? q(v.name) : 'view_name'} CASCADE;\n`;
+                    const vName = v.name ? q(v.name) : 'view_name';
+                    if(state.dbType === 'mssql') fullSql += `IF OBJECT_ID('${v.name}', 'V') IS NOT NULL DROP VIEW ${vName};\n`;
+                    else fullSql += `DROP VIEW IF EXISTS ${vName} ${state.dbType==='pgsql'?'CASCADE':''};\n`;
                 });
+                
                 fullSql += `\n-- 2. Apply Changes\n${mainSql}\n`;
+                
                 fullSql += `\n-- 3. Recreate Views\n`;
                 state.views.forEach(v => {
                     fullSql += `CREATE VIEW ${v.name ? q(v.name) : 'view_name'} AS\n${v.definition || '-- SELECT ...'};\n`;
                 });
+                
                 if (state.dbType === 'pgsql') fullSql += '\nCOMMIT;';
+                if (state.dbType === 'mssql') fullSql += '\nGO';
                 sql = fullSql;
             } else {
                 sql = mainSql;
@@ -555,7 +608,7 @@
     function renderSQL() {
         const raw = generateSQL();
         let html = raw.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-        const keywords = ['CREATE', 'TABLE', 'ALTER', 'DROP', 'VIEW', 'INDEX', 'UNIQUE', 'CONSTRAINT', 'IF', 'EXISTS', 'COLUMN', 'TYPE', 'ADD', 'MODIFY', 'AS', 'SELECT', 'FROM', 'WHERE', 'PRIMARY', 'KEY', 'NOT', 'NULL', 'AUTO_INCREMENT', 'SERIAL', 'BIGSERIAL', 'CASCADE', 'BEGIN', 'COMMIT', 'SET', 'USING', 'ON', 'COMMENT', 'IS'];
+        const keywords = ['CREATE', 'TABLE', 'ALTER', 'DROP', 'VIEW', 'INDEX', 'UNIQUE', 'CONSTRAINT', 'IF', 'EXISTS', 'COLUMN', 'TYPE', 'ADD', 'MODIFY', 'AS', 'SELECT', 'FROM', 'WHERE', 'PRIMARY', 'KEY', 'NOT', 'NULL', 'AUTO_INCREMENT', 'SERIAL', 'BIGSERIAL', 'CASCADE', 'BEGIN', 'COMMIT', 'SET', 'USING', 'ON', 'COMMENT', 'IS', 'IDENTITY', 'EXEC', 'sp_addextendedproperty', 'GO', 'OBJECT_ID', 'NVARCHAR', 'BIT'];
         keywords.forEach(kw => {
             html = html.replace(new RegExp(`\\b${kw}\\b`, 'g'), `<span class="hl-kw">${kw}</span>`);
         });
