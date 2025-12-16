@@ -1,0 +1,43 @@
+{
+  "pageTitle": "模擬頁面 - 影片詳情",
+  "currentVideo": {
+    "title": "範例影片標題：這裡可以放很長的描述文字",
+    "videoSrc": "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4",
+    "poster": "https://via.placeholder.com/1280x720/333333/ffffff?text=Video+Cover",
+    "views": "12,345",
+    "date": "2025-01-16",
+    "duration": "12:34",
+    "description": "這是一個描述區塊，您可以在 JSON 中修改這段文字。這裡支援基本的純文字顯示。",
+    "tags": ["高清", "獨家", "亞洲", "熱門推薦", "2025精選", "動態標籤"]
+  },
+  "relatedVideos": [
+    {
+      "id": 1,
+      "title": "推薦影片 01",
+      "thumb": "https://via.placeholder.com/320x180/444444/ffffff?text=Thumb+1",
+      "duration": "05:00",
+      "views": "5K"
+    },
+    {
+      "id": 2,
+      "title": "推薦影片 02 - 自動生成",
+      "thumb": "https://via.placeholder.com/320x180/444444/ffffff?text=Thumb+2",
+      "duration": "10:20",
+      "views": "8.2K"
+    },
+    {
+      "id": 3,
+      "title": "推薦影片 03",
+      "thumb": "https://via.placeholder.com/320x180/444444/ffffff?text=Thumb+3",
+      "duration": "08:15",
+      "views": "12K"
+    },
+    {
+      "id": 4,
+      "title": "推薦影片 04",
+      "thumb": "https://via.placeholder.com/320x180/444444/ffffff?text=Thumb+4",
+      "duration": "22:10",
+      "views": "33K"
+    }
+  ]
+}
