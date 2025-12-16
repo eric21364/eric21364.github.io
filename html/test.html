@@ -1,141 +1,378 @@
 <!doctype html>
 <html lang="zh-Hant">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>首頁</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>妮妹專屬 - 首頁</title>
 
-<!-- Swiper CDN -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" /> <!-- [web:7] -->
+  <!-- Swiper (CDN) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@12/swiper-bundle.min.css" /> <!-- [web:41] -->
 
-<style>
-  :root{
-    --bg1:#f7d6e6; --bg2:#fbe9f2; --card:#ffffffcc;
-    --pink:#ff6fa5; --pink2:#ff86b4; --text:#4a2b36;
-    --muted:#7b5a66; --shadow: 0 10px 22px rgba(0,0,0,.12);
-  }
-  *{box-sizing:border-box}
-  body{
-    margin:0;
-    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans TC", sans-serif;
-    color:var(--text);
-    background: radial-gradient(1200px 600px at 30% 10%, var(--bg2), var(--bg1));
-  }
-  body.modal-open{ overflow:hidden; } /* 鎖背景滾動 [web:8] */
+  <style>
+    :root{
+      --bg1:#f7d6e6; --bg2:#fbe9f2;
+      --card:#ffffffcc;
+      --pink:#ff6fa5; --pink2:#ff86b4;
+      --purple:#7a3cff;
+      --text:#4a2b36; --muted:#7b5a66;
+      --shadow: 0 10px 22px rgba(0,0,0,.12);
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans TC", sans-serif;
+      color:var(--text);
+      background: radial-gradient(1200px 600px at 30% 10%, var(--bg2), var(--bg1));
+    }
+    body.modal-open{ overflow:hidden; }
 
-  .app{ max-width:520px; margin:0 auto; min-height:100vh; padding:0 12px 78px; }
+    .app{
+      max-width: 520px;
+      margin: 0 auto;
+      min-height: 100vh;
+      padding: 0 12px 82px;
+    }
 
-  /* Swiper banner */
-  .bannerWrap{ margin: 10px 0 8px; border-radius:18px; overflow:hidden; box-shadow: var(--shadow); background:#000; }
-  .swiper{ width:100%; height:280px; }
-  .swiper-slide{ position:relative; }
-  .swiper-slide img{ width:100%; height:100%; object-fit:cover; display:block; }
-  .bannerText{
-    position:absolute; left:14px; bottom:12px;
-    font-weight:1000; font-size:44px; letter-spacing:2px;
-    color:#fff; text-shadow: 0 6px 14px rgba(0,0,0,.55);
-    z-index:2;
-  }
-  .bannerStripe{
-    position:absolute; left:0; right:0; bottom:14px; height:22px;
-    background: rgba(255,140,0,.7); transform: skewX(-10deg);
-    z-index:1;
-  }
+    /* Top Swiper Banner */
+    .bannerWrap{
+      margin: 10px 0 8px;
+      border-radius: 18px;
+      overflow:hidden;
+      box-shadow: var(--shadow);
+      background:#000;
+    }
+    .swiper{ width:100%; height:280px; }
+    .swiper-slide{ position:relative; }
+    .swiper-slide img{ width:100%; height:100%; object-fit:cover; display:block; }
 
-  /* Search area */
-  .searchWrap{
-    background: linear-gradient(180deg, rgba(122,60,255,.55), rgba(255,255,255,.0));
-    border-radius: 18px; padding: 12px; margin: 10px 0;
-  }
-  .searchRow{ display:flex; align-items:center; gap:10px; }
-  .avatar{ width:44px; height:44px; border-radius:999px; overflow:hidden; background:#fff; box-shadow:0 6px 14px rgba(0,0,0,.12); }
-  .avatar img{ width:100%; height:100%; object-fit:cover; display:block; }
-  .searchBox{
-    flex:1; display:flex; align-items:center; gap:10px;
-    background: rgba(255,255,255,.25);
-    border: 1px solid rgba(255,255,255,.35);
-    border-radius: 999px; padding: 10px 14px; color:#fff;
-  }
-  .searchBox input{ flex:1; border:none; outline:none; background:transparent; color:#fff; font-weight:800; }
-  .searchBox input::placeholder{ color: rgba(255,255,255,.85); }
-  .adv{ color:#fff; font-weight:1000; white-space:nowrap; }
-  .marqueeRow{ display:flex; align-items:center; gap:10px; margin-top:8px; color:#fff; font-weight:1000; font-size:13px; }
-  .marquee{ flex:1; overflow:hidden; white-space:nowrap; opacity:.95; }
-  .marquee span{ display:inline-block; padding-left:100%; animation:scroll 12s linear infinite; }
-  @keyframes scroll { 0%{ transform: translateX(0);} 100%{ transform: translateX(-100%);} }
+    .bannerText{
+      position:absolute; left:14px; bottom:12px;
+      font-weight:1000; font-size:44px; letter-spacing:2px;
+      color:#fff; text-shadow: 0 6px 14px rgba(0,0,0,.55);
+      z-index:2;
+      pointer-events:none;
+    }
+    .bannerStripe{
+      position:absolute; left:-10px; right:-10px;
+      bottom:14px; height:22px;
+      background: rgba(255,140,0,.7);
+      transform: skewX(-10deg);
+      z-index:1;
+      pointer-events:none;
+    }
 
-  /* Location bar */
-  .locRow{
-    display:flex; align-items:center; justify-content:space-between; gap:10px;
-    background: linear-gradient(90deg, rgba(255,255,255,.55), rgba(255,255,255,.15));
-    border-radius: 14px; padding: 10px 12px; margin: 10px 0 14px;
-    box-shadow: 0 10px 18px rgba(0,0,0,.08);
-  }
-  .locText{ font-weight:1000; color:#6b2d52; }
-  .switchBtn{
-    border:none; border-radius:999px; padding:8px 12px; font-weight:1000;
-    background: rgba(122,60,255,.25); color:#4a2b36;
-  }
+    /* Search area */
+    .searchWrap{
+      background: linear-gradient(180deg, rgba(122,60,255,.55), rgba(255,255,255,.0));
+      border-radius: 18px;
+      padding: 12px;
+      margin: 10px 0;
+    }
+    .searchRow{ display:flex; align-items:center; gap:10px; }
+    .avatar{
+      width: 44px; height:44px;
+      border-radius: 999px;
+      overflow:hidden;
+      background:#fff;
+      flex:0 0 auto;
+      box-shadow: 0 6px 14px rgba(0,0,0,.12);
+    }
+    .avatar img{ width:100%; height:100%; object-fit:cover; display:block; }
+    .searchBox{
+      flex:1;
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      background: rgba(255,255,255,.25);
+      border: 1px solid rgba(255,255,255,.35);
+      border-radius: 999px;
+      padding: 10px 14px;
+      color:#fff;
+    }
+    .searchBox input{
+      flex:1;
+      border:none;
+      outline:none;
+      background:transparent;
+      color:#fff;
+      font-weight: 900;
+      min-width: 0;
+    }
+    .searchBox input::placeholder{ color: rgba(255,255,255,.85); }
+    .adv{
+      color:#fff;
+      font-weight: 1000;
+      white-space:nowrap;
+      cursor:pointer;
+      user-select:none;
+    }
 
-  /* Leaderboard title */
-  .leaderTitleWrap{ display:flex; align-items:center; justify-content:center; margin: 6px 0 10px; }
-  .diamond{
-    width: 100%; border-radius: 18px; padding: 14px 0; text-align:center;
-    background: linear-gradient(90deg, #ff4f8e, #ffb300);
-    clip-path: polygon(6% 0, 94% 0, 100% 50%, 94% 100%, 6% 100%, 0 50%);
-    box-shadow: var(--shadow);
-    color:#fff; font-weight:1000; letter-spacing:3px; font-size:20px;
-  }
+    .marqueeRow{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      margin-top: 8px;
+      color:#fff;
+      font-weight: 1000;
+      font-size: 13px;
+    }
+    .marquee{
+      flex:1;
+      overflow:hidden;
+      white-space:nowrap;
+      opacity:.95;
+    }
+    .marquee span{
+      display:inline-block;
+      padding-left: 100%;
+      animation: scroll 12s linear infinite;
+    }
+    @keyframes scroll { 0%{ transform: translateX(0); } 100%{ transform: translateX(-100%); } }
 
-  /* Modal (城市清單) */
-  .modal{
-    display:none;
-    position:fixed; inset:0;
-    background: rgba(0,0,0,.45);
-    z-index: 9999;
-    padding: 18px 12px;
-  }
-  .modal.open{ display:block; } /* 顯示/隱藏 [web:8] */
-  .modalPanel{
-    max-width: 520px;
-    margin: 60px auto 0;
-    background: rgba(255,255,255,.9);
-    border-radius: 18px;
-    box-shadow: var(--shadow);
-    overflow:hidden;
-  }
-  .modalHeader{
-    display:flex; align-items:center; justify-content:space-between;
-    padding: 12px 14px;
-    background: linear-gradient(90deg, rgba(255,111,165,.35), rgba(122,60,255,.18));
-    font-weight: 1000;
-  }
-  .modalBody{ padding: 10px; max-height: 60vh; overflow:auto; }
-  .cityBtn{
-    width:100%;
-    border:1px solid rgba(0,0,0,.08);
-    background:#fff;
-    padding: 12px 12px;
-    border-radius: 14px;
-    text-align:left;
-    font-weight: 900;
-    margin: 8px 0;
-  }
-  .cityBtn.active{ border-color: rgba(255,47,124,.6); color:#ff2f7c; }
+    /* Location bar */
+    .locRow{
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap: 10px;
+      background: linear-gradient(90deg, rgba(255,255,255,.55), rgba(255,255,255,.15));
+      border-radius: 14px;
+      padding: 10px 12px;
+      margin: 10px 0 14px;
+      box-shadow: 0 10px 18px rgba(0,0,0,.08);
+    }
+    .locText{ font-weight: 1000; color:#6b2d52; }
+    .switchBtn{
+      border:none;
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-weight: 1000;
+      background: rgba(122,60,255,.25);
+      color:#4a2b36;
+      cursor:pointer;
+    }
 
-  /* TabBar (略，保留你原本的) */
-  .tabbar{
-    position: fixed; left:50%; transform: translateX(-50%); bottom:0;
-    width: min(520px, 100%);
-    background: rgba(255,255,255,.75);
-    backdrop-filter: blur(10px);
-    border-top: 1px solid rgba(0,0,0,.06);
-    display:flex; justify-content: space-around;
-    padding: 10px 6px 14px;
-  }
-  .tab{ display:flex; flex-direction:column; align-items:center; gap:4px; font-size:12px; color:#7a5c66; font-weight:900; }
-  .tab.active{ color:#ff2f7c; }
-</style>
+    /* Leaderboard title */
+    .leaderTitleWrap{ display:flex; align-items:center; justify-content:center; margin: 6px 0 10px; }
+    .diamond{
+      width: 100%;
+      border-radius: 18px;
+      padding: 14px 0;
+      background: linear-gradient(90deg, #ff4f8e, #ffb300);
+      clip-path: polygon(6% 0, 94% 0, 100% 50%, 94% 100%, 6% 100%, 0 50%);
+      box-shadow: var(--shadow);
+      text-align:center;
+      color:#fff;
+      font-weight: 1000;
+      letter-spacing: 3px;
+      font-size: 20px;
+    }
+
+    /* Cards */
+    .card{
+      position: relative;
+      display:flex;
+      gap: 10px;
+      padding: 12px;
+      margin: 10px 0 16px;
+      border-radius: 18px;
+      background: var(--card);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(6px);
+      overflow: hidden;
+    }
+    .thumb{
+      width: 130px;
+      min-width: 130px;
+      height: 170px;
+      border-radius: 16px;
+      overflow:hidden;
+      position: relative;
+      background:#eee;
+    }
+    .thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
+    .score{
+      position:absolute;
+      left: 8px;
+      bottom: 8px;
+      background:#fff;
+      color:#ff2f7c;
+      font-weight: 1000;
+      border-radius: 999px;
+      padding: 4px 10px;
+      box-shadow: 0 6px 14px rgba(0,0,0,.15);
+    }
+    .badge{
+      position:absolute;
+      right: 8px;
+      top: 8px;
+      background: rgba(255,255,255,.75);
+      border: 1px solid rgba(255,111,165,.35);
+      color:#ff2f7c;
+      border-radius: 10px;
+      padding: 3px 8px;
+      font-size: 12px;
+      font-weight: 1000;
+    }
+
+    .content{
+      flex:1;
+      padding-right: 54px;
+      min-width: 0;
+    }
+    .namebar{
+      display:flex;
+      align-items:center;
+      gap: 8px;
+      margin-bottom: 8px;
+      min-width: 0;
+    }
+    .pill{
+      background: linear-gradient(90deg, var(--pink), var(--pink2));
+      color:#fff;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-weight: 1000;
+      box-shadow: 0 8px 16px rgba(255,111,165,.25);
+      line-height:1;
+      flex:0 0 auto;
+    }
+    .sub{
+      color: var(--muted);
+      font-weight: 900;
+      font-size: 13px;
+      overflow:hidden;
+      text-overflow: ellipsis;
+      white-space:nowrap;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 60px 1fr;
+      gap: 6px 10px;
+      font-size: 13px;
+      line-height: 1.15;
+    }
+    .k{ color: var(--muted); font-weight: 900; }
+    .v{ color: var(--text); font-weight: 1000; }
+    .v.highlight{ color:#ff2f7c; }
+
+    .rank{
+      position:absolute;
+      right: 12px;
+      top: 10px;
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      background: #e9f1ff;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight: 1000;
+      color:#3a77ff;
+      box-shadow: 0 10px 18px rgba(58,119,255,.15);
+    }
+    .side{
+      position:absolute;
+      right: 10px;
+      top: 54px;
+      width: 42px;
+      border-radius: 16px;
+      background: rgba(111, 73, 255, 0.14);
+      border: 1px solid rgba(111, 73, 255, 0.18);
+      padding: 8px 6px;
+      display:flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items:center;
+    }
+    .side .item{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap: 3px;
+      color:#6a3cff;
+      font-weight: 1000;
+      font-size: 12px;
+    }
+    .ico{ width: 18px; height:18px; display:inline-block; }
+    .ico svg{ width:100%; height:100%; }
+
+    /* Modal */
+    .modal{
+      display:none;
+      position:fixed;
+      inset:0;
+      background: rgba(0,0,0,.45);
+      z-index: 9999;
+      padding: 18px 12px;
+    }
+    .modal.open{ display:block; }
+    .modalPanel{
+      max-width: 520px;
+      margin: 60px auto 0;
+      background: rgba(255,255,255,.92);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .modalHeader{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding: 12px 14px;
+      background: linear-gradient(90deg, rgba(255,111,165,.35), rgba(122,60,255,.18));
+      font-weight: 1000;
+    }
+    .modalBody{
+      padding: 10px;
+      max-height: 60vh;
+      overflow:auto;
+    }
+    .cityBtn{
+      width:100%;
+      border:1px solid rgba(0,0,0,.08);
+      background:#fff;
+      padding: 12px 12px;
+      border-radius: 14px;
+      text-align:left;
+      font-weight: 900;
+      margin: 8px 0;
+      cursor:pointer;
+    }
+    .cityBtn.active{
+      border-color: rgba(255,47,124,.6);
+      color:#ff2f7c;
+    }
+
+    /* Bottom tab bar */
+    .tabbar{
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 0;
+      width: min(520px, 100%);
+      background: rgba(255,255,255,.75);
+      backdrop-filter: blur(10px);
+      border-top: 1px solid rgba(0,0,0,.06);
+      display:flex;
+      justify-content: space-around;
+      padding: 10px 6px 14px;
+      z-index: 5000;
+    }
+    .tab{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap: 4px;
+      font-size: 12px;
+      color: #7a5c66;
+      font-weight: 900;
+      user-select:none;
+      cursor:pointer;
+    }
+    .tab.active{ color:#ff2f7c; }
+  </style>
 </head>
 
 <body>
@@ -146,7 +383,7 @@
     <div class="modalPanel">
       <div class="modalHeader">
         <div>切換城市</div>
-        <button id="closeCityModal" style="border:none;background:transparent;font-weight:1000;">✕</button>
+        <button id="closeCityModal" type="button" style="border:none;background:transparent;font-weight:1000;cursor:pointer;">✕</button>
       </div>
       <div class="modalBody" id="cityList"></div>
     </div>
@@ -154,148 +391,241 @@
 
   <div class="tabbar" id="tabbar"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script> <!-- [web:7] -->
-<script>
-  const ICONS = {
-    search:`<svg viewBox="0 0 24 24" style="width:18px;height:18px;opacity:.95"><path d="M10 18a8 8 0 1 1 0-16 8 8 0 0 1 0 16Zm11 3-6-6" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/></svg>`
-  };
+  <!-- Swiper (CDN) -->
+  <script src="https://cdn.jsdelivr.net/npm/swiper@12/swiper-bundle.min.js"></script> <!-- [web:41] -->
 
-  let APP_DATA = null;
+  <script>
+    const ICONS = {
+      like: `<svg viewBox="0 0 24 24" fill="none"><path d="M12 21s-7-4.5-9.5-8.8C.5 8.2 3 5.5 6.2 5.5c1.8 0 3.1 1 3.8 2 0 0 .8-2 3.9-2 3.2 0 5.7 2.7 3.7 6.7C19 16.5 12 21 12 21Z" fill="#8b5cf6"/></svg>`,
+      star: `<svg viewBox="0 0 24 24" fill="none"><path d="M12 2l2.9 6.3 6.9.6-5.2 4.5 1.6 6.7L12 16.8 5.8 20l1.6-6.7L2.2 8.9l6.9-.6L12 2Z" fill="#8b5cf6"/></svg>`,
+      chat: `<svg viewBox="0 0 24 24" fill="none"><path d="M4 4h16v12H7l-3 3V4Z" fill="#8b5cf6"/></svg>`,
+      search:`<svg viewBox="0 0 24 24" style="width:18px;height:18px;opacity:.95"><path d="M10 18a8 8 0 1 1 0-16 8 8 0 0 1 0 16Zm11 3-6-6" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/></svg>`
+    };
 
-  async function main(){
-    const res = await fetch('https://raw.githubusercontent.com/eric21364/eric21364.github.io/refs/heads/main/html/data.json');
-    APP_DATA = await res.json();
-    renderTop(APP_DATA);
-    renderTabs(APP_DATA.tabs || []);
-    bindModal(APP_DATA);
-    initSwiper(); // 輪播初始化 [web:7]
-  }
+    let APP_DATA = null;
+    let swiperInstance = null;
 
-  function renderTop(data){
-    const app = document.getElementById('app');
+    async function main(){
+      const res = await fetch('https://raw.githubusercontent.com/eric21364/eric21364.github.io/refs/heads/main/html/data.json');
+      APP_DATA = await res.json();
 
-    const banners = data.topBanners || [];
-    const searchBar = data.searchBar || {};
-    const currentCity = data.currentCity || '台中';
-    const leaderboard = data.leaderboard || {};
+      // 若 data.json 沒填 currentCity，預設用第一個城市
+      if (!APP_DATA.currentCity) APP_DATA.currentCity = (APP_DATA.cities && APP_DATA.cities[0]) || '台中';
 
-    app.innerHTML = `
-      <div class="bannerWrap">
-        <div class="swiper">
-          <div class="swiper-wrapper">
-            ${banners.map(b => `
-              <div class="swiper-slide">
-                <img src="${escapeAttr(b.image||'')}" alt="">
-                <div class="bannerStripe"></div>
-                <div class="bannerText">${escapeHtml(b.titleText||'')}</div>
+      renderApp(APP_DATA);
+      renderTabs(APP_DATA.tabs || []);
+      bindCityModal(APP_DATA);
+      initSwiper(); // loop+autoplay [web:41]
+    }
+
+    function renderApp(data){
+      const app = document.getElementById('app');
+      const banners = data.topBanners || [];
+      const searchBar = data.searchBar || {};
+      const leaderboard = data.leaderboard || {};
+
+      app.innerHTML = `
+        <div class="bannerWrap">
+          <div class="swiper">
+            <div class="swiper-wrapper">
+              ${banners.map(b => `
+                <div class="swiper-slide">
+                  <img src="${escapeAttr(b.image||'')}" alt="">
+                  <div class="bannerStripe"></div>
+                  <div class="bannerText">${escapeHtml(b.titleText||'')}</div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+
+        <div class="searchWrap">
+          <div class="searchRow">
+            <div class="avatar"><img src="${escapeAttr(searchBar.avatar||'')}" alt=""></div>
+            <div class="searchBox">
+              <input id="keyword" value="" placeholder="${escapeAttr(searchBar.placeholder||'')}" />
+              ${ICONS.search}
+            </div>
+            <div class="adv" id="advancedSearch">${escapeHtml(searchBar.advancedText||'')}</div>
+          </div>
+          <div class="marqueeRow">
+            <div style="font-weight:1000">${escapeHtml(searchBar.soundText||'')}</div>
+            <div class="marquee"><span>${escapeHtml(searchBar.marquee||'')}</span></div>
+          </div>
+        </div>
+
+        <div class="locRow">
+          <div class="locText" id="locText">位置：${escapeHtml(data.currentCity||'')}</div>
+          <button class="switchBtn" id="openCityModal" type="button">切換城市</button>
+        </div>
+
+        <div class="leaderTitleWrap">
+          <div class="diamond">${escapeHtml(leaderboard.title||'排行榜')}</div>
+        </div>
+
+        <div id="cardList"></div>
+      `;
+
+      // keyword filter (可選：輸入即過濾)
+      document.getElementById('keyword')?.addEventListener('input', () => renderCardsByCurrentFilters(data));
+      document.getElementById('advancedSearch')?.addEventListener('click', () => alert('可在這裡接進階搜尋頁/彈窗'));
+
+      renderCardsByCurrentFilters(data);
+    }
+
+    function renderCardsByCurrentFilters(data){
+      const curCity = data.currentCity;
+      const keyword = (document.getElementById('keyword')?.value || '').trim().toLowerCase();
+
+      // 1) 先依城市過濾（同層 city） [web:51]
+      let cards = (data.cards || []).filter(c => c.city === curCity); // [web:51]
+
+      // 2) 再依 keyword（可選）
+      if (keyword) {
+        cards = cards.filter(c => {
+          const hay = [
+            c.name, c.subtitle, c.city,
+            ...(c.fields || []).map(f => `${f.k}:${f.v}`)
+          ].join(' ').toLowerCase();
+          return hay.includes(keyword);
+        });
+      }
+
+      renderCards(cards);
+    }
+
+    function renderCards(cards){
+      const list = document.getElementById('cardList');
+      if (!list) return;
+
+      if (!cards.length) {
+        list.innerHTML = `<div style="padding:14px 6px;color:#6b2d52;font-weight:900;opacity:.85;">此城市目前沒有資料</div>`;
+        return;
+      }
+
+      list.innerHTML = cards.map(c => {
+        const fieldsHtml = (c.fields||[]).map(f => `
+          <div class="k">${escapeHtml(f.k)}：</div>
+          <div class="v ${f.highlight ? 'highlight':''}">${escapeHtml(f.v)}</div>
+        `).join('');
+
+        const sideHtml = (c.sideStats||[]).map(s => `
+          <div class="item">
+            <span class="ico">${ICONS[s.icon] || ''}</span>
+            <span>${escapeHtml(String(s.value ?? ''))}</span>
+          </div>
+        `).join('');
+
+        const badges = (c.badges||[]).slice(0,2).map(b => `<div class="badge">${escapeHtml(b)}</div>`).join('');
+
+        return `
+          <div class="card">
+            <div class="thumb">
+              <img src="${escapeAttr(c.thumb||'')}" alt="">
+              ${badges}
+              <div class="score">${escapeHtml(String(c.score ?? ''))} 分</div>
+            </div>
+
+            <div class="content">
+              <div class="namebar">
+                <div class="pill">${escapeHtml(c.name||'')}</div>
+                <div class="sub">${escapeHtml(c.subtitle||'')}</div>
               </div>
-            `).join('')}
+              <div class="grid">${fieldsHtml}</div>
+            </div>
+
+            <div class="rank">${escapeHtml(String(c.rank ?? ''))}</div>
+            <div class="side">${sideHtml}</div>
           </div>
-        </div>
-      </div>
-
-      <div class="searchWrap">
-        <div class="searchRow">
-          <div class="avatar"><img src="${escapeAttr(searchBar.avatar||'')}" alt=""></div>
-          <div class="searchBox">
-            <input value="" placeholder="${escapeAttr(searchBar.placeholder||'')}" />
-            ${ICONS.search}
-          </div>
-          <div class="adv">${escapeHtml(searchBar.advancedText||'')}</div>
-        </div>
-        <div class="marqueeRow">
-          <div style="font-weight:1000">${escapeHtml(searchBar.soundText||'')}</div>
-          <div class="marquee"><span>${escapeHtml(searchBar.marquee||'')}</span></div>
-        </div>
-      </div>
-
-      <div class="locRow">
-        <div class="locText" id="locText">位置：${escapeHtml(currentCity)}</div>
-        <button class="switchBtn" id="openCityModal" type="button">切換城市</button>
-      </div>
-
-      <div class="leaderTitleWrap">
-        <div class="diamond">${escapeHtml(leaderboard.title||'')}</div>
-      </div>
-
-      <!-- 這裡接你原本的卡片列表 -->
-      <div style="color:#6b2d52;font-weight:900;opacity:.85;padding:8px 2px;">
-        （卡片列表沿用你先前的 renderCards 直接接回來）
-      </div>
-    `;
-  }
-
-  function initSwiper(){
-    // Swiper loop + autoplay 範例 [web:7]
-    new Swiper('.swiper', {
-      loop: true,
-      autoplay: { delay: 3000, disableOnInteraction: false },
-      speed: 500
-    });
-  }
-
-  function bindModal(data){
-    const modal = document.getElementById('cityModal');
-    const openBtn = document.getElementById('openCityModal');
-    const closeBtn = document.getElementById('closeCityModal');
-    const list = document.getElementById('cityList');
-
-    function openModal(){
-      modal.classList.add('open');
-      document.body.classList.add('modal-open'); // 鎖滾動 [web:8]
-      renderCityList();
-    }
-    function closeModal(){
-      modal.classList.remove('open');
-      document.body.classList.remove('modal-open'); // 解鎖 [web:8]
+        `;
+      }).join('');
     }
 
-    function renderCityList(){
-      const cities = data.cities || [];
-      const cur = data.currentCity;
-      list.innerHTML = cities.map(c => `
-        <button class="cityBtn ${c===cur?'active':''}" data-city="${escapeAttr(c)}">${escapeHtml(c)}</button>
+    function initSwiper(){
+      // Swiper：loop + autoplay [web:41]
+      swiperInstance = new Swiper('.swiper', {
+        loop: true,
+        autoplay: { delay: 3000, disableOnInteraction: false },
+        speed: 450
+      });
+    }
+
+    function bindCityModal(data){
+      const modal = document.getElementById('cityModal');
+      const list = document.getElementById('cityList');
+      const closeBtn = document.getElementById('closeCityModal');
+
+      function openModal(){
+        modal.classList.add('open');
+        document.body.classList.add('modal-open');
+        renderCityList();
+      }
+      function closeModal(){
+        modal.classList.remove('open');
+        document.body.classList.remove('modal-open');
+      }
+
+      function renderCityList(){
+        const cities = data.cities || [];
+        const cur = data.currentCity;
+
+        list.innerHTML = cities.map(city => `
+          <button class="cityBtn ${city===cur?'active':''}" data-city="${escapeAttr(city)}">${escapeHtml(city)}</button>
+        `).join('');
+
+        list.querySelectorAll('.cityBtn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            data.currentCity = btn.dataset.city;
+            document.getElementById('locText').textContent = `位置：${data.currentCity}`;
+            renderCardsByCurrentFilters(data);
+            closeModal();
+          });
+        });
+      }
+
+      // 動態綁定 open（因為按鈕是 renderApp 後才出現）
+      document.addEventListener('click', (e) => {
+        const t = e.target;
+        if (t && t.id === 'openCityModal') openModal();
+      });
+
+      closeBtn?.addEventListener('click', closeModal);
+
+      // 點背景關閉
+      modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+
+      // ESC 關閉
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('open')) closeModal();
+      });
+    }
+
+    function renderTabs(tabs){
+      const tb = document.getElementById('tabbar');
+      tb.innerHTML = tabs.map((t, i) => `
+        <div class="tab ${i===0?'active':''}" data-key="${escapeAttr(t.key)}">
+          <div style="width:22px;height:22px;border-radius:8px;background:#ffd1e2;opacity:.9"></div>
+          <div>${escapeHtml(t.label||'')}</div>
+        </div>
       `).join('');
 
-      list.querySelectorAll('.cityBtn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          data.currentCity = btn.dataset.city;
-          document.getElementById('locText').textContent = `位置：${data.currentCity}`;
-          closeModal();
+      tb.querySelectorAll('.tab').forEach(el => {
+        el.addEventListener('click', () => {
+          tb.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+          el.classList.add('active');
+          // 這裡可接 router 或切換區塊
         });
       });
     }
 
-    openBtn?.addEventListener('click', openModal);
-    closeBtn?.addEventListener('click', closeModal);
+    function escapeHtml(s){
+      return String(s ?? '').replace(/[&<>"']/g, c => ({
+        '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+      }[c]));
+    }
+    function escapeAttr(s){ return escapeHtml(s); }
 
-    // 點背景關閉 [web:8]
-    modal.addEventListener('click', (e) => {
-      if (e.target === modal) closeModal();
-    });
-
-    // ESC 關閉（可選）
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && modal.classList.contains('open')) closeModal();
-    });
-  }
-
-  function renderTabs(tabs){
-    const tb = document.getElementById('tabbar');
-    tb.innerHTML = tabs.map((t, i) => `
-      <div class="tab ${i===0?'active':''}" data-key="${escapeAttr(t.key)}">
-        <div style="width:22px;height:22px;border-radius:8px;background:#ffd1e2;opacity:.9"></div>
-        <div>${escapeHtml(t.label||'')}</div>
-      </div>
-    `).join('');
-  }
-
-  function escapeHtml(s){
-    return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  }
-  function escapeAttr(s){ return escapeHtml(s); }
-
-  main();
-</script>
+    main();
+  </script>
 </body>
 </html>
