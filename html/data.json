@@ -1,4 +1,22 @@
 {
+  "topBanner": {
+    "image": "https://via.placeholder.com/900x520?text=Top+Banner",
+    "titleText": "妮妹專屬"
+  },
+  "searchBar": {
+    "avatar": "https://via.placeholder.com/90x90?text=A",
+    "placeholder": "輸入關鍵字搜尋",
+    "advancedText": "進階搜尋",
+    "marquee": "!!!舊客帶新客優惠活動起跑!!!",
+    "soundText": "起跑!!!!"
+  },
+  "locationBar": {
+    "locationText": "位置：台中",
+    "switchCityText": "切換城市"
+  },
+  "leaderboard": {
+    "title": "排行榜"
+  },
   "tabs": [
     { "key": "home", "label": "首頁" },
     { "key": "rank", "label": "排行" },
@@ -8,25 +26,25 @@
   ],
   "cards": [
     {
-      "rank": 2,
-      "name": "淳兒",
+      "rank": 1,
+      "name": "曉涵",
       "subtitle": "國籍：越南妹",
       "score": 10.0,
-      "thumb": "https://via.placeholder.com/280x360?text=Thumb",
+      "thumb": "https://via.placeholder.com/280x360?text=Thumb+1",
       "fields": [
-        { "k": "年齡", "v": "20" },
-        { "k": "身高", "v": "165" },
-        { "k": "體重", "v": "45" },
-        { "k": "罩杯", "v": "E" },
+        { "k": "年齡", "v": "23" },
+        { "k": "身高", "v": "158" },
+        { "k": "體重", "v": "46" },
+        { "k": "罩杯", "v": "F" },
         { "k": "環境", "v": "套房" },
         { "k": "類型", "v": "定點" },
         { "k": "托播價", "v": "3200~3500", "highlight": true },
-        { "k": "上架", "v": "8小時29分鐘前" }
+        { "k": "上架", "v": "6小時27分鐘前" }
       ],
       "sideStats": [
-        { "icon": "like", "value": 357 },
-        { "icon": "star", "value": 991 },
-        { "icon": "chat", "value": 580 }
+        { "icon": "like", "value": 309 },
+        { "icon": "star", "value": 1681 },
+        { "icon": "chat", "value": 611 }
       ],
       "badges": ["限定VIP"]
     }
