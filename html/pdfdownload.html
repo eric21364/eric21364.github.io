@@ -2,80 +2,108 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>強迫下載 PDF 工具</title>
+    <title>PDF 批量強制下載</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .box { background: white; padding: 40px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 450px; text-align: center; }
-        input { width: 100%; padding: 12px; margin: 15px 0; border: 2px solid #eee; border-radius: 8px; font-size: 14px; transition: 0.3s; }
-        input:focus { border-color: #007bff; outline: none; }
-        button { background: #007bff; color: white; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; }
+        body { font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f4f4f9; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .card { background: white; padding: 30px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); width: 100%; max-width: 600px; }
+        h2 { margin-top: 0; color: #333; font-size: 22px; text-align: center; }
+        .input-group { margin: 20px 0; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: #555; }
+        input[type="text"] { width: 100%; padding: 14px; border: 2px solid #e0e0e0; border-radius: 8px; box-sizing: border-box; font-size: 15px; transition: border-color 0.3s; }
+        input[type="text"]:focus { border-color: #007bff; outline: none; }
+        button { background: #007bff; color: white; border: none; padding: 14px; border-radius: 8px; cursor: pointer; width: 100%; font-size: 16px; font-weight: bold; transition: 0.2s; }
+        button:hover { background: #0056b3; transform: translateY(-1px); }
+        button:active { transform: translateY(0); }
         button:disabled { background: #ccc; cursor: not-allowed; }
-        #status { margin-top: 15px; font-size: 13px; color: #666; }
+        #log { margin-top: 20px; background: #fdfdfd; border: 1px solid #eee; border-radius: 8px; padding: 15px; max-height: 200px; overflow-y: auto; display: none; }
+        .log-item { font-size: 13px; margin-bottom: 5px; padding-bottom: 5px; border-bottom: 1px solid #f0f0f0; }
+        .success { color: #28a745; font-weight: bold; }
+        .error { color: #dc3545; font-weight: bold; }
     </style>
 </head>
 <body>
 
-<div class="box">
-    <h2>PDF 直接下載器</h2>
-    <p style="color: #888; font-size: 14px;">繞過瀏覽器預覽，直接儲存檔案</p>
-    <input type="text" id="pdfUrl" placeholder="請貼上 PDF 網址或 API 連結">
-    <button id="dlBtn" onclick="forceDownload()">開始下載</button>
-    <div id="status"></div>
+<div class="card">
+    <h2>PDF 強制下載工具</h2>
+    <div class="input-group">
+        <label>請輸入網址 (用逗號分隔)：</label>
+        <input type="text" id="urlInput" placeholder="https://api.a.com/1.pdf, https://api.b.com/2.pdf">
+    </div>
+    <button id="dlBtn" onclick="runBatchDownload()">立即下載所有檔案</button>
+    
+    <div id="log"></div>
 </div>
 
 <script>
-async function forceDownload() {
-    const url = document.getElementById('pdfUrl').value.trim();
+async function runBatchDownload() {
+    const rawInput = document.getElementById('urlInput').value.trim();
     const btn = document.getElementById('dlBtn');
-    const status = document.getElementById('status');
+    const logBox = document.getElementById('log');
 
-    if (!url) return alert("請輸入網址");
-
-    btn.disabled = true;
-    status.innerText = "正在連線並抓取檔案內容...";
-
-    try {
-        // 1. 使用 fetch 抓取資料
-        const response = await fetch(url);
-        
-        if (!response.ok) throw new Error("無法取得檔案，請檢查網址或 CORS 限制");
-
-        // 2. 將內容轉為 Blob (Binary Large Object)
-        const blob = await response.blob();
-        
-        // 3. 建立一個暫時性的 URL 指向這個 Blob
-        const blobUrl = window.URL.createObjectURL(blob);
-        
-        // 4. 建立隱藏連結觸發下載
-        const a = document.createElement('a');
-        a.href = blobUrl;
-        
-        // 嘗試從網址提取檔名，若無則預設為 document.pdf
-        const fileName = url.split('/').pop().split('?')[0] || 'document.pdf';
-        a.download = fileName.endsWith('.pdf') ? fileName : fileName + '.pdf';
-        
-        document.body.appendChild(a);
-        a.click();
-        
-        // 5. 清理資源
-        window.URL.revokeObjectURL(blobUrl);
-        document.body.removeChild(a);
-        
-        status.innerText = "下載成功！";
-        status.style.color = "green";
-    } catch (error) {
-        console.error(error);
-        status.innerText = "錯誤: " + error.message;
-        status.style.color = "red";
-        
-        // 如果 fetch 失敗 (通常是 CORS 問題)，嘗試回退到普通下載
-        status.innerText += " (嘗試嘗試開啟原始連結...)";
-        setTimeout(() => {
-            window.open(url, '_blank');
-        }, 2000);
-    } finally {
-        btn.disabled = false;
+    if (!rawInput) {
+        alert("請輸入至少一個網址");
+        return;
     }
+
+    // 1. 使用逗號分割並過濾空白字元
+    const urls = rawInput.split(',').map(u => u.trim()).filter(u => u !== "");
+    
+    btn.disabled = true;
+    logBox.style.display = "block";
+    logBox.innerHTML = "<strong>準備下載中...</strong><hr>";
+
+    for (let i = 0; i < urls.length; i++) {
+        const url = urls[i];
+        const statusItem = document.createElement('div');
+        statusItem.className = 'log-item';
+        statusItem.innerText = `[${i+1}/${urls.length}] 正在抓取: ${url.substring(0, 40)}...`;
+        logBox.appendChild(statusItem);
+        logBox.scrollTop = logBox.scrollHeight;
+
+        try {
+            // 核心邏輯：使用 fetch 轉 Blob 強制下載
+            const response = await fetch(url);
+            if (!response.ok) throw new Error("API 請求失敗");
+
+            const blob = await response.blob();
+            const blobUrl = window.URL.createObjectURL(blob);
+            
+            // 檔名處理
+            let fileName = url.split('/').pop().split('?')[0];
+            if (!fileName || !fileName.includes('.pdf')) {
+                fileName = `document_${i+1}.pdf`;
+            }
+
+            const a = document.createElement('a');
+            a.href = blobUrl;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            
+            window.URL.revokeObjectURL(blobUrl);
+            document.body.removeChild(a);
+            
+            statusItem.innerHTML = `<span class="success">✓ 下載成功: ${fileName}</span>`;
+        } catch (err) {
+            statusItem.innerHTML = `<span class="error">✗ 失敗: ${err.message}</span>`;
+            // 如果 CORS 擋住，提供手動連結
+            const fallback = document.createElement('a');
+            fallback.href = url;
+            fallback.target = "_blank";
+            fallback.innerText = " (點此手動開啟)";
+            statusItem.appendChild(fallback);
+        }
+        
+        // 稍微延遲避免瀏覽器負擔過重
+        await new Promise(r => setTimeout(r, 600));
+    }
+
+    btn.disabled = false;
+    const finalMsg = document.createElement('div');
+    finalMsg.style.textAlign = "center";
+    finalMsg.style.paddingTop = "10px";
+    finalMsg.innerHTML = "<strong>🎉 下載任務已完成</strong>";
+    logBox.appendChild(finalMsg);
 }
 </script>
 
