@@ -2,48 +2,81 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>網址檔案下載器</title>
+    <title>強迫下載 PDF 工具</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); width: 100%; max-width: 500px; text-align: center; }
-        h2 { color: #333; margin-bottom: 20px; }
-        input[type="text"] { width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 16px; }
-        button { background-color: #28a745; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-size: 16px; width: 100%; transition: background 0.3s; }
-        button:hover { background-color: #218838; }
-        .note { margin-top: 15px; font-size: 12px; color: #888; text-align: left; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .box { background: white; padding: 40px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 450px; text-align: center; }
+        input { width: 100%; padding: 12px; margin: 15px 0; border: 2px solid #eee; border-radius: 8px; font-size: 14px; transition: 0.3s; }
+        input:focus { border-color: #007bff; outline: none; }
+        button { background: #007bff; color: white; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        #status { margin-top: 15px; font-size: 13px; color: #666; }
     </style>
 </head>
 <body>
 
-<div class="card">
-    <h2>輸入網址下載檔案</h2>
-    <input type="text" id="urlInput" placeholder="請貼上檔案的 URL (例如: https://example.com/file.pdf)">
-    <button onclick="downloadFile()">立即下載檔案</button>
-    
-    <div class="note">
-        * 注意：若目標伺服器有限制 (CORS)，瀏覽器可能會阻擋直接下載。
-    </div>
+<div class="box">
+    <h2>PDF 直接下載器</h2>
+    <p style="color: #888; font-size: 14px;">繞過瀏覽器預覽，直接儲存檔案</p>
+    <input type="text" id="pdfUrl" placeholder="請貼上 PDF 網址或 API 連結">
+    <button id="dlBtn" onclick="forceDownload()">開始下載</button>
+    <div id="status"></div>
 </div>
 
 <script>
-    function downloadFile() {
-        const fileUrl = document.getElementById('urlInput').value;
-        if (!fileUrl) {
-            alert("請先輸入網址！");
-            return;
-        }
+async function forceDownload() {
+    const url = document.getElementById('pdfUrl').value.trim();
+    const btn = document.getElementById('dlBtn');
+    const status = document.getElementById('status');
 
-        // 提取檔名，如果提取不到則預設為 download.pdf
-        const fileName = fileUrl.split('/').pop().split('#')[0].split('?')[0] || 'download_file';
+    if (!url) return alert("請輸入網址");
 
-        // 建立一個隱藏的 <a> 標籤來觸發下載
+    btn.disabled = true;
+    status.innerText = "正在連線並抓取檔案內容...";
+
+    try {
+        // 1. 使用 fetch 抓取資料
+        const response = await fetch(url);
+        
+        if (!response.ok) throw new Error("無法取得檔案，請檢查網址或 CORS 限制");
+
+        // 2. 將內容轉為 Blob (Binary Large Object)
+        const blob = await response.blob();
+        
+        // 3. 建立一個暫時性的 URL 指向這個 Blob
+        const blobUrl = window.URL.createObjectURL(blob);
+        
+        // 4. 建立隱藏連結觸發下載
         const a = document.createElement('a');
-        a.href = fileUrl;
-        a.download = fileName; // 嘗試強制下載並命名
+        a.href = blobUrl;
+        
+        // 嘗試從網址提取檔名，若無則預設為 document.pdf
+        const fileName = url.split('/').pop().split('?')[0] || 'document.pdf';
+        a.download = fileName.endsWith('.pdf') ? fileName : fileName + '.pdf';
+        
         document.body.appendChild(a);
         a.click();
+        
+        // 5. 清理資源
+        window.URL.revokeObjectURL(blobUrl);
         document.body.removeChild(a);
+        
+        status.innerText = "下載成功！";
+        status.style.color = "green";
+    } catch (error) {
+        console.error(error);
+        status.innerText = "錯誤: " + error.message;
+        status.style.color = "red";
+        
+        // 如果 fetch 失敗 (通常是 CORS 問題)，嘗試回退到普通下載
+        status.innerText += " (嘗試嘗試開啟原始連結...)";
+        setTimeout(() => {
+            window.open(url, '_blank');
+        }, 2000);
+    } finally {
+        btn.disabled = false;
     }
+}
 </script>
 
 </body>
