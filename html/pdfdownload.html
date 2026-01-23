@@ -2,59 +2,47 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>PDF 上傳與下載中心</title>
+    <title>網址檔案下載器</title>
     <style>
-        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background: #f4f7f6; }
-        .container { background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center; width: 400px; }
-        .upload-area { border: 2px dashed #007bff; padding: 30px; cursor: pointer; margin-bottom: 20px; transition: 0.3s; }
-        .upload-area:hover { background: #eef6ff; }
-        .btn { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; display: none; text-decoration: none; }
-        .status { margin: 10px 0; color: #555; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); width: 100%; max-width: 500px; text-align: center; }
+        h2 { color: #333; margin-bottom: 20px; }
+        input[type="text"] { width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 16px; }
+        button { background-color: #28a745; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-size: 16px; width: 100%; transition: background 0.3s; }
+        button:hover { background-color: #218838; }
+        .note { margin-top: 15px; font-size: 12px; color: #888; text-align: left; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h2>PDF 處理中心</h2>
-    <div class="upload-area" id="drop-zone">
-        點擊或拖拽 PDF 檔案至此
+<div class="card">
+    <h2>輸入網址下載檔案</h2>
+    <input type="text" id="urlInput" placeholder="請貼上檔案的 URL (例如: https://example.com/file.pdf)">
+    <button onclick="downloadFile()">立即下載檔案</button>
+    
+    <div class="note">
+        * 注意：若目標伺服器有限制 (CORS)，瀏覽器可能會阻擋直接下載。
     </div>
-    <input type="file" id="file-input" accept="application/pdf" style="display: none;">
-    <p class="status" id="status-text">等待檔案上傳...</p>
-    <a href="#" class="btn" id="download-btn">點我下載處理後的 PDF</a>
 </div>
 
 <script>
-    const dropZone = document.getElementById('drop-zone');
-    const fileInput = document.getElementById('file-input');
-    const statusText = document.getElementById('status-text');
-    const downloadBtn = document.getElementById('download-btn');
-
-    dropZone.onclick = () => fileInput.click();
-
-    fileInput.onchange = (e) => {
-        const file = e.target.files[0];
-        if (file && file.type === "application/pdf") {
-            handleUpload(file);
-        } else {
-            alert("請上傳正確的 PDF 格式！");
+    function downloadFile() {
+        const fileUrl = document.getElementById('urlInput').value;
+        if (!fileUrl) {
+            alert("請先輸入網址！");
+            return;
         }
-    };
 
-    function handleUpload(file) {
-        statusText.innerText = `正在處理：${file.name}...`;
-        
-        // 模擬處理時間
-        setTimeout(() => {
-            statusText.innerText = "處理完成！檔案已就緒。";
-            statusText.style.color = "green";
-            
-            // 產生下載連結 (這裡僅示範下載原檔案)
-            const url = URL.createObjectURL(file);
-            downloadBtn.href = url;
-            downloadBtn.download = "processed_" + file.name;
-            downloadBtn.style.display = "inline-block";
-        }, 2000);
+        // 提取檔名，如果提取不到則預設為 download.pdf
+        const fileName = fileUrl.split('/').pop().split('#')[0].split('?')[0] || 'download_file';
+
+        // 建立一個隱藏的 <a> 標籤來觸發下載
+        const a = document.createElement('a');
+        a.href = fileUrl;
+        a.download = fileName; // 嘗試強制下載並命名
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
     }
 </script>
 
