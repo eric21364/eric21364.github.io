@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>PDF 上傳與下載中心</title>
+    <style>
+        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background: #f4f7f6; }
+        .container { background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center; width: 400px; }
+        .upload-area { border: 2px dashed #007bff; padding: 30px; cursor: pointer; margin-bottom: 20px; transition: 0.3s; }
+        .upload-area:hover { background: #eef6ff; }
+        .btn { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; display: none; text-decoration: none; }
+        .status { margin: 10px 0; color: #555; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>PDF 處理中心</h2>
+    <div class="upload-area" id="drop-zone">
+        點擊或拖拽 PDF 檔案至此
+    </div>
+    <input type="file" id="file-input" accept="application/pdf" style="display: none;">
+    <p class="status" id="status-text">等待檔案上傳...</p>
+    <a href="#" class="btn" id="download-btn">點我下載處理後的 PDF</a>
+</div>
+
+<script>
+    const dropZone = document.getElementById('drop-zone');
+    const fileInput = document.getElementById('file-input');
+    const statusText = document.getElementById('status-text');
+    const downloadBtn = document.getElementById('download-btn');
+
+    dropZone.onclick = () => fileInput.click();
+
+    fileInput.onchange = (e) => {
+        const file = e.target.files[0];
+        if (file && file.type === "application/pdf") {
+            handleUpload(file);
+        } else {
+            alert("請上傳正確的 PDF 格式！");
+        }
+    };
+
+    function handleUpload(file) {
+        statusText.innerText = `正在處理：${file.name}...`;
+        
+        // 模擬處理時間
+        setTimeout(() => {
+            statusText.innerText = "處理完成！檔案已就緒。";
+            statusText.style.color = "green";
+            
+            // 產生下載連結 (這裡僅示範下載原檔案)
+            const url = URL.createObjectURL(file);
+            downloadBtn.href = url;
+            downloadBtn.download = "processed_" + file.name;
+            downloadBtn.style.display = "inline-block";
+        }, 2000);
+    }
+</script>
+
+</body>
+</html>
