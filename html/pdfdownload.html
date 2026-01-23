@@ -2,109 +2,56 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>PDF 批量強制下載</title>
+    <title>PDF 強制下載 (相容版)</title>
     <style>
-        body { font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f4f4f9; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
-        .card { background: white; padding: 30px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); width: 100%; max-width: 600px; }
-        h2 { margin-top: 0; color: #333; font-size: 22px; text-align: center; }
-        .input-group { margin: 20px 0; }
-        label { display: block; margin-bottom: 8px; font-weight: 600; color: #555; }
-        input[type="text"] { width: 100%; padding: 14px; border: 2px solid #e0e0e0; border-radius: 8px; box-sizing: border-box; font-size: 15px; transition: border-color 0.3s; }
-        input[type="text"]:focus { border-color: #007bff; outline: none; }
-        button { background: #007bff; color: white; border: none; padding: 14px; border-radius: 8px; cursor: pointer; width: 100%; font-size: 16px; font-weight: bold; transition: 0.2s; }
-        button:hover { background: #0056b3; transform: translateY(-1px); }
-        button:active { transform: translateY(0); }
-        button:disabled { background: #ccc; cursor: not-allowed; }
-        #log { margin-top: 20px; background: #fdfdfd; border: 1px solid #eee; border-radius: 8px; padding: 15px; max-height: 200px; overflow-y: auto; display: none; }
-        .log-item { font-size: 13px; margin-bottom: 5px; padding-bottom: 5px; border-bottom: 1px solid #f0f0f0; }
-        .success { color: #28a745; font-weight: bold; }
-        .error { color: #dc3545; font-weight: bold; }
+        body { font-family: sans-serif; background: #f4f4f9; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); width: 550px; }
+        textarea { width: 100%; height: 100px; padding: 10px; border: 1px solid #ccc; border-radius: 5px; margin: 10px 0; font-size: 14px; }
+        button { width: 100%; padding: 15px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
+        .tips { font-size: 12px; color: #666; margin-top: 10px; }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <h2>PDF 強制下載工具</h2>
-    <div class="input-group">
-        <label>請輸入網址 (用逗號分隔)：</label>
-        <input type="text" id="urlInput" placeholder="https://api.a.com/1.pdf, https://api.b.com/2.pdf">
-    </div>
-    <button id="dlBtn" onclick="runBatchDownload()">立即下載所有檔案</button>
-    
-    <div id="log"></div>
+    <h2>批量下載器 (相容 IDM 模式)</h2>
+    <p>輸入網址 (用逗號 `,` 分隔)：</p>
+    <textarea id="urlInput" placeholder="https://api1.com/p.pdf, https://api2.com/p.pdf"></textarea>
+    <button onclick="triggerDownloads()">立即下載所有檔案</button>
+    <p class="tips">※ 若瀏覽器攔截，請點擊網址列右側的「允許彈出視窗」。</p>
 </div>
 
 <script>
-async function runBatchDownload() {
-    const rawInput = document.getElementById('urlInput').value.trim();
-    const btn = document.getElementById('dlBtn');
-    const logBox = document.getElementById('log');
+    function triggerDownloads() {
+        const input = document.getElementById('urlInput').value.trim();
+        if (!input) return alert("請輸入網址");
 
-    if (!rawInput) {
-        alert("請輸入至少一個網址");
-        return;
+        const urls = input.split(',').map(u => u.trim()).filter(u => u !== "");
+
+        urls.forEach((url, index) => {
+            // 使用延遲下載，避免瀏覽器瞬間關閉多個下載連線
+            setTimeout(() => {
+                const a = document.createElement('a');
+                a.href = url;
+                
+                // 這裡嘗試加入 download 屬性
+                // 雖然跨網域會失效，但對部分 API 仍有提示作用
+                a.download = ""; 
+                
+                // 強制隱藏並加入頁面
+                a.style.display = 'none';
+                document.body.appendChild(a);
+                
+                // 模擬點擊
+                a.click();
+                
+                // 移除標籤
+                document.body.removeChild(a);
+                
+                console.log(`觸發第 ${index + 1} 個檔案`);
+            }, index * 1000); // 每個檔案間隔 1 秒，提高成功率
+        });
     }
-
-    // 1. 使用逗號分割並過濾空白字元
-    const urls = rawInput.split(',').map(u => u.trim()).filter(u => u !== "");
-    
-    btn.disabled = true;
-    logBox.style.display = "block";
-    logBox.innerHTML = "<strong>準備下載中...</strong><hr>";
-
-    for (let i = 0; i < urls.length; i++) {
-        const url = urls[i];
-        const statusItem = document.createElement('div');
-        statusItem.className = 'log-item';
-        statusItem.innerText = `[${i+1}/${urls.length}] 正在抓取: ${url.substring(0, 40)}...`;
-        logBox.appendChild(statusItem);
-        logBox.scrollTop = logBox.scrollHeight;
-
-        try {
-            // 核心邏輯：使用 fetch 轉 Blob 強制下載
-            const response = await fetch(url);
-            if (!response.ok) throw new Error("API 請求失敗");
-
-            const blob = await response.blob();
-            const blobUrl = window.URL.createObjectURL(blob);
-            
-            // 檔名處理
-            let fileName = url.split('/').pop().split('?')[0];
-            if (!fileName || !fileName.includes('.pdf')) {
-                fileName = `document_${i+1}.pdf`;
-            }
-
-            const a = document.createElement('a');
-            a.href = blobUrl;
-            a.download = fileName;
-            document.body.appendChild(a);
-            a.click();
-            
-            window.URL.revokeObjectURL(blobUrl);
-            document.body.removeChild(a);
-            
-            statusItem.innerHTML = `<span class="success">✓ 下載成功: ${fileName}</span>`;
-        } catch (err) {
-            statusItem.innerHTML = `<span class="error">✗ 失敗: ${err.message}</span>`;
-            // 如果 CORS 擋住，提供手動連結
-            const fallback = document.createElement('a');
-            fallback.href = url;
-            fallback.target = "_blank";
-            fallback.innerText = " (點此手動開啟)";
-            statusItem.appendChild(fallback);
-        }
-        
-        // 稍微延遲避免瀏覽器負擔過重
-        await new Promise(r => setTimeout(r, 600));
-    }
-
-    btn.disabled = false;
-    const finalMsg = document.createElement('div');
-    finalMsg.style.textAlign = "center";
-    finalMsg.style.paddingTop = "10px";
-    finalMsg.innerHTML = "<strong>🎉 下載任務已完成</strong>";
-    logBox.appendChild(finalMsg);
-}
 </script>
 
 </body>
