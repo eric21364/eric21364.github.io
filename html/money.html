@@ -3,76 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>個人記帳統計 - 餐飲分析</title>
+    <title>個人記帳統計 - 月份分析版</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background-color: #f7f9fc;
+            background-color: #f0f2f5;
             color: #333;
             margin: 0;
             padding: 20px;
         }
         .container {
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
         }
-        h2 {
-            text-align: center;
-            color: #2c3e50;
-            margin-bottom: 20px;
-        }
         
-        /* 頂部卡片區 */
-        .summary-cards {
+        /* 頂部控制列 */
+        .header-bar {
             display: flex;
-            gap: 15px;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 20px;
         }
-        .card {
+        h2 { margin: 0; color: #1a202c; }
+        select {
+            padding: 8px 12px;
+            font-size: 16px;
+            border-radius: 8px;
+            border: 1px solid #cbd5e0;
             background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            flex: 1;
-            text-align: center;
-        }
-        .card h3 {
-            margin: 0 0 10px 0;
-            font-size: 14px;
-            color: #666;
-            font-weight: normal;
-        }
-        .card .amount {
-            font-size: 28px;
-            font-weight: 700;
-            color: #e74c3c; /* 支出紅 */
-        }
-        .card .count {
-            font-size: 28px;
-            font-weight: 700;
-            color: #3498db;
+            cursor: pointer;
         }
 
-        /* 圖表區 */
-        .chart-box {
+        /* 分析面板 (重點區域) */
+        .analysis-panel {
             background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            margin-bottom: 20px;
-            height: 300px;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.03);
+            margin-bottom: 25px;
             display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .stat-group {
+            flex: 1;
+            min-width: 200px;
+        }
+        .stat-label { font-size: 14px; color: #718096; margin-bottom: 5px; }
+        .stat-value { font-size: 32px; font-weight: 800; color: #2d3748; }
+        .stat-sub { font-size: 13px; color: #a0aec0; margin-top: 5px; }
+        .trend-up { color: #e53e3e; } /* 支出增加是紅字 */
+        .trend-down { color: #38a169; } /* 支出減少是綠字 */
+
+        .chart-container {
+            flex: 1;
+            min-width: 280px;
+            height: 220px;
+            display: flex;
+            align-items: center;
             justify-content: center;
         }
 
-        /* 表格區 */
-        .table-box {
+        /* 清單區域 */
+        .list-container {
             background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            overflow-x: auto;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.03);
+            overflow: hidden;
         }
         table {
             width: 100%;
@@ -80,30 +79,36 @@
             font-size: 14px;
         }
         th {
+            background: #f7fafc;
             text-align: left;
-            padding: 12px;
-            border-bottom: 2px solid #f1f1f1;
-            color: #888;
+            padding: 15px;
+            color: #718096;
+            font-weight: 600;
+            border-bottom: 1px solid #e2e8f0;
         }
         td {
-            padding: 12px;
-            border-bottom: 1px solid #f1f1f1;
+            padding: 12px 15px;
+            border-bottom: 1px solid #edf2f7;
         }
-        tr:last-child td {
-            border-bottom: none;
+        
+        /* 月份分隔標題 */
+        .month-separator {
+            background-color: #ebf8ff;
+            color: #2b6cb0;
+            font-weight: bold;
+            padding: 10px 15px;
+            font-size: 15px;
         }
-        .money {
-            text-align: right;
-            font-family: monospace;
-            font-weight: 600;
-        }
+
+        .money { text-align: right; font-family: monospace; font-weight: 600; font-size: 15px; }
+        
+        /* 標籤樣式 */
         .tag {
             display: inline-block;
             padding: 4px 8px;
-            border-radius: 4px;
+            border-radius: 6px;
             font-size: 12px;
-            background: #eee;
-            color: #555;
+            font-weight: 500;
         }
         .tag-lunch { background: #e3f2fd; color: #1565c0; }
         .tag-breakfast { background: #fff3e0; color: #ef6c00; }
@@ -114,46 +119,51 @@
 <body>
 
 <div class="container">
-    <h2>🍽️ 餐飲支出統計</h2>
+    <div class="header-bar">
+        <h2>💰 記帳分析看板</h2>
+        <select id="monthSelector" onchange="updateDashboard()">
+            </select>
+    </div>
 
-    <div class="summary-cards">
-        <div class="card">
-            <h3>總支出金額</h3>
-            <div class="amount" id="totalAmount">0</div>
+    <div class="analysis-panel">
+        <div class="stat-group">
+            <div class="stat-label">本月總支出</div>
+            <div class="stat-value" id="monthTotal">$0</div>
+            <div class="stat-sub" id="monthComparison">正在計算...</div>
+            
+            <div style="margin-top: 20px;">
+                <div class="stat-label">平均每餐花費</div>
+                <div class="stat-value" style="font-size: 24px;" id="monthAvg">$0</div>
+            </div>
+            <div style="margin-top: 10px;">
+                <div class="stat-label">消費筆數</div>
+                <div class="stat-value" style="font-size: 24px;" id="monthCount">0</div>
+            </div>
         </div>
-        <div class="card">
-            <h3>總筆數</h3>
-            <div class="count" id="totalCount">0</div>
-        </div>
-        <div class="card">
-            <h3>平均每餐</h3>
-            <div class="count" id="avgAmount" style="color: #666;">0</div>
+        
+        <div class="chart-container">
+            <canvas id="monthChart"></canvas>
         </div>
     </div>
 
-    <div class="chart-box">
-        <canvas id="subCategoryChart"></canvas>
-    </div>
-
-    <div class="table-box">
-        <h3>📝 詳細記錄</h3>
+    <div class="list-container">
         <table id="recordTable">
             <thead>
                 <tr>
                     <th>日期</th>
-                    <th>時段 (子類別)</th>
+                    <th>時段</th>
                     <th>項目</th>
                     <th style="text-align: right;">金額</th>
                 </tr>
             </thead>
-            <tbody></tbody>
+            <tbody>
+                </tbody>
         </table>
     </div>
 </div>
 
 <script>
-    // 1. 您的原始資料 (直接嵌入)
-    // 格式：摘要, 類型, 子類別, 日期, 金額
+    // 1. 原始資料
     const rawCsvData = `
 餐飲-午餐,餐飲,午餐,2026年1月30日 上午8:45 (GMT+8),110
 餐飲-午餐,餐飲,午餐,2026年1月29日 上午9:46 (GMT+8),120
@@ -259,26 +269,23 @@
 餐飲-晚餐,餐飲,晚餐,2025年11月18日 上午8:08 (GMT+8),175
 `;
 
-    // 2. 解析資料的函數
+    let allTransactions = [];
+    let myChart = null;
+
+    // 2. 解析資料
     function parseData(csv) {
         const lines = csv.trim().split('\n');
         const result = [];
         
         lines.forEach(line => {
             if (!line.trim()) return;
-            // 處理CSV可能的空行或不規則格式
             const parts = line.split(',');
             if (parts.length < 5) return;
 
-            // 提取欄位
-            const item = parts[0];
-            const subCategory = parts[2]; // 午餐, 早餐
-            const dateStr = parts[3]; // 2026年1月30日...
-            const amount = parseInt(parts[4]);
-
-            // 日期格式化：從 "2026年1月30日..." 轉為 "2026-01-30"
+            const dateStr = parts[3];
             let formattedDate = dateStr;
             const dateMatch = dateStr.match(/(\d{4})年(\d{1,2})月(\d{1,2})日/);
+            
             if (dateMatch) {
                 const y = dateMatch[1];
                 const m = dateMatch[2].padStart(2, '0');
@@ -288,69 +295,100 @@
 
             result.push({
                 date: formattedDate,
-                item: item,
-                subCategory: subCategory,
-                amount: amount
+                yearMonth: formattedDate.substring(0, 7), // ex: 2026-01
+                item: parts[0],
+                subCategory: parts[2],
+                amount: parseInt(parts[4])
             });
         });
         
-        // 依日期排序 (新到舊)
+        // 按日期降序
         return result.sort((a, b) => new Date(b.date) - new Date(a.date));
     }
 
-    // 3. 執行統計與渲染
+    // 3. 初始化
     function init() {
-        const data = parseData(rawCsvData);
-        let total = 0;
-        const subCounts = {}; // 各分類金額統計
-
-        // 表格填充
-        const tbody = document.querySelector("#recordTable tbody");
+        allTransactions = parseData(rawCsvData);
         
-        data.forEach(t => {
-            total += t.amount;
-            
-            if (!subCounts[t.subCategory]) subCounts[t.subCategory] = 0;
-            subCounts[t.subCategory] += t.amount;
-
-            // 樣式標籤
-            let tagClass = '';
-            if (t.subCategory.includes('午餐')) tagClass = 'tag-lunch';
-            else if (t.subCategory.includes('早餐')) tagClass = 'tag-breakfast';
-            else if (t.subCategory.includes('晚餐')) tagClass = 'tag-dinner';
-            else if (t.subCategory.includes('下午茶')) tagClass = 'tag-tea';
-
-            const row = `
-                <tr>
-                    <td>${t.date}</td>
-                    <td><span class="tag ${tagClass}">${t.subCategory}</span></td>
-                    <td>${t.item}</td>
-                    <td class="money">$${t.amount}</td>
-                </tr>
-            `;
-            tbody.innerHTML += row;
+        // 取得所有不重複的月份
+        const uniqueMonths = [...new Set(allTransactions.map(t => t.yearMonth))];
+        
+        // 填充選單
+        const selector = document.getElementById('monthSelector');
+        uniqueMonths.forEach(m => {
+            const option = document.createElement('option');
+            option.value = m;
+            option.text = m.replace('-', '年 ') + '月';
+            selector.appendChild(option);
         });
 
-        // 數值更新
-        document.getElementById("totalAmount").innerText = `$${total.toLocaleString()}`;
-        document.getElementById("totalCount").innerText = data.length + " 筆";
-        document.getElementById("avgAmount").innerText = `$${Math.round(total / data.length)} / 筆`;
+        // 預設選取最新的月份 (2026-01)
+        if (uniqueMonths.length > 0) {
+            selector.value = uniqueMonths[0]; 
+        }
 
-        // 圖表繪製
-        const ctx = document.getElementById('subCategoryChart').getContext('2d');
-        new Chart(ctx, {
+        renderTable(); // 渲染列表(全部)
+        updateDashboard(); // 渲染分析面板(針對選中月份)
+    }
+
+    // 4. 更新分析面板 (核心邏輯)
+    function updateDashboard() {
+        const selectedMonth = document.getElementById('monthSelector').value;
+        const currentData = allTransactions.filter(t => t.yearMonth === selectedMonth);
+        
+        // 計算總額與平均
+        const total = currentData.reduce((sum, t) => sum + t.amount, 0);
+        const count = currentData.length;
+        const avg = count > 0 ? Math.round(total / count) : 0;
+
+        // 計算上個月比較
+        const [currY, currM] = selectedMonth.split('-').map(Number);
+        const prevDate = new Date(currY, currM - 2, 1); // JS月份從0開始，所以減2是上個月
+        const prevMonthStr = `${prevDate.getFullYear()}-${String(prevDate.getMonth()+1).padStart(2,'0')}`;
+        const prevData = allTransactions.filter(t => t.yearMonth === prevMonthStr);
+        const prevTotal = prevData.reduce((sum, t) => sum + t.amount, 0);
+        
+        // 更新文字
+        document.getElementById('monthTotal').innerText = `$${total.toLocaleString()}`;
+        document.getElementById('monthAvg').innerText = `$${avg}`;
+        document.getElementById('monthCount').innerText = `${count} 筆`;
+
+        const diff = total - prevTotal;
+        const comparisonElem = document.getElementById('monthComparison');
+        if (prevData.length === 0) {
+            comparisonElem.innerText = "無上月資料可比較";
+            comparisonElem.className = "stat-sub";
+        } else {
+            const trendText = diff > 0 ? `▲ 比上月多 $${diff.toLocaleString()}` : `▼ 比上月少 $${Math.abs(diff).toLocaleString()}`;
+            const trendClass = diff > 0 ? 'trend-up' : 'trend-down';
+            comparisonElem.innerHTML = `<span class="${trendClass}">${trendText}</span>`;
+        }
+
+        // 準備圖表資料
+        const subCounts = {};
+        currentData.forEach(t => {
+            if (!subCounts[t.subCategory]) subCounts[t.subCategory] = 0;
+            subCounts[t.subCategory] += t.amount;
+        });
+
+        drawChart(subCounts);
+    }
+
+    // 5. 繪圖
+    function drawChart(dataObj) {
+        const ctx = document.getElementById('monthChart').getContext('2d');
+        
+        if (myChart) {
+            myChart.destroy();
+        }
+
+        myChart = new Chart(ctx, {
             type: 'doughnut',
             data: {
-                labels: Object.keys(subCounts),
+                labels: Object.keys(dataObj),
                 datasets: [{
-                    data: Object.values(subCounts),
-                    backgroundColor: [
-                        '#42a5f5', // 午餐藍
-                        '#ffa726', // 早餐橘
-                        '#ab47bc', // 晚餐紫
-                        '#26a69a', // 下午茶綠
-                        '#ef5350'  // 其他
-                    ],
+                    data: Object.values(dataObj),
+                    backgroundColor: ['#4299e1', '#ed8936', '#9f7aea', '#38b2ac', '#f56565'],
                     borderWidth: 0
                 }]
             },
@@ -359,13 +397,57 @@
                 maintainAspectRatio: false,
                 plugins: {
                     legend: { position: 'right' },
-                    title: { display: true, text: '各時段餐費佔比' }
-                }
+                    title: { display: false }
+                },
+                cutout: '70%'
             }
         });
     }
 
+    // 6. 渲染列表 (含月份分隔線)
+    function renderTable() {
+        const tbody = document.querySelector("#recordTable tbody");
+        tbody.innerHTML = "";
+        
+        let lastMonth = "";
+
+        allTransactions.forEach(t => {
+            // 插入月份標題列
+            if (t.yearMonth !== lastMonth) {
+                const headerRow = `
+                    <tr style="background:transparent;">
+                        <td colspan="4" style="padding:0;">
+                            <div class="month-separator">
+                                📅 ${t.yearMonth.replace('-', '年 ')}月
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                tbody.innerHTML += headerRow;
+                lastMonth = t.yearMonth;
+            }
+
+            // 樣式
+            let tagClass = '';
+            if (t.subCategory === '午餐') tagClass = 'tag-lunch';
+            else if (t.subCategory === '早餐') tagClass = 'tag-breakfast';
+            else if (t.subCategory === '晚餐') tagClass = 'tag-dinner';
+            else tagClass = 'tag-tea';
+
+            const row = `
+                <tr>
+                    <td>${t.date.slice(5)}</td> <td><span class="tag ${tagClass}">${t.subCategory}</span></td>
+                    <td>${t.item}</td>
+                    <td class="money">$${t.amount}</td>
+                </tr>
+            `;
+            tbody.innerHTML += row;
+        });
+    }
+
+    // 啟動
     init();
+
 </script>
 
 </body>
