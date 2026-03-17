@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>保險保障整合分析表 - 完美列印版</title>
+    <title>保險保障整合分析表 - 強制單頁列印版</title>
     <style>
         :root {
             --red-main: #c0392b;
@@ -46,7 +46,7 @@
         .inner-grid { display: flex; gap: 20px; flex: 1; }
         .inner-col { flex: 1; display: flex; flex-direction: column; }
 
-        /* 標題樣式 */
+        /* 標題與內容樣式 */
         .header-box {
             text-align: center;
             padding: 15px 5px;
@@ -65,7 +65,7 @@
             font-size: 18px;
         }
 
-        /* 輸入框通用設定 */
+        /* 輸入框 */
         input[type="number"], input[type="text"] {
             border: none;
             border-bottom: 1px solid #333;
@@ -108,7 +108,6 @@
             font-size: 14px;
         }
 
-        /* 底部數據橫幅 */
         .bottom-banner {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -124,7 +123,7 @@
         }
         .banner-item input { border-bottom: 1px dotted white !important; color: white; width: 50px; }
 
-        /* --- 手機 / 平板 RWD 響應式設定 --- */
+        /* 手機版 RWD */
         @media (max-width: 900px) {
             .insurance-board { flex-direction: column; gap: 30px; }
             .bottom-banner { grid-template-columns: repeat(2, 1fr); }
@@ -135,37 +134,47 @@
         }
 
         /* =========================================
-           列印專屬優化 (Print Media Queries) 
+           列印專屬終極優化 (解決跑版、兩頁問題)
            ========================================= */
         @media print {
             @page {
-                size: A4 landscape; /* 強制 A4 橫向列印 */
-                margin: 10mm;       /* 縮小紙張邊距，爭取空間 */
+                size: A4 landscape; /* 強制 A4 橫向 */
+                margin: 5mm;        /* 將邊距縮到最小，給予最大空間 */
             }
-            body {
+            
+            body, html {
                 background-color: white;
-                padding: 0;
                 margin: 0;
-                /* 強制印出背景色塊，避免被瀏覽器吃掉顏色 */
+                padding: 0;
+                height: 100%;
+                /* 確保印出顏色 */
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
+                
+                /* [關鍵] 模擬你手動輸入的 97% 縮放，甚至我幫你設 95% 更保險！ */
+                zoom: 0.95; 
             }
+            
             .container {
                 width: 100%;
                 max-width: none;
-                padding: 10px 0; /* 減少不必要的內邊距 */
+                padding: 10px 15px; /* 縮小容器內邊距 */
                 box-shadow: none;
                 border-radius: 0;
+                
+                /* [關鍵] 告訴印表機：這個區塊絕對不允許被切斷跨頁 */
+                page-break-inside: avoid;
+                break-inside: avoid;
             }
-            /* 稍微緊湊化間距，確保 100% 比例塞進一頁 */
+
+            /* 稍微緊湊化內部間距，確保高度絕對不超標 */
             .insurance-board { gap: 15px; }
             .inner-grid { gap: 15px; }
             .header-box { padding: 10px 5px; margin-bottom: 15px; }
-            .section-title { padding: 6px; margin-bottom: 12px; }
-            .item-row { margin-bottom: 10px; font-size: 14px; }
+            .section-title { padding: 8px; margin-bottom: 12px; }
+            .item-row { margin-bottom: 12px; }
             .bottom-banner { margin-top: 20px; gap: 10px; }
-            .banner-item { padding: 10px; }
-            .blue-box { padding: 10px; }
+            .banner-item { padding: 12px; }
         }
     </style>
 </head>
