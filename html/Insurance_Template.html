@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>保險保障整合分析表 - 精確顏色版</title>
+    <title>保險保障整合分析表 - 顏色修正版</title>
     <style>
         :root {
             --red-main: #c0392b;   /* 住院前 - 紅色 */
@@ -29,6 +29,11 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
 
+        /* 顏色類別 (Class Definitions) */
+        .bg-red { background-color: var(--red-main) !important; color: white !important; }
+        .bg-pink { background-color: var(--pink-main) !important; color: white !important; }
+        .bg-green { background-color: var(--green-main) !important; color: white !important; }
+
         /* 頂部三色大標題 */
         .top-header {
             display: flex;
@@ -39,7 +44,6 @@
         .header-box {
             flex: 1;
             text-align: center;
-            color: white;
             padding: 15px 5px;
             border-radius: 8px;
         }
@@ -54,9 +58,8 @@
             gap: 20px;
         }
 
-        /* 標題與內容顏色對應 */
+        /* 標題樣式 */
         .section-title {
-            color: white;
             text-align: center;
             padding: 10px;
             border-radius: 25px;
@@ -101,7 +104,7 @@
         .blue-box strong { display: block; margin-bottom: 10px; border-bottom: 1px solid #555; }
         .blue-box input { border-bottom: 1px solid white; color: white; width: 60px; }
 
-        /* 粉色框線區塊 */
+        /* 粉色框線區塊 (原圖中間那個紅框) */
         .summary-border-box {
             border: 2px solid var(--red-main);
             padding: 12px;
@@ -125,7 +128,7 @@
             border-radius: 5px;
             line-height: 1.8;
         }
-        .banner-item input { border-bottom: 1px dotted white; color: white; width: 55px; }
+        .banner-item input { border-bottom: 1px dotted white !important; color: white; width: 55px; }
 
         /* RWD 響應式微調 */
         @media (max-width: 900px) {
@@ -167,8 +170,8 @@
             
             <div class="blue-box">
                 <strong>身故保障</strong>
-                <div class="item-row">壽險 <input type="number"> 萬</div>
-                <div class="item-row">意外 <input type="number"> 萬</div>
+                <div class="item-row">壽險身故 <input type="number"> 萬</div>
+                <div class="item-row">意外身故 <input type="number"> 萬</div>
             </div>
         </div>
 
@@ -198,33 +201,33 @@
             <div class="item-row"><span><span class="dot">◉</span>失能月扶助</span> <span><input type="number"> 元</span></div>
             <div class="item-row"><span><span class="dot">◉</span>長照一次金</span> <span><input type="number"> 元</span></div>
             
-            <div class="blue-box" style="background-color: var(--green-main);">
+            <div class="blue-box" style="background-color: var(--green-main) !important;">
                 <strong>豁免保險金</strong>
-                <input type="text" style="width: 100%; border-bottom: 1px solid white;" placeholder="請輸入條件">
+                <input type="text" style="width: 100%; border-bottom-color: white;" placeholder="請輸入條件">
             </div>
         </div>
     </div>
 
     <div class="bottom-banner">
-        <div class="banner-item" style="background-color: #e74c3c;">
+        <div class="banner-item bg-red" style="background-color: #e74c3c !important;">
             <strong>標靶治療藥物</strong><br>
             乳癌 <input type="number"> 萬/月<br>
             肝/大腸 <input type="number"> ~ <input type="number"> 萬<br>
             ★ 平均 <input type="number"> 萬/年
         </div>
-        <div class="banner-item" style="background-color: #e67e22;">
+        <div class="banner-item" style="background-color: #e67e22 !important;">
             <strong>自費病房費用</strong><br>
             單人 <input type="number"> ~ <input type="number"> 元<br>
             雙人 <input type="number"> ~ <input type="number"> 元<br>
             ★ 平均 <input type="number"> 元/天
         </div>
-        <div class="banner-item" style="background-color: #8e44ad;">
+        <div class="banner-item" style="background-color: #8e44ad !important;">
             <strong>自費醫材</strong><br>
             椎間盤 <input type="number"> 萬/節<br>
             達文西 <input type="number"> ~ <input type="number"> 萬<br>
             ★ 平均 <input type="number"> 萬/次
         </div>
-        <div class="banner-item" style="background-color: #27ae60;">
+        <div class="banner-item bg-green" style="background-color: #27ae60 !important;">
             <strong>看護費用</strong><br>
             本國 <input type="number"> 萬/月<br>
             外籍 <input type="number"> ~ <input type="number"> 萬<br>
