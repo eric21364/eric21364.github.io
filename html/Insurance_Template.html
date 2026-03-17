@@ -3,52 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>保險保障整合分析表</title>
+    <title>保險保障整合分析表 - 專業輸入版</title>
     <style>
         :root {
             --red-main: #c0392b;
             --pink-main: #e84393;
             --green-main: #27ae60;
             --dark-blue: #2c3e50;
-            --bg-light: #f9f9f9;
         }
 
         body {
             font-family: "Microsoft JhengHei", Arial, sans-serif;
             background-color: #f0f2f5;
             margin: 0;
-            padding: 40px 20px;
+            padding: 20px;
             display: flex;
             justify-content: center;
         }
 
         .container {
-            width: 1100px;
+            width: 1050px;
             background-color: white;
             padding: 30px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            border-radius: 4px;
         }
 
         /* 輸入框通用樣式 */
-        input[type="text"], input[type="number"] {
+        input[type="number"], input[type="text"] {
             border: none;
             border-bottom: 1px solid #333;
             background-color: transparent;
             text-align: center;
             font-size: 14px;
-            padding: 2px 5px;
             outline: none;
-            transition: all 0.2s;
-            width: 80px; /* 預設寬度 */
+            padding: 2px;
         }
 
-        input:focus {
-            border-bottom: 2px solid var(--pink-main);
-            background-color: #fff9fa;
+        /* 隱藏 type=number 的上下箭頭 */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
         }
 
-        /* 標題區塊 */
+        .money-input { width: 85px; }
+        .range-input { width: 60px; }
+
+        /* 頂部標題 */
         .top-header {
             display: grid;
             grid-template-columns: 1fr 2.5fr 1fr;
@@ -67,10 +68,7 @@
         .bg-pink { background-color: var(--pink-main); }
         .bg-green { background-color: var(--green-main); }
 
-        .header-box h1 { margin: 0; font-size: 28px; letter-spacing: 2px; }
-        .header-box p { margin: 5px 0 0; font-size: 14px; opacity: 0.9; }
-
-        /* 四欄網格佈局 */
+        /* 佈局 */
         .main-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -84,7 +82,6 @@
             border-radius: 30px;
             margin-bottom: 15px;
             font-weight: bold;
-            font-size: 18px;
         }
 
         .item-row {
@@ -95,59 +92,26 @@
             font-size: 14px;
         }
 
-        .sub-item {
-            padding-left: 20px;
-            font-size: 13px;
-            color: #444;
-            margin-bottom: 8px;
-            display: flex;
-            justify-content: space-between;
-        }
-
         .dot { color: var(--red-main); margin-right: 5px; }
 
-        /* 特殊區塊：身故、失能 */
-        .blue-box {
-            background-color: var(--dark-blue);
-            color: white;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 20px;
-        }
-
-        .blue-box h3 { margin: 0 0 10px 0; border-bottom: 1px solid rgba(255,255,255,0.3); padding-bottom: 5px; font-size: 16px; }
-        .blue-box input { border-bottom: 1px solid white; color: white; width: 70px; }
-
-        /* 中央粉色框框 */
         .summary-border-box {
             border: 2px solid var(--red-main);
-            padding: 12px;
+            padding: 10px;
             margin-top: 15px;
             border-radius: 5px;
         }
 
-        .summary-border-box div {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
-            font-size: 13px;
-            font-weight: bold;
+        .blue-box {
+            background-color: var(--dark-blue);
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 15px;
         }
 
-        /* 底部個人資料 */
-        .footer-info {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 15px;
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 2px solid #eee;
-        }
+        .blue-box input { border-bottom: 1px solid white; color: white; }
 
-        .footer-info div { font-size: 15px; }
-        .footer-info input { width: 120px; text-align: left; }
-
-        /* 底部數據橫幅 */
+        /* 底部橫幅輸入區 */
         .bottom-banner {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -158,16 +122,19 @@
         .banner-item {
             color: white;
             padding: 12px;
-            font-size: 12px;
+            font-size: 13px;
             border-radius: 5px;
-            line-height: 1.6;
+            line-height: 1.8;
         }
 
-        /* 列印優化 */
+        .banner-item input {
+            border-bottom: 1px dotted white;
+            color: white;
+        }
+
         @media print {
             body { background: white; padding: 0; }
-            .container { box-shadow: none; width: 100%; }
-            input { border-bottom: 1px solid #999 !important; }
+            input { border-bottom: 1px solid #000 !important; }
         }
     </style>
 </head>
@@ -175,120 +142,96 @@
 
 <div class="container">
     <div class="top-header">
-        <div class="header-box bg-red">
-            <h1>住院前</h1>
-            <p>(救命錢、急用金)</p>
-        </div>
-        <div class="header-box bg-pink">
-            <h1>住院中</h1>
-            <p>(住院、手術、實支實付)</p>
-        </div>
-        <div class="header-box bg-green">
-            <h1>住院後</h1>
-            <p>(看護金、生活費)</p>
-        </div>
+        <div class="header-box bg-red"><h1>住院前</h1><p>(救命錢、急用金)</p></div>
+        <div class="header-box bg-pink"><h1>住院中</h1><p>(住院、手術、實支實付)</p></div>
+        <div class="header-box bg-green"><h1>住院後</h1><p>(看護金、生活費)</p></div>
     </div>
 
     <div class="main-grid">
         <div>
             <div class="section-title bg-red">一整筆理賠</div>
-            <div class="item-row"><span><span class="dot">◉</span>重大傷病</span> <span><input type="text"> 元</span></div>
-            <div class="sub-item">精神疾病類 <span><input type="text" style="width:60px"> 元</span></div>
-            <div class="sub-item">非精神疾病類 <span><input type="text" style="width:60px"> 元</span></div>
-            
-            <div class="item-row"><span><span class="dot">◉</span>重大疾病</span> <span><input type="text"> 元</span></div>
-            <div class="item-row"><span><span class="dot">◉</span>特定傷病</span> <span><input type="text"> 元</span></div>
-            <div class="item-row"><span><span class="dot">◉</span>重度癌症</span> <span><input type="text"> 元</span></div>
-            <div class="item-row"><span><span class="dot">◉</span>輕度癌症</span> <span><input type="text"> 元</span></div>
-            <div class="item-row"><span><span class="dot">◉</span>標靶藥物</span> <span><input type="text"> 元</span></div>
+            <div class="item-row"><span><span class="dot">◉</span>重大傷病</span> <span><input type="number" class="money-input"> 元</span></div>
+            <div class="item-row" style="padding-left:15px; font-size:12px;">精神疾病 <span><input type="number" style="width:60px"> 元</span></div>
+            <div class="item-row" style="padding-left:15px; font-size:12px;">非精神類 <span><input type="number" style="width:60px"> 元</span></div>
+            <div class="item-row"><span><span class="dot">◉</span>重大疾病</span> <span><input type="number" class="money-input"> 元</span></div>
+            <div class="item-row"><span><span class="dot">◉</span>重度癌症</span> <span><input type="number" class="money-input"> 元</span></div>
+            <div class="item-row"><span><span class="dot">◉</span>標靶藥物</span> <span><input type="number" class="money-input"> 元</span></div>
 
             <div class="blue-box">
-                <h3>身故保險金</h3>
-                <div class="item-row">壽險身故 <span><input type="text"> 元</span></div>
-                <div class="item-row">意外身故 <span><input type="text"> 元</span></div>
-                <div class="item-row">癌症身故 <span><input type="text"> 元</span></div>
+                <div class="item-row">壽險身故 <span><input type="number" style="width:70px"> 元</span></div>
+                <div class="item-row">意外身故 <span><input type="number" style="width:70px"> 元</span></div>
             </div>
         </div>
 
         <div>
             <div class="section-title bg-pink">A. 一般疾病</div>
-            <div class="item-row"><span><span class="dot">◉</span>定額住院(天)</span> <span><input type="text"> 元</span></div>
-            <div class="item-row"><span><span class="dot">◉</span>定額手術</span> <span><input type="text"> 元</span></div>
-            <div class="item-row"><span><span class="dot">◉</span>實支實付</span> <span><input type="text"> 元</span></div>
+            <div class="item-row"><span><span class="dot">◉</span>定額住院</span> <span><input type="number" class="money-input"> 元</span></div>
+            <div class="item-row"><span><span class="dot">◉</span>實支實付</span> <span><input type="number" class="money-input"> 元</span></div>
             
-            <div style="font-size: 12px; margin-top: 10px; line-height: 2;">
-                ★ 自費病房限額：<input type="text" style="width:60px"> 元<br>
-                ★ 住院手術限額：<input type="text" style="width:60px"> 元<br>
-                ★ 門診手術限額：<input type="text" style="width:60px"> 元
+            <div style="font-size: 12px; margin: 10px 0;">
+                ★ 自費病房：<input type="number" style="width:60px"> 元<br>
+                ★ 門診手術：<input type="number" style="width:60px"> 元
             </div>
 
             <div class="summary-border-box">
-                <div>◆ 生病住院每天：<span><input type="text" style="width:60px"> 元</span></div>
-                <div>◆ 意外住院每天：<span><input type="text" style="width:60px"> 元</span></div>
-                <div>◆ 癌症住院每天：<span><input type="text" style="width:60px"> 元</span></div>
-                <div>◆ 醫療雜費最高：<span><input type="text" style="width:60px"> 元</span></div>
+                <div class="item-row">生病住院/日：<span><input type="number" style="width:60px"> 元</span></div>
+                <div class="item-row">意外住院/日：<span><input type="number" style="width:60px"> 元</span></div>
+                <div class="item-row">醫療雜費：<span><input type="number" style="width:60px"> 元</span></div>
             </div>
         </div>
 
         <div>
             <div class="section-title bg-pink">C. 癌症治療</div>
-            <div class="item-row"><span><span class="dot">◉</span>癌症住院(天)</span> <span><input type="text"> 元</span></div>
-            <div class="item-row"><span><span class="dot">◉</span>癌症住院手術</span> <span><input type="text"> 元</span></div>
-            <div class="item-row"><span><span class="dot">◉</span>癌症門診手術</span> <span><input type="text"> 元</span></div>
-            <div class="item-row"><span><span class="dot">◉</span>化學治療(天)</span> <span><input type="text"> 元</span></div>
-            <div class="item-row"><span><span class="dot">◉</span>放射線治療</span> <span><input type="text"> 元</span></div>
-            <div class="item-row"><span><span class="dot">◉</span>義乳/義肢</span> <span><input type="text"> 元</span></div>
+            <div class="item-row"><span><span class="dot">◉</span>癌症住院</span> <span><input type="number" class="money-input"> 元</span></div>
+            <div class="item-row"><span><span class="dot">◉</span>癌症手術</span> <span><input type="number" class="money-input"> 元</span></div>
+            <div class="item-row"><span><span class="dot">◉</span>化學治療</span> <span><input type="number" class="money-input"> 元</span></div>
+            <div class="item-row"><span><span class="dot">◉</span>放射線治療</span> <span><input type="number" class="money-input"> 元</span></div>
         </div>
 
         <div>
-            <div class="section-title bg-green">失能險</div>
-            <div class="item-row"><span><span class="dot">◉</span>失能一次金</span> <span><input type="text" style="width:40px"> 級 <input type="text" style="width:60px"> 元</span></div>
-            <div class="item-row"><span><span class="dot">◉</span>復健保險金</span> <span><input type="text" style="width:40px"> 級 <input type="text" style="width:60px"> 元</span></div>
-            <div class="item-row"><span><span class="dot">◉</span>失能照護(月)</span> <span><input type="text" style="width:60px"> 元</span></div>
-
-            <div class="section-title bg-green" style="margin-top:20px;">長期照顧險</div>
-            <div class="item-row"><span><span class="dot">◉</span>長照一次金</span> <span><input type="text"> 元</span></div>
-            <div class="item-row"><span><span class="dot">◉</span>長期照顧金</span> <span><input type="text"> 元</span></div>
+            <div class="section-title bg-green">失能/長照</div>
+            <div class="item-row"><span><span class="dot">◉</span>失能一次金</span> <span><input type="number" class="money-input"> 元</span></div>
+            <div class="item-row"><span><span class="dot">◉</span>失能月扶助</span> <span><input type="number" class="money-input"> 元</span></div>
+            <div class="item-row"><span><span class="dot">◉</span>長照一次金</span> <span><input type="number" class="money-input"> 元</span></div>
+            <div class="item-row"><span><span class="dot">◉</span>長照年給付</span> <span><input type="number" class="money-input"> 元</span></div>
 
             <div class="blue-box" style="background-color: #27ae60; text-align: center;">
-                豁免保險金<br><small>符合條件不須再繳保費</small><br>
-                <input type="text" style="width:100px; border-bottom-color:white; margin-top:5px;">
+                豁免保險金：<input type="text" style="width:100px; border-bottom:1px solid white; color:white;">
             </div>
         </div>
-    </div>
-
-    <div class="footer-info">
-        <div>姓名：<input type="text"></div>
-        <div>生日：<input type="text"></div>
-        <div>工作內容：<input type="text" style="width:150px;"></div>
-        <div>保險公司：<input type="text"></div>
     </div>
 
     <div class="bottom-banner">
         <div class="banner-item" style="background-color: #e74c3c;">
             <strong>標靶治療藥物</strong><br>
-            乳癌 6.5萬元/月<br>
-            肝/大腸癌 13~20萬元/月<br>
-            ★ 平均100萬元以上/年
+            乳癌 <input type="number" class="range-input"> 萬/月<br>
+            肝/大腸 <input type="number" class="range-input"> ~ <input type="number" class="range-input"> 萬/月<br>
+            ★ 平均 <input type="number" class="range-input"> 萬以上/年
         </div>
         <div class="banner-item" style="background-color: #e67e22;">
             <strong>自費病房費用</strong><br>
-            單人房 3,500~1萬元/天<br>
-            雙人房 2,000~4,000元/天<br>
-            ★ 平均5,000元/天
+            單人 <input type="number" class="range-input"> ~ <input type="number" class="range-input"> 元/天<br>
+            雙人 <input type="number" class="range-input"> ~ <input type="number" class="range-input"> 元/天<br>
+            ★ 平均 <input type="number" class="range-input"> 元/天
         </div>
         <div class="banner-item" style="background-color: #8e44ad;">
             <strong>自費醫材</strong><br>
-            人工椎間盤 25萬元以上/節<br>
-            達文西手術 20~40萬元以上<br>
-            ★ 平均30萬元/次
+            椎間盤 <input type="number" class="range-input"> 萬以上/節<br>
+            達文西 <input type="number" class="range-input"> ~ <input type="number" class="range-input"> 萬以上<br>
+            ★ 平均 <input type="number" class="range-input"> 萬/次
         </div>
-        <div class="banner-item" style="background-color: #27ae60;">
+        <div class="banner-item" style="background-color: #2ecc71;">
             <strong>看護費用</strong><br>
-            本國 7萬元/月<br>
-            外籍 3~4萬元/月<br>
-            ★ 平均4萬元/月
+            本國 <input type="number" class="range-input"> 萬/月<br>
+            外籍 <input type="number" class="range-input"> ~ <input type="number" class="range-input"> 萬/月<br>
+            ★ 平均 <input type="number" class="range-input"> 萬/月
         </div>
+    </div>
+
+    <div style="margin-top:20px; border-top:1px solid #ccc; padding-top:15px; display:flex; justify-content: space-between;">
+        <span>姓名：<input type="text" style="width:120px"></span>
+        <span>工作：<input type="text" style="width:120px"></span>
+        <span>保險公司：<input type="text" style="width:150px"></span>
     </div>
 </div>
 
