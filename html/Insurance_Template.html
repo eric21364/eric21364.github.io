@@ -3,21 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>響應式保險保障整合分析表</title>
+    <title>保險保障整合分析表 - 精確顏色版</title>
     <style>
         :root {
-            --red-main: #c0392b;
-            --pink-main: #e84393;
-            --green-main: #27ae60;
+            --red-main: #c0392b;   /* 住院前 - 紅色 */
+            --pink-main: #e84393;  /* 住院中 - 粉紅 */
+            --green-main: #27ae60; /* 住院後 - 綠色 */
             --dark-blue: #2c3e50;
-            --input-bg: #fff;
         }
 
         body {
             font-family: "Microsoft JhengHei", Arial, sans-serif;
-            background-color: #f4f7f6;
+            background-color: #f0f2f5;
             margin: 0;
-            padding: 10px;
+            padding: 20px;
             display: flex;
             justify-content: center;
         }
@@ -26,91 +25,92 @@
             width: 100%;
             max-width: 1100px;
             background-color: white;
-            padding: 20px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
 
-        /* 輸入框通用樣式 */
-        input {
-            border: none;
-            border-bottom: 1px solid #333;
-            background-color: transparent;
-            text-align: center;
-            font-size: 16px; /* 防止 iOS 自動縮放 */
-            outline: none;
-            padding: 4px;
-        }
-
-        input[type="number"] { width: 70px; }
-        input[type="number"]::-webkit-outer-spin-button,
-        input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-
-        /* 標題區塊 */
+        /* 頂部三色大標題 */
         .top-header {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            display: flex;
             gap: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
 
         .header-box {
+            flex: 1;
             text-align: center;
             color: white;
-            padding: 12px 5px;
+            padding: 15px 5px;
             border-radius: 8px;
         }
 
-        .header-box h1 { margin: 0; font-size: 1.2rem; }
-        .header-box p { margin: 3px 0 0; font-size: 0.8rem; opacity: 0.9; }
+        .header-box h1 { margin: 0; font-size: 24px; letter-spacing: 2px; }
+        .header-box p { margin: 5px 0 0; font-size: 14px; opacity: 0.9; }
 
-        /* 主要內容網格 */
+        /* 四欄網格佈局 */
         .main-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 20px;
         }
 
-        .section-column { display: flex; flex-direction: column; }
-
+        /* 標題與內容顏色對應 */
         .section-title {
             color: white;
             text-align: center;
-            padding: 8px;
-            border-radius: 20px;
-            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 25px;
+            margin-bottom: 20px;
             font-weight: bold;
-            font-size: 16px;
+            font-size: 18px;
         }
+
+        /* 輸入框樣式 */
+        input[type="number"], input[type="text"] {
+            border: none;
+            border-bottom: 1px solid #333;
+            background-color: transparent;
+            text-align: center;
+            font-size: 15px;
+            outline: none;
+            padding: 2px;
+        }
+
+        input[type="number"] { width: 80px; }
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 
         .item-row {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 12px;
-            font-size: 14px;
+            margin-bottom: 15px;
+            font-size: 15px;
         }
 
-        .dot { color: var(--red-main); margin-right: 5px; }
+        .dot { color: var(--red-main); margin-right: 5px; font-weight: bold; }
 
-        /* 特殊容器 */
-        .summary-border-box {
-            border: 2px solid var(--red-main);
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 5px;
-        }
-
+        /* 藍色/深色區塊 */
         .blue-box {
             background-color: var(--dark-blue);
             color: white;
             padding: 15px;
             border-radius: 8px;
-            margin-top: auto; /* 保持在底部 */
+            margin-top: 15px;
         }
-        .blue-box input { border-bottom-color: white; color: white; width: 60px; }
+        .blue-box strong { display: block; margin-bottom: 10px; border-bottom: 1px solid #555; }
+        .blue-box input { border-bottom: 1px solid white; color: white; width: 60px; }
 
-        /* 底部橫幅 */
+        /* 粉色框線區塊 */
+        .summary-border-box {
+            border: 2px solid var(--red-main);
+            padding: 12px;
+            margin: 15px 0;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        /* 底部橫幅參考數據 */
         .bottom-banner {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -125,36 +125,17 @@
             border-radius: 5px;
             line-height: 1.8;
         }
-        .banner-item input { border-bottom: 1px dotted white; color: white; width: 50px; }
+        .banner-item input { border-bottom: 1px dotted white; color: white; width: 55px; }
 
-        /* 個人資訊 */
-        .footer-info {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            margin-top: 25px;
-            padding-top: 15px;
-            border-top: 1px solid #eee;
-        }
-
-        /* RWD 媒體查詢 */
-        @media (max-width: 992px) {
-            .main-grid { grid-template-columns: repeat(2, 1fr); }
-            .bottom-banner { grid-template-columns: repeat(2, 1fr); }
+        /* RWD 響應式微調 */
+        @media (max-width: 900px) {
+            .top-header { flex-direction: column; }
+            .main-grid { grid-template-columns: 1fr 1fr; }
+            .bottom-banner { grid-template-columns: 1fr 1fr; }
         }
 
         @media (max-width: 600px) {
-            .top-header { grid-template-columns: 1fr; }
-            .main-grid { grid-template-columns: 1fr; }
-            .bottom-banner { grid-template-columns: 1fr; }
-            .header-box h1 { font-size: 1.5rem; }
-            .item-row { font-size: 16px; } /* 手機字體放大增加可讀性 */
-            input[type="number"] { width: 90px; }
-        }
-
-        @media print {
-            .container { box-shadow: none; border: none; }
-            body { background: white; }
+            .main-grid, .bottom-banner { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -162,27 +143,36 @@
 
 <div class="container">
     <div class="top-header">
-        <div class="header-box bg-red"><h1>住院前</h1><p>救命錢、急用金</p></div>
-        <div class="header-box bg-pink"><h1>住院中</h1><p>住院、手術、實支</p></div>
-        <div class="header-box bg-green"><h1>住院後</h1><p>看護金、生活費</p></div>
+        <div class="header-box bg-red">
+            <h1>住院前</h1>
+            <p>救命錢、急用金</p>
+        </div>
+        <div class="header-box bg-pink">
+            <h1>住院中</h1>
+            <p>住院、手術、實支實付</p>
+        </div>
+        <div class="header-box bg-green">
+            <h1>住院後</h1>
+            <p>看護金、生活費</p>
+        </div>
     </div>
 
     <div class="main-grid">
-        <div class="section-column">
+        <div>
             <div class="section-title bg-red">一整筆理賠</div>
             <div class="item-row"><span><span class="dot">◉</span>重大傷病</span> <span><input type="number"> 元</span></div>
             <div class="item-row"><span><span class="dot">◉</span>重大疾病</span> <span><input type="number"> 元</span></div>
             <div class="item-row"><span><span class="dot">◉</span>重度癌症</span> <span><input type="number"> 元</span></div>
             <div class="item-row"><span><span class="dot">◉</span>標靶藥物</span> <span><input type="number"> 元</span></div>
             
-            <div class="blue-box" style="margin-top: 20px;">
+            <div class="blue-box">
                 <strong>身故保障</strong>
                 <div class="item-row">壽險 <input type="number"> 萬</div>
                 <div class="item-row">意外 <input type="number"> 萬</div>
             </div>
         </div>
 
-        <div class="section-column">
+        <div>
             <div class="section-title bg-pink">A. 一般疾病</div>
             <div class="item-row"><span><span class="dot">◉</span>定額住院</span> <span><input type="number"> 元</span></div>
             <div class="item-row"><span><span class="dot">◉</span>實支實付</span> <span><input type="number"> 元</span></div>
@@ -194,7 +184,7 @@
             </div>
         </div>
 
-        <div class="section-column">
+        <div>
             <div class="section-title bg-pink">C. 癌症治療</div>
             <div class="item-row"><span><span class="dot">◉</span>癌症住院</span> <span><input type="number"> 元</span></div>
             <div class="item-row"><span><span class="dot">◉</span>癌症手術</span> <span><input type="number"> 元</span></div>
@@ -202,46 +192,50 @@
             <div class="item-row"><span><span class="dot">◉</span>放射線治療</span> <span><input type="number"> 元</span></div>
         </div>
 
-        <div class="section-column">
-            <div class="section-title bg-green">失能/長照</div>
+        <div>
+            <div class="section-title bg-green">失能 / 長照</div>
             <div class="item-row"><span><span class="dot">◉</span>失能一次金</span> <span><input type="number"> 元</span></div>
             <div class="item-row"><span><span class="dot">◉</span>失能月扶助</span> <span><input type="number"> 元</span></div>
             <div class="item-row"><span><span class="dot">◉</span>長照一次金</span> <span><input type="number"> 元</span></div>
             
             <div class="blue-box" style="background-color: var(--green-main);">
-                豁免保險金：<br>
-                <input type="text" style="width: 100%; border-bottom-color: white;">
+                <strong>豁免保險金</strong>
+                <input type="text" style="width: 100%; border-bottom: 1px solid white;" placeholder="請輸入條件">
             </div>
         </div>
     </div>
 
     <div class="bottom-banner">
         <div class="banner-item" style="background-color: #e74c3c;">
-            <strong>標靶藥物</strong><br>
+            <strong>標靶治療藥物</strong><br>
             乳癌 <input type="number"> 萬/月<br>
-            肝癌 <input type="number"> ~ <input type="number"> 萬
+            肝/大腸 <input type="number"> ~ <input type="number"> 萬<br>
+            ★ 平均 <input type="number"> 萬/年
         </div>
         <div class="banner-item" style="background-color: #e67e22;">
-            <strong>自費病房</strong><br>
+            <strong>自費病房費用</strong><br>
             單人 <input type="number"> ~ <input type="number"> 元<br>
-            雙人 <input type="number"> ~ <input type="number"> 元
+            雙人 <input type="number"> ~ <input type="number"> 元<br>
+            ★ 平均 <input type="number"> 元/天
         </div>
         <div class="banner-item" style="background-color: #8e44ad;">
             <strong>自費醫材</strong><br>
-            人工椎間盤 <input type="number"> 萬<br>
-            達文西 <input type="number"> ~ <input type="number"> 萬
+            椎間盤 <input type="number"> 萬/節<br>
+            達文西 <input type="number"> ~ <input type="number"> 萬<br>
+            ★ 平均 <input type="number"> 萬/次
         </div>
         <div class="banner-item" style="background-color: #27ae60;">
             <strong>看護費用</strong><br>
             本國 <input type="number"> 萬/月<br>
-            外籍 <input type="number"> ~ <input type="number"> 萬
+            外籍 <input type="number"> ~ <input type="number"> 萬<br>
+            ★ 平均 <input type="number"> 萬/月
         </div>
     </div>
 
-    <div class="footer-info">
-        <div>姓名：<input type="text" style="width: 100px;"></div>
-        <div>工作：<input type="text" style="width: 100px;"></div>
-        <div>日期：<input type="text" style="width: 100px;" placeholder="2024/05/20"></div>
+    <div style="margin-top: 30px; display: flex; flex-wrap: wrap; gap: 20px; border-top: 1px solid #ccc; padding-top: 20px;">
+        <div>姓名：<input type="text" style="width: 120px;"></div>
+        <div>工作：<input type="text" style="width: 150px;"></div>
+        <div>保險公司：<input type="text" style="width: 150px;"></div>
     </div>
 </div>
 
