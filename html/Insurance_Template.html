@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>保險保障整合分析表 - RWD 完美堆疊版</title>
+    <title>保險保障整合分析表 - 完美列印版</title>
     <style>
         :root {
             --red-main: #c0392b;
@@ -35,40 +35,18 @@
         .bg-pink { background-color: var(--pink-main) !important; color: white !important; }
         .bg-green { background-color: var(--green-main) !important; color: white !important; }
 
-        /* --- 新的彈性排版架構 --- */
+        /* 排版架構 */
         .insurance-board {
             display: flex;
             gap: 20px;
             align-items: stretch;
         }
+        .col-single { flex: 1; display: flex; flex-direction: column; }
+        .col-double { flex: 2; display: flex; flex-direction: column; }
+        .inner-grid { display: flex; gap: 20px; flex: 1; }
+        .inner-col { flex: 1; display: flex; flex-direction: column; }
 
-        /* 單欄區塊 (紅、綠) */
-        .col-single {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* 雙欄區塊 (粉紅) */
-        .col-double {
-            flex: 2;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* 粉紅區塊內的兩欄並排 */
-        .inner-grid {
-            display: flex;
-            gap: 20px;
-            flex: 1;
-        }
-        .inner-col {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* 大標題樣式 */
+        /* 標題樣式 */
         .header-box {
             text-align: center;
             padding: 15px 5px;
@@ -78,7 +56,6 @@
         .header-box h1 { margin: 0; font-size: 24px; letter-spacing: 2px; }
         .header-box p { margin: 5px 0 0; font-size: 14px; opacity: 0.9; }
 
-        /* 小標題樣式 */
         .section-title {
             text-align: center;
             padding: 10px;
@@ -97,12 +74,12 @@
             font-size: 15px;
             outline: none;
             padding: 2px;
+            font-family: inherit;
         }
         input[type="number"] { width: 70px; }
         input[type="number"]::-webkit-outer-spin-button,
         input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 
-        /* 列表項目 */
         .item-row {
             display: flex;
             align-items: center;
@@ -112,18 +89,17 @@
         }
         .dot { color: var(--red-main); margin-right: 5px; font-weight: bold; }
 
-        /* 藍色/深色特殊區塊 */
+        /* 特殊區塊 */
         .blue-box {
             background-color: var(--dark-blue);
             color: white;
             padding: 15px;
             border-radius: 8px;
-            margin-top: auto; /* 讓它自動推到底部對齊 */
+            margin-top: auto; 
         }
         .blue-box strong { display: block; margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.3); padding-bottom: 5px; }
         .blue-box input { border-bottom: 1px solid white; color: white; width: 60px; }
 
-        /* 粉色線框區塊 (中央彙整) */
         .summary-border-box {
             border: 2px solid var(--red-main);
             padding: 12px;
@@ -150,48 +126,63 @@
 
         /* --- 手機 / 平板 RWD 響應式設定 --- */
         @media (max-width: 900px) {
-            /* 讓紅、粉、綠三大塊變成上下排列 */
-            .insurance-board {
-                flex-direction: column;
-                gap: 30px;
-            }
-            /* 底部參考數據變成 2x2 */
-            .bottom-banner {
-                grid-template-columns: repeat(2, 1fr);
-            }
+            .insurance-board { flex-direction: column; gap: 30px; }
+            .bottom-banner { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 600px) {
+            .inner-grid { flex-direction: column; gap: 20px; }
+            .bottom-banner { grid-template-columns: 1fr; }
         }
 
-        @media (max-width: 600px) {
-            /* 在很窄的手機上，粉色裡面的 A 和 C 也要變成上下排列 */
-            .inner-grid {
-                flex-direction: column;
-                gap: 20px;
+        /* =========================================
+           列印專屬優化 (Print Media Queries) 
+           ========================================= */
+        @media print {
+            @page {
+                size: A4 landscape; /* 強制 A4 橫向列印 */
+                margin: 10mm;       /* 縮小紙張邊距，爭取空間 */
             }
-            /* 底部參考數據變成直列 1 排 */
-            .bottom-banner {
-                grid-template-columns: 1fr;
+            body {
+                background-color: white;
+                padding: 0;
+                margin: 0;
+                /* 強制印出背景色塊，避免被瀏覽器吃掉顏色 */
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
             }
+            .container {
+                width: 100%;
+                max-width: none;
+                padding: 10px 0; /* 減少不必要的內邊距 */
+                box-shadow: none;
+                border-radius: 0;
+            }
+            /* 稍微緊湊化間距，確保 100% 比例塞進一頁 */
+            .insurance-board { gap: 15px; }
+            .inner-grid { gap: 15px; }
+            .header-box { padding: 10px 5px; margin-bottom: 15px; }
+            .section-title { padding: 6px; margin-bottom: 12px; }
+            .item-row { margin-bottom: 10px; font-size: 14px; }
+            .bottom-banner { margin-top: 20px; gap: 10px; }
+            .banner-item { padding: 10px; }
+            .blue-box { padding: 10px; }
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    
     <div class="insurance-board">
-        
         <div class="col-single">
             <div class="header-box bg-red">
                 <h1>住院前</h1>
                 <p>(救命錢、急用金)</p>
             </div>
-            
             <div class="section-title bg-red">一整筆理賠</div>
             <div class="item-row"><span><span class="dot">◉</span>重大傷病</span> <span><input type="number"> 元</span></div>
             <div class="item-row"><span><span class="dot">◉</span>重大疾病</span> <span><input type="number"> 元</span></div>
             <div class="item-row"><span><span class="dot">◉</span>重度癌症</span> <span><input type="number"> 元</span></div>
             <div class="item-row"><span><span class="dot">◉</span>標靶藥物</span> <span><input type="number"> 元</span></div>
-            
             <div class="blue-box" style="margin-top: 20px;">
                 <strong>身故保障</strong>
                 <div class="item-row">壽險身故 <input type="number"> 萬</div>
@@ -204,20 +195,17 @@
                 <h1>住院中</h1>
                 <p>(住院、手術、實支實付)</p>
             </div>
-            
             <div class="inner-grid">
                 <div class="inner-col">
                     <div class="section-title bg-pink">A. 一般疾病</div>
                     <div class="item-row"><span><span class="dot">◉</span>定額住院</span> <span><input type="number"> 元</span></div>
                     <div class="item-row"><span><span class="dot">◉</span>實支實付</span> <span><input type="number"> 元</span></div>
-                    
                     <div class="summary-border-box">
                         <div class="item-row">生病住院/日 <input type="number"></div>
                         <div class="item-row">意外住院/日 <input type="number"></div>
                         <div class="item-row">醫療雜費 <input type="number"></div>
                     </div>
                 </div>
-                
                 <div class="inner-col">
                     <div class="section-title bg-pink">C. 癌症治療</div>
                     <div class="item-row"><span><span class="dot">◉</span>癌症住院</span> <span><input type="number"> 元</span></div>
@@ -233,19 +221,18 @@
                 <h1>住院後</h1>
                 <p>(看護金、生活費)</p>
             </div>
-            
             <div class="section-title bg-green">失能 / 長照</div>
             <div class="item-row"><span><span class="dot">◉</span>失能一次金</span> <span><input type="number"> 元</span></div>
             <div class="item-row"><span><span class="dot">◉</span>失能月扶助</span> <span><input type="number"> 元</span></div>
             <div class="item-row"><span><span class="dot">◉</span>長照一次金</span> <span><input type="number"> 元</span></div>
-            
             <div class="blue-box bg-green" style="margin-top: 20px;">
                 <strong>豁免保險金</strong>
                 <input type="text" style="width: 100%; border-bottom-color: white;" placeholder="請輸入條件">
             </div>
         </div>
+    </div>
 
-    </div> <div class="bottom-banner">
+    <div class="bottom-banner">
         <div class="banner-item bg-red" style="background-color: #e74c3c !important;">
             <strong>標靶治療藥物</strong><br>
             乳癌 <input type="number"> 萬/月<br>
@@ -272,12 +259,11 @@
         </div>
     </div>
 
-    <div style="margin-top: 30px; display: flex; flex-wrap: wrap; gap: 20px; border-top: 1px solid #ccc; padding-top: 20px;">
+    <div style="margin-top: 20px; display: flex; flex-wrap: wrap; gap: 20px; border-top: 1px solid #ccc; padding-top: 15px;">
         <div>姓名：<input type="text" style="width: 120px;"></div>
         <div>工作：<input type="text" style="width: 150px;"></div>
         <div>保險公司：<input type="text" style="width: 150px;"></div>
     </div>
-
 </div>
 
 </body>
