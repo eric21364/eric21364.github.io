@@ -15,137 +15,160 @@
 
         body {
             font-family: "Microsoft JhengHei", Arial, sans-serif;
-            background-color: #ddd;
+            background-color: #f0f2f5;
             margin: 0;
-            padding: 20px;
+            padding: 40px 20px;
             display: flex;
             justify-content: center;
         }
 
         .container {
-            width: 1000px;
+            width: 1100px;
             background-color: white;
-            padding: 20px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-radius: 4px;
         }
 
-        /* 頂部三欄標題 */
+        /* 輸入框通用樣式 */
+        input[type="text"], input[type="number"] {
+            border: none;
+            border-bottom: 1px solid #333;
+            background-color: transparent;
+            text-align: center;
+            font-size: 14px;
+            padding: 2px 5px;
+            outline: none;
+            transition: all 0.2s;
+            width: 80px; /* 預設寬度 */
+        }
+
+        input:focus {
+            border-bottom: 2px solid var(--pink-main);
+            background-color: #fff9fa;
+        }
+
+        /* 標題區塊 */
         .top-header {
             display: grid;
-            grid-template-columns: 1fr 2fr 1fr;
+            grid-template-columns: 1fr 2.5fr 1fr;
             gap: 15px;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
 
         .header-box {
             text-align: center;
             color: white;
-            padding: 10px;
-            border-radius: 8px 8px 0 0;
+            padding: 15px;
+            border-radius: 10px;
         }
 
         .bg-red { background-color: var(--red-main); }
         .bg-pink { background-color: var(--pink-main); }
         .bg-green { background-color: var(--green-main); }
 
-        .header-box h1 { margin: 0; font-size: 24px; }
-        .header-box p { margin: 5px 0 0; font-size: 14px; }
+        .header-box h1 { margin: 0; font-size: 28px; letter-spacing: 2px; }
+        .header-box p { margin: 5px 0 0; font-size: 14px; opacity: 0.9; }
 
-        /* 主要內容區 */
+        /* 四欄網格佈局 */
         .main-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr 1fr;
-            gap: 15px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
         }
 
         .section-title {
             color: white;
             text-align: center;
-            padding: 5px;
-            border-radius: 20px;
+            padding: 8px;
+            border-radius: 30px;
             margin-bottom: 15px;
             font-weight: bold;
+            font-size: 18px;
         }
 
         .item-row {
             display: flex;
-            align-items: baseline;
-            margin-bottom: 8px;
-            font-size: 13px;
-        }
-
-        .item-label {
-            flex-grow: 1;
-            display: flex;
             align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 14px;
         }
 
-        .dot { margin-right: 5px; color: var(--red-main); }
-
-        .underline {
-            border-bottom: 1px solid #000;
-            min-width: 60px;
-            text-align: right;
-            padding: 0 5px;
-            margin: 0 5px;
-            height: 18px;
+        .sub-item {
+            padding-left: 20px;
+            font-size: 13px;
+            color: #444;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
         }
 
-        /* 死亡/身故區塊 */
-        .death-benefit {
+        .dot { color: var(--red-main); margin-right: 5px; }
+
+        /* 特殊區塊：身故、失能 */
+        .blue-box {
             background-color: var(--dark-blue);
             color: white;
-            padding: 10px;
+            padding: 15px;
             border-radius: 8px;
             margin-top: 20px;
         }
 
-        .death-benefit h3 { margin: 0 0 10px 0; border-bottom: 1px solid white; padding-bottom: 5px; }
+        .blue-box h3 { margin: 0 0 10px 0; border-bottom: 1px solid rgba(255,255,255,0.3); padding-bottom: 5px; font-size: 16px; }
+        .blue-box input { border-bottom: 1px solid white; color: white; width: 70px; }
 
-        /* 中央彙整框 */
-        .summary-box {
+        /* 中央粉色框框 */
+        .summary-border-box {
             border: 2px solid var(--red-main);
-            padding: 10px;
+            padding: 12px;
             margin-top: 15px;
-            font-size: 12px;
+            border-radius: 5px;
         }
 
-        .summary-box div {
+        .summary-border-box div {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
+            font-size: 13px;
+            font-weight: bold;
         }
 
-        /* 底部資訊欄 */
+        /* 底部個人資料 */
         .footer-info {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 20px;
-            padding-top: 10px;
-            border-top: 1px solid #ccc;
-            font-size: 14px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #eee;
         }
 
-        /* 底部色塊廣告 */
+        .footer-info div { font-size: 15px; }
+        .footer-info input { width: 120px; text-align: left; }
+
+        /* 底部數據橫幅 */
         .bottom-banner {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 10px;
-            margin-top: 20px;
+            margin-top: 30px;
         }
 
         .banner-item {
             color: white;
-            padding: 10px;
+            padding: 12px;
             font-size: 12px;
             border-radius: 5px;
+            line-height: 1.6;
         }
 
-        .banner-red { background-color: #e74c3c; }
-        .banner-pink { background-color: #9b59b6; }
-        .banner-purple { background-color: #8e44ad; }
-        .banner-green { background-color: #2ecc71; }
-
+        /* 列印優化 */
+        @media print {
+            body { background: white; padding: 0; }
+            .container { box-shadow: none; width: 100%; }
+            input { border-bottom: 1px solid #999 !important; }
+        }
     </style>
 </head>
 <body>
@@ -169,96 +192,102 @@
     <div class="main-grid">
         <div>
             <div class="section-title bg-red">一整筆理賠</div>
-            <div class="item-row"><span class="dot">◉</span>重大傷病 <span class="underline"></span>元</div>
-            <div style="padding-left: 15px; font-size: 12px; color: #666;">
-                精神疾病類 <span class="underline"></span>元<br>
-                非精神疾病類 <span class="underline"></span>元
-            </div>
-            <div class="item-row"><span class="dot">◉</span>重大疾病 <span class="underline"></span>元</div>
-            <div class="item-row"><span class="dot">◉</span>特定傷病 <span class="underline"></span>元</div>
-            <div class="item-row"><span class="dot">◉</span>重度癌症 <span class="underline"></span>元</div>
-            <div class="item-row"><span class="dot">◉</span>標靶藥物 <span class="underline"></span>元</div>
+            <div class="item-row"><span><span class="dot">◉</span>重大傷病</span> <span><input type="text"> 元</span></div>
+            <div class="sub-item">精神疾病類 <span><input type="text" style="width:60px"> 元</span></div>
+            <div class="sub-item">非精神疾病類 <span><input type="text" style="width:60px"> 元</span></div>
+            
+            <div class="item-row"><span><span class="dot">◉</span>重大疾病</span> <span><input type="text"> 元</span></div>
+            <div class="item-row"><span><span class="dot">◉</span>特定傷病</span> <span><input type="text"> 元</span></div>
+            <div class="item-row"><span><span class="dot">◉</span>重度癌症</span> <span><input type="text"> 元</span></div>
+            <div class="item-row"><span><span class="dot">◉</span>輕度癌症</span> <span><input type="text"> 元</span></div>
+            <div class="item-row"><span><span class="dot">◉</span>標靶藥物</span> <span><input type="text"> 元</span></div>
 
-            <div class="death-benefit">
+            <div class="blue-box">
                 <h3>身故保險金</h3>
-                <div class="item-row">壽險身故 <span class="underline"></span>元</div>
-                <div class="item-row">意外身故 <span class="underline"></span>元</div>
-                <div class="item-row">癌症身故 <span class="underline"></span>元</div>
+                <div class="item-row">壽險身故 <span><input type="text"> 元</span></div>
+                <div class="item-row">意外身故 <span><input type="text"> 元</span></div>
+                <div class="item-row">癌症身故 <span><input type="text"> 元</span></div>
             </div>
         </div>
 
         <div>
-            <div class="section-title bg-pink">A. 一般疾病 / B. 意外</div>
-            <div class="item-row"><span class="dot">◉</span>定額住院(每天) <span class="underline"></span>元</div>
-            <div class="item-row"><span class="dot">◉</span>定額手術(最高) <span class="underline"></span>元</div>
-            <div class="item-row"><span class="dot">◉</span>實支實付(雜費) <span class="underline"></span>元</div>
+            <div class="section-title bg-pink">A. 一般疾病</div>
+            <div class="item-row"><span><span class="dot">◉</span>定額住院(天)</span> <span><input type="text"> 元</span></div>
+            <div class="item-row"><span><span class="dot">◉</span>定額手術</span> <span><input type="text"> 元</span></div>
+            <div class="item-row"><span><span class="dot">◉</span>實支實付</span> <span><input type="text"> 元</span></div>
             
-            <div style="margin-top:10px; font-size:11px;">
-                ★自費病房限額：<span class="underline"></span>元<br>
-                ★住院手術限額：<span class="underline"></span>元<br>
-                ★門診手術限額：<span class="underline"></span>元
+            <div style="font-size: 12px; margin-top: 10px; line-height: 2;">
+                ★ 自費病房限額：<input type="text" style="width:60px"> 元<br>
+                ★ 住院手術限額：<input type="text" style="width:60px"> 元<br>
+                ★ 門診手術限額：<input type="text" style="width:60px"> 元
             </div>
 
-            <div class="summary-box">
-                <div>◆ 生病住院每天：<span>____ 元</span></div>
-                <div>◆ 意外住院每天：<span>____ 元</span></div>
-                <div>◆ 醫療雜費最高：<span>____ 元</span></div>
+            <div class="summary-border-box">
+                <div>◆ 生病住院每天：<span><input type="text" style="width:60px"> 元</span></div>
+                <div>◆ 意外住院每天：<span><input type="text" style="width:60px"> 元</span></div>
+                <div>◆ 癌症住院每天：<span><input type="text" style="width:60px"> 元</span></div>
+                <div>◆ 醫療雜費最高：<span><input type="text" style="width:60px"> 元</span></div>
             </div>
         </div>
 
         <div>
             <div class="section-title bg-pink">C. 癌症治療</div>
-            <div class="item-row"><span class="dot">◉</span>癌症住院(每天) <span class="underline"></span>元</div>
-            <div class="item-row"><span class="dot">◉</span>癌症住院手術 <span class="underline"></span>元</div>
-            <div class="item-row"><span class="dot">◉</span>癌症門診手術 <span class="underline"></span>元</div>
-            <div class="item-row"><span class="dot">◉</span>化學治療 <span class="underline"></span>元</div>
-            <div class="item-row"><span class="dot">◉</span>放射線治療 <span class="underline"></span>元</div>
-            <div class="item-row"><span class="dot">◉</span>義乳/義肢重建 <span class="underline"></span>元</div>
+            <div class="item-row"><span><span class="dot">◉</span>癌症住院(天)</span> <span><input type="text"> 元</span></div>
+            <div class="item-row"><span><span class="dot">◉</span>癌症住院手術</span> <span><input type="text"> 元</span></div>
+            <div class="item-row"><span><span class="dot">◉</span>癌症門診手術</span> <span><input type="text"> 元</span></div>
+            <div class="item-row"><span><span class="dot">◉</span>化學治療(天)</span> <span><input type="text"> 元</span></div>
+            <div class="item-row"><span><span class="dot">◉</span>放射線治療</span> <span><input type="text"> 元</span></div>
+            <div class="item-row"><span><span class="dot">◉</span>義乳/義肢</span> <span><input type="text"> 元</span></div>
         </div>
 
         <div>
-            <div class="section-title bg-green">失能/長照險</div>
-            <div class="item-row"><span class="dot">◉</span>失能一次金 <span class="underline"></span>元</div>
-            <div class="item-row"><span class="dot">◉</span>復健保險金 <span class="underline"></span>元</div>
-            <div class="item-row"><span class="dot">◉</span>失能照護金(月) <span class="underline"></span>元</div>
-            
-            <div class="section-title bg-green" style="margin-top:20px;">長期照顧險</div>
-            <div class="item-row"><span class="dot">◉</span>長照一次金 <span class="underline"></span>元</div>
-            <div class="item-row"><span class="dot">◉</span>長期照顧金(年) <span class="underline"></span>元</div>
+            <div class="section-title bg-green">失能險</div>
+            <div class="item-row"><span><span class="dot">◉</span>失能一次金</span> <span><input type="text" style="width:40px"> 級 <input type="text" style="width:60px"> 元</span></div>
+            <div class="item-row"><span><span class="dot">◉</span>復健保險金</span> <span><input type="text" style="width:40px"> 級 <input type="text" style="width:60px"> 元</span></div>
+            <div class="item-row"><span><span class="dot">◉</span>失能照護(月)</span> <span><input type="text" style="width:60px"> 元</span></div>
 
-            <div class="death-benefit" style="background-color: #34495e; text-align:center;">
-                豁免保險金<br><small>(符合條件不須再繳保費)</small>
+            <div class="section-title bg-green" style="margin-top:20px;">長期照顧險</div>
+            <div class="item-row"><span><span class="dot">◉</span>長照一次金</span> <span><input type="text"> 元</span></div>
+            <div class="item-row"><span><span class="dot">◉</span>長期照顧金</span> <span><input type="text"> 元</span></div>
+
+            <div class="blue-box" style="background-color: #27ae60; text-align: center;">
+                豁免保險金<br><small>符合條件不須再繳保費</small><br>
+                <input type="text" style="width:100px; border-bottom-color:white; margin-top:5px;">
             </div>
         </div>
     </div>
 
     <div class="footer-info">
-        <div>姓名：___________</div>
-        <div>生日：___________</div>
-        <div>工作內容：___________</div>
-        <div>保險公司：___________</div>
+        <div>姓名：<input type="text"></div>
+        <div>生日：<input type="text"></div>
+        <div>工作內容：<input type="text" style="width:150px;"></div>
+        <div>保險公司：<input type="text"></div>
     </div>
 
     <div class="bottom-banner">
-        <div class="banner-item banner-red">
+        <div class="banner-item" style="background-color: #e74c3c;">
             <strong>標靶治療藥物</strong><br>
             乳癌 6.5萬元/月<br>
+            肝/大腸癌 13~20萬元/月<br>
             ★ 平均100萬元以上/年
         </div>
-        <div class="banner-item banner-pink">
+        <div class="banner-item" style="background-color: #e67e22;">
             <strong>自費病房費用</strong><br>
-            單人病房 3500~1萬元/天<br>
+            單人房 3,500~1萬元/天<br>
+            雙人房 2,000~4,000元/天<br>
             ★ 平均5,000元/天
         </div>
-        <div class="banner-item banner-purple">
+        <div class="banner-item" style="background-color: #8e44ad;">
             <strong>自費醫材</strong><br>
-            人工椎間盤 25萬元以上<br>
+            人工椎間盤 25萬元以上/節<br>
+            達文西手術 20~40萬元以上<br>
             ★ 平均30萬元/次
         </div>
-        <div class="banner-item banner-green">
+        <div class="banner-item" style="background-color: #27ae60;">
             <strong>看護費用</strong><br>
             本國 7萬元/月<br>
-            ★ 平均4萬元/月(外籍)
+            外籍 3~4萬元/月<br>
+            ★ 平均4萬元/月
         </div>
     </div>
 </div>
