@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>保險保障整合分析表 - 顏色修正版</title>
+    <title>保險保障整合分析表 - RWD 完美堆疊版</title>
     <style>
         :root {
-            --red-main: #c0392b;   /* 住院前 - 紅色 */
-            --pink-main: #e84393;  /* 住院中 - 粉紅 */
-            --green-main: #27ae60; /* 住院後 - 綠色 */
+            --red-main: #c0392b;
+            --pink-main: #e84393;
+            --green-main: #27ae60;
             --dark-blue: #2c3e50;
         }
 
@@ -27,38 +27,58 @@
             background-color: white;
             padding: 30px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-radius: 8px;
         }
 
-        /* 顏色類別 (Class Definitions) */
+        /* 顏色類別 */
         .bg-red { background-color: var(--red-main) !important; color: white !important; }
         .bg-pink { background-color: var(--pink-main) !important; color: white !important; }
         .bg-green { background-color: var(--green-main) !important; color: white !important; }
 
-        /* 頂部三色大標題 */
-        .top-header {
+        /* --- 新的彈性排版架構 --- */
+        .insurance-board {
             display: flex;
-            gap: 10px;
-            margin-bottom: 25px;
+            gap: 20px;
+            align-items: stretch;
         }
 
-        .header-box {
+        /* 單欄區塊 (紅、綠) */
+        .col-single {
             flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 雙欄區塊 (粉紅) */
+        .col-double {
+            flex: 2;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 粉紅區塊內的兩欄並排 */
+        .inner-grid {
+            display: flex;
+            gap: 20px;
+            flex: 1;
+        }
+        .inner-col {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 大標題樣式 */
+        .header-box {
             text-align: center;
             padding: 15px 5px;
-            border-radius: 8px;
+            border-radius: 8px 8px 0 0;
+            margin-bottom: 20px;
         }
-
         .header-box h1 { margin: 0; font-size: 24px; letter-spacing: 2px; }
         .header-box p { margin: 5px 0 0; font-size: 14px; opacity: 0.9; }
 
-        /* 四欄網格佈局 */
-        .main-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
-        }
-
-        /* 標題樣式 */
+        /* 小標題樣式 */
         .section-title {
             text-align: center;
             padding: 10px;
@@ -68,7 +88,7 @@
             font-size: 18px;
         }
 
-        /* 輸入框樣式 */
+        /* 輸入框通用設定 */
         input[type="number"], input[type="text"] {
             border: none;
             border-bottom: 1px solid #333;
@@ -78,11 +98,11 @@
             outline: none;
             padding: 2px;
         }
-
-        input[type="number"] { width: 80px; }
+        input[type="number"] { width: 70px; }
         input[type="number"]::-webkit-outer-spin-button,
         input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 
+        /* 列表項目 */
         .item-row {
             display: flex;
             align-items: center;
@@ -90,21 +110,20 @@
             margin-bottom: 15px;
             font-size: 15px;
         }
-
         .dot { color: var(--red-main); margin-right: 5px; font-weight: bold; }
 
-        /* 藍色/深色區塊 */
+        /* 藍色/深色特殊區塊 */
         .blue-box {
             background-color: var(--dark-blue);
             color: white;
             padding: 15px;
             border-radius: 8px;
-            margin-top: 15px;
+            margin-top: auto; /* 讓它自動推到底部對齊 */
         }
-        .blue-box strong { display: block; margin-bottom: 10px; border-bottom: 1px solid #555; }
+        .blue-box strong { display: block; margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.3); padding-bottom: 5px; }
         .blue-box input { border-bottom: 1px solid white; color: white; width: 60px; }
 
-        /* 粉色框線區塊 (原圖中間那個紅框) */
+        /* 粉色線框區塊 (中央彙整) */
         .summary-border-box {
             border: 2px solid var(--red-main);
             padding: 12px;
@@ -113,14 +132,13 @@
             font-size: 14px;
         }
 
-        /* 底部橫幅參考數據 */
+        /* 底部數據橫幅 */
         .bottom-banner {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
+            gap: 15px;
             margin-top: 30px;
         }
-
         .banner-item {
             color: white;
             padding: 15px;
@@ -128,87 +146,106 @@
             border-radius: 5px;
             line-height: 1.8;
         }
-        .banner-item input { border-bottom: 1px dotted white !important; color: white; width: 55px; }
+        .banner-item input { border-bottom: 1px dotted white !important; color: white; width: 50px; }
 
-        /* RWD 響應式微調 */
+        /* --- 手機 / 平板 RWD 響應式設定 --- */
         @media (max-width: 900px) {
-            .top-header { flex-direction: column; }
-            .main-grid { grid-template-columns: 1fr 1fr; }
-            .bottom-banner { grid-template-columns: 1fr 1fr; }
+            /* 讓紅、粉、綠三大塊變成上下排列 */
+            .insurance-board {
+                flex-direction: column;
+                gap: 30px;
+            }
+            /* 底部參考數據變成 2x2 */
+            .bottom-banner {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
 
         @media (max-width: 600px) {
-            .main-grid, .bottom-banner { grid-template-columns: 1fr; }
+            /* 在很窄的手機上，粉色裡面的 A 和 C 也要變成上下排列 */
+            .inner-grid {
+                flex-direction: column;
+                gap: 20px;
+            }
+            /* 底部參考數據變成直列 1 排 */
+            .bottom-banner {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="top-header">
-        <div class="header-box bg-red">
-            <h1>住院前</h1>
-            <p>救命錢、急用金</p>
-        </div>
-        <div class="header-box bg-pink">
-            <h1>住院中</h1>
-            <p>住院、手術、實支實付</p>
-        </div>
-        <div class="header-box bg-green">
-            <h1>住院後</h1>
-            <p>看護金、生活費</p>
-        </div>
-    </div>
-
-    <div class="main-grid">
-        <div>
+    
+    <div class="insurance-board">
+        
+        <div class="col-single">
+            <div class="header-box bg-red">
+                <h1>住院前</h1>
+                <p>(救命錢、急用金)</p>
+            </div>
+            
             <div class="section-title bg-red">一整筆理賠</div>
             <div class="item-row"><span><span class="dot">◉</span>重大傷病</span> <span><input type="number"> 元</span></div>
             <div class="item-row"><span><span class="dot">◉</span>重大疾病</span> <span><input type="number"> 元</span></div>
             <div class="item-row"><span><span class="dot">◉</span>重度癌症</span> <span><input type="number"> 元</span></div>
             <div class="item-row"><span><span class="dot">◉</span>標靶藥物</span> <span><input type="number"> 元</span></div>
             
-            <div class="blue-box">
+            <div class="blue-box" style="margin-top: 20px;">
                 <strong>身故保障</strong>
                 <div class="item-row">壽險身故 <input type="number"> 萬</div>
                 <div class="item-row">意外身故 <input type="number"> 萬</div>
             </div>
         </div>
 
-        <div>
-            <div class="section-title bg-pink">A. 一般疾病</div>
-            <div class="item-row"><span><span class="dot">◉</span>定額住院</span> <span><input type="number"> 元</span></div>
-            <div class="item-row"><span><span class="dot">◉</span>實支實付</span> <span><input type="number"> 元</span></div>
+        <div class="col-double">
+            <div class="header-box bg-pink">
+                <h1>住院中</h1>
+                <p>(住院、手術、實支實付)</p>
+            </div>
             
-            <div class="summary-border-box">
-                <div class="item-row">生病住院/日 <input type="number"></div>
-                <div class="item-row">意外住院/日 <input type="number"></div>
-                <div class="item-row">醫療雜費 <input type="number"></div>
+            <div class="inner-grid">
+                <div class="inner-col">
+                    <div class="section-title bg-pink">A. 一般疾病</div>
+                    <div class="item-row"><span><span class="dot">◉</span>定額住院</span> <span><input type="number"> 元</span></div>
+                    <div class="item-row"><span><span class="dot">◉</span>實支實付</span> <span><input type="number"> 元</span></div>
+                    
+                    <div class="summary-border-box">
+                        <div class="item-row">生病住院/日 <input type="number"></div>
+                        <div class="item-row">意外住院/日 <input type="number"></div>
+                        <div class="item-row">醫療雜費 <input type="number"></div>
+                    </div>
+                </div>
+                
+                <div class="inner-col">
+                    <div class="section-title bg-pink">C. 癌症治療</div>
+                    <div class="item-row"><span><span class="dot">◉</span>癌症住院</span> <span><input type="number"> 元</span></div>
+                    <div class="item-row"><span><span class="dot">◉</span>癌症手術</span> <span><input type="number"> 元</span></div>
+                    <div class="item-row"><span><span class="dot">◉</span>化學治療</span> <span><input type="number"> 元</span></div>
+                    <div class="item-row"><span><span class="dot">◉</span>放射線治療</span> <span><input type="number"> 元</span></div>
+                </div>
             </div>
         </div>
 
-        <div>
-            <div class="section-title bg-pink">C. 癌症治療</div>
-            <div class="item-row"><span><span class="dot">◉</span>癌症住院</span> <span><input type="number"> 元</span></div>
-            <div class="item-row"><span><span class="dot">◉</span>癌症手術</span> <span><input type="number"> 元</span></div>
-            <div class="item-row"><span><span class="dot">◉</span>化學治療</span> <span><input type="number"> 元</span></div>
-            <div class="item-row"><span><span class="dot">◉</span>放射線治療</span> <span><input type="number"> 元</span></div>
-        </div>
-
-        <div>
+        <div class="col-single">
+            <div class="header-box bg-green">
+                <h1>住院後</h1>
+                <p>(看護金、生活費)</p>
+            </div>
+            
             <div class="section-title bg-green">失能 / 長照</div>
             <div class="item-row"><span><span class="dot">◉</span>失能一次金</span> <span><input type="number"> 元</span></div>
             <div class="item-row"><span><span class="dot">◉</span>失能月扶助</span> <span><input type="number"> 元</span></div>
             <div class="item-row"><span><span class="dot">◉</span>長照一次金</span> <span><input type="number"> 元</span></div>
             
-            <div class="blue-box" style="background-color: var(--green-main) !important;">
+            <div class="blue-box bg-green" style="margin-top: 20px;">
                 <strong>豁免保險金</strong>
                 <input type="text" style="width: 100%; border-bottom-color: white;" placeholder="請輸入條件">
             </div>
         </div>
-    </div>
 
-    <div class="bottom-banner">
+    </div> <div class="bottom-banner">
         <div class="banner-item bg-red" style="background-color: #e74c3c !important;">
             <strong>標靶治療藥物</strong><br>
             乳癌 <input type="number"> 萬/月<br>
@@ -240,6 +277,7 @@
         <div>工作：<input type="text" style="width: 150px;"></div>
         <div>保險公司：<input type="text" style="width: 150px;"></div>
     </div>
+
 </div>
 
 </body>
